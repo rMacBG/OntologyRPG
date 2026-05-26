@@ -21,10 +21,6 @@
             <version>4.10.0</version>
             <type>pom</type>
         </dependency>
-        <dependency>
-            <groupId></groupId>
-            <artifactId></artifactId>
-        </dependency>
     </dependencies>
 
 </project>
