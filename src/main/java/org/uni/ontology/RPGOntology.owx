@@ -1,0 +1,869 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology">
+    <Prefix name="" IRI="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology/"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Declaration>
+        <Class IRI="#Archer"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Armor"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Assassin"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#BeastMonster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Boss"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Bow"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#BroadSword"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Character"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#CompoundBow"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#CrossBow"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Dagger"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DailyQuest"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DefensiveSkill"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DemonBoss"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DemonMonster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DirkDagger"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DragonBoss"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DragonMonster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Dungeon"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ElectricityStaff"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#EventQuest"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Faction"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#FireStaff"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Forest"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ForestMonster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#GreatSword"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Healer"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#HealingSkill"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#HealthPotion"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#HeavyArmor"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#IceStaff"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Item"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Kingdom"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#LightArmor"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Location"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#LongBow"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#MagicPotion"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#MainQuest"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Monster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Mountain"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#NPC"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ObsidianDagger"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#OffensiveSkill"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#PassiveSkill"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Player"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#PoisonDagger"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Potion"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Quest"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Raid"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#RegenerationPotion"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#RobeArmor"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ShortBow"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ShortSword"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#SideQuest"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Skill"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#SkyMonster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#SpeedPotion"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Staff"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#SteelDagger"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#StrengthPotion"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Sword"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#TankBoss"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Tower"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#UndeadBoss"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#UndeadMonster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Village"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#VineStaff"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#VoidStaff"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Warrior"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#WaterStaff"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Weapon"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#WeeklyQuest"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Wizard"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#belongsToFaction"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#completesQuest"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#dropsItem"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#learnsSkill"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#locatedIn"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#usesWeapon"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#wearsArmor"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Archer"/>
+        <Class IRI="#Player"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Archer"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#usesWeapon"/>
+            <Class IRI="#Bow"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Archer"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#wearsArmor"/>
+            <Class IRI="#LightArmor"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Archer"/>
+        <ObjectExactCardinality cardinality="1">
+            <ObjectProperty IRI="#usesWeapon"/>
+        </ObjectExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Armor"/>
+        <Class IRI="#Item"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Assassin"/>
+        <Class IRI="#Player"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Assassin"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#usesWeapon"/>
+            <Class IRI="#Dagger"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Assassin"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#wearsArmor"/>
+            <Class IRI="#LightArmor"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Assassin"/>
+        <ObjectExactCardinality cardinality="1">
+            <ObjectProperty IRI="#usesWeapon"/>
+        </ObjectExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#BeastMonster"/>
+        <Class IRI="#Monster"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Boss"/>
+        <Class IRI="#Character"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Bow"/>
+        <Class IRI="#Weapon"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#BroadSword"/>
+        <Class IRI="#Sword"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#CompoundBow"/>
+        <Class IRI="#Bow"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#CrossBow"/>
+        <Class IRI="#Bow"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Dagger"/>
+        <Class IRI="#Weapon"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DailyQuest"/>
+        <Class IRI="#Quest"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DefensiveSkill"/>
+        <Class IRI="#Skill"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DemonBoss"/>
+        <Class IRI="#Boss"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DemonMonster"/>
+        <Class IRI="#Monster"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DirkDagger"/>
+        <Class IRI="#Dagger"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DragonBoss"/>
+        <Class IRI="#Boss"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DragonMonster"/>
+        <Class IRI="#Monster"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Dungeon"/>
+        <Class IRI="#Location"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ElectricityStaff"/>
+        <Class IRI="#Staff"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#EventQuest"/>
+        <Class IRI="#Quest"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#FireStaff"/>
+        <Class IRI="#Staff"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Forest"/>
+        <Class IRI="#Location"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ForestMonster"/>
+        <Class IRI="#Monster"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#GreatSword"/>
+        <Class IRI="#Sword"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Healer"/>
+        <Class IRI="#Player"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Healer"/>
+        <ObjectIntersectionOf>
+            <Class IRI="#Sword"/>
+            <ObjectAllValuesFrom>
+                <ObjectProperty IRI="#usesWeapon"/>
+                <Class IRI="#Dagger"/>
+            </ObjectAllValuesFrom>
+        </ObjectIntersectionOf>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Healer"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#wearsArmor"/>
+            <Class IRI="#LightArmor"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Healer"/>
+        <ObjectExactCardinality cardinality="1">
+            <ObjectProperty IRI="#usesWeapon"/>
+        </ObjectExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#HealingSkill"/>
+        <Class IRI="#Skill"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#HealthPotion"/>
+        <Class IRI="#Potion"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#HeavyArmor"/>
+        <Class IRI="#Armor"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#IceStaff"/>
+        <Class IRI="#Staff"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Item"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#wearsArmor"/>
+            <Class IRI="#LightArmor"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Kingdom"/>
+        <Class IRI="#Location"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#LightArmor"/>
+        <Class IRI="#Armor"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#LongBow"/>
+        <Class IRI="#Bow"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#MagicPotion"/>
+        <Class IRI="#Potion"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#MainQuest"/>
+        <Class IRI="#Quest"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Monster"/>
+        <Class IRI="#Character"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Mountain"/>
+        <Class IRI="#Location"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#NPC"/>
+        <Class IRI="#Character"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ObsidianDagger"/>
+        <Class IRI="#Dagger"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#OffensiveSkill"/>
+        <Class IRI="#Skill"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#PassiveSkill"/>
+        <Class IRI="#Skill"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Player"/>
+        <Class IRI="#Character"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#PoisonDagger"/>
+        <Class IRI="#Dagger"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Potion"/>
+        <Class IRI="#Item"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Raid"/>
+        <Class IRI="#Location"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#RegenerationPotion"/>
+        <Class IRI="#Potion"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#RobeArmor"/>
+        <Class IRI="#Armor"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ShortBow"/>
+        <Class IRI="#Bow"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ShortSword"/>
+        <Class IRI="#Sword"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SideQuest"/>
+        <Class IRI="#Quest"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SkyMonster"/>
+        <Class IRI="#Monster"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SpeedPotion"/>
+        <Class IRI="#Potion"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Staff"/>
+        <Class IRI="#Weapon"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SteelDagger"/>
+        <Class IRI="#Dagger"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#StrengthPotion"/>
+        <Class IRI="#Potion"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Sword"/>
+        <Class IRI="#Weapon"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#TankBoss"/>
+        <Class IRI="#Boss"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Tower"/>
+        <Class IRI="#Location"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#UndeadBoss"/>
+        <Class IRI="#Boss"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#UndeadMonster"/>
+        <Class IRI="#Monster"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Village"/>
+        <Class IRI="#Location"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#VineStaff"/>
+        <Class IRI="#Staff"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#VoidStaff"/>
+        <Class IRI="#Staff"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Warrior"/>
+        <Class IRI="#Player"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Warrior"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#usesWeapon"/>
+            <Class IRI="#Sword"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Warrior"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#wearsArmor"/>
+            <Class IRI="#HeavyArmor"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Warrior"/>
+        <ObjectExactCardinality cardinality="1">
+            <ObjectProperty IRI="#usesWeapon"/>
+        </ObjectExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#WaterStaff"/>
+        <Class IRI="#Staff"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Weapon"/>
+        <Class IRI="#Item"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#WeeklyQuest"/>
+        <Class IRI="#Quest"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Wizard"/>
+        <Class IRI="#Player"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Wizard"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#usesWeapon"/>
+            <Class IRI="#Staff"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Wizard"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#wearsArmor"/>
+            <Class IRI="#RobeArmor"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Wizard"/>
+        <ObjectExactCardinality cardinality="1">
+            <ObjectProperty IRI="#usesWeapon"/>
+        </ObjectExactCardinality>
+    </SubClassOf>
+    <DisjointClasses>
+        <Class IRI="#Archer"/>
+        <Class IRI="#Assassin"/>
+        <Class IRI="#Healer"/>
+        <Class IRI="#Warrior"/>
+        <Class IRI="#Wizard"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#Armor"/>
+        <Class IRI="#Potion"/>
+        <Class IRI="#Weapon"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#BeastMonster"/>
+        <Class IRI="#DemonMonster"/>
+        <Class IRI="#DragonMonster"/>
+        <Class IRI="#ForestMonster"/>
+        <Class IRI="#SkyMonster"/>
+        <Class IRI="#UndeadMonster"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#Boss"/>
+        <Class IRI="#Monster"/>
+        <Class IRI="#NPC"/>
+        <Class IRI="#Player"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#Bow"/>
+        <Class IRI="#Dagger"/>
+        <Class IRI="#Staff"/>
+        <Class IRI="#Sword"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#BroadSword"/>
+        <Class IRI="#GreatSword"/>
+        <Class IRI="#ShortSword"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#Character"/>
+        <Class IRI="#Faction"/>
+        <Class IRI="#Item"/>
+        <Class IRI="#Location"/>
+        <Class IRI="#Quest"/>
+        <Class IRI="#Skill"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#CompoundBow"/>
+        <Class IRI="#CrossBow"/>
+        <Class IRI="#LongBow"/>
+        <Class IRI="#ShortBow"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#DailyQuest"/>
+        <Class IRI="#EventQuest"/>
+        <Class IRI="#MainQuest"/>
+        <Class IRI="#SideQuest"/>
+        <Class IRI="#WeeklyQuest"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#DefensiveSkill"/>
+        <Class IRI="#HealingSkill"/>
+        <Class IRI="#OffensiveSkill"/>
+        <Class IRI="#PassiveSkill"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#DemonBoss"/>
+        <Class IRI="#DragonBoss"/>
+        <Class IRI="#TankBoss"/>
+        <Class IRI="#UndeadBoss"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#DirkDagger"/>
+        <Class IRI="#ObsidianDagger"/>
+        <Class IRI="#PoisonDagger"/>
+        <Class IRI="#SteelDagger"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#Dungeon"/>
+        <Class IRI="#Forest"/>
+        <Class IRI="#Kingdom"/>
+        <Class IRI="#Mountain"/>
+        <Class IRI="#Raid"/>
+        <Class IRI="#Tower"/>
+        <Class IRI="#Village"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#ElectricityStaff"/>
+        <Class IRI="#FireStaff"/>
+        <Class IRI="#IceStaff"/>
+        <Class IRI="#VineStaff"/>
+        <Class IRI="#VoidStaff"/>
+        <Class IRI="#WaterStaff"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#HealthPotion"/>
+        <Class IRI="#MagicPotion"/>
+        <Class IRI="#RegenerationPotion"/>
+        <Class IRI="#SpeedPotion"/>
+        <Class IRI="#StrengthPotion"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#HeavyArmor"/>
+        <Class IRI="#LightArmor"/>
+        <Class IRI="#RobeArmor"/>
+    </DisjointClasses>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#belongsToFaction"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#completesQuest"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#dropsItem"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#learnsSkill"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#locatedIn"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#usesWeapon"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#wearsArmor"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#belongsToFaction"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#belongsToFaction"/>
+            <Class IRI="#Character"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#completesQuest"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#completesQuest"/>
+            <Class IRI="#Character"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#dropsItem"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#dropsItem"/>
+            <Class IRI="#Monster"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#learnsSkill"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#learnsSkill"/>
+            <Class IRI="#Character"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#locatedIn"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#locatedIn"/>
+            <Class IRI="#Character"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#usesWeapon"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#usesWeapon"/>
+            <Class IRI="#Character"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#wearsArmor"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#wearsArmor"/>
+            <Class IRI="#Character"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#belongsToFaction"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#belongsToFaction"/>
+            <Class IRI="#Faction"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#completesQuest"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#completesQuest"/>
+            <Class IRI="#Quest"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#dropsItem"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#dropsItem"/>
+            <Class IRI="#Item"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#learnsSkill"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#learnsSkill"/>
+            <Class IRI="#Skill"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#locatedIn"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#completesQuest"/>
+            <Class IRI="#Location"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#usesWeapon"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#usesWeapon"/>
+            <Class IRI="#Weapon"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#wearsArmor"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#wearsArmor"/>
+            <Class IRI="#Armor"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+
