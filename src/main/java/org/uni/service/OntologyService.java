@@ -7,8 +7,7 @@ import org.apache.jena.ontology.OntResource;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +46,12 @@ public class OntologyService {
  }
 
  private void saveOntology() {
-
+    try(OutputStream out = new FileOutputStream(FILE_PATH)){
+        model.write(out, "RDF/XML-ABBREV", BASE);
+    } catch (Exception ex){
+        System.out.println(ex.getMessage());
+        return;
+    }
  }
 
  public List<String> getAllCharacters() {
