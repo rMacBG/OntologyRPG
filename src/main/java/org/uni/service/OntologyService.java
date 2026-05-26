@@ -46,6 +46,10 @@ public class OntologyService {
   }
  }
 
+ private void saveOntology() {
+
+ }
+
  public List<String> getAllCharacters() {
   List<String> characters = new ArrayList<>();
   OntClass cls = model.getOntClass(NS + "Character");
