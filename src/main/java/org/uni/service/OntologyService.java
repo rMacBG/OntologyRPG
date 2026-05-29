@@ -155,4 +155,29 @@ public void removePropertyFromIndividual(String subjectName, String propertyName
 
      saveOntology();
 }
+
+public List<String> getInferredTypes(String individualName){
+     List<String> result = new ArrayList<>();
+
+     var individual = model.getIndividual(NS + individualName);
+
+     if(individual == null){
+         return result;
+     }
+
+     ExtendedIterator<?> iterator = individual.listRDFTypes(false);
+
+     while(iterator.hasNext()){
+         var resource = iterator.next();
+
+         if(resource instanceof OntResource ontResource){
+             if(ontResource.getURI() != null){
+                 result.add(
+                         ontResource.getLocalName()
+                 );
+             }
+         }
+     }
+     return result;
+}
 }
