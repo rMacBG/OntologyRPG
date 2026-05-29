@@ -76,8 +76,12 @@ public class OntologyService {
 public List<String> getIndividualsByClass(String className){
   List<String> result = new ArrayList<>();
 
+
   OntClass cls = model.getOntClass(NS + className);
 
+  if (cls == null){
+      return result;
+  }
   ExtendedIterator<? extends OntResource> iterator = cls.listInstances();
 
   while(iterator.hasNext()){
@@ -88,5 +92,67 @@ public List<String> getIndividualsByClass(String className){
      }
   }
   return result;
+}
+
+public void addIndividual(String className, String individualName){
+     OntClass cls = model.getOntClass(NS + className);
+
+     if(cls == null){
+         return;
+     }
+
+     if(model.getIndividual(NS + individualName) != null){
+         return;
+     }
+
+     model.createIndividual(NS + individualName, cls);
+
+     saveOntology();
+}
+
+public void deleteIndividual(String individualName){
+ var individual = model.getIndividual(NS + individualName);
+
+ if(individual == null){
+     return;
+ }
+
+ model.removeAll(individual, null, null);
+ model.removeAll(null, null, individual);
+
+ saveOntology();
+}
+
+public void addPropertyToIndividual(String subjectName, String propertyName, String objectName){
+     var subject = model.getIndividual(NS + subjectName);
+
+     if(subject == null){
+         return;
+     }
+
+     var property = model.getObjectProperty(NS + propertyName);
+
+     if(property == null){
+         return;
+     }
+
+     var object = model.getResource(NS + objectName);
+
+     subject.addProperty(property, object);
+
+     saveOntology();
+}
+
+public void removePropertyFromIndividual(String subjectName, String propertyName, String objectName){
+
+     var subject = model.getResource(NS + subjectName);
+
+     var property = model.getProperty(NS + propertyName);
+
+     var object = model.getResource(NS + objectName);
+
+     model.remove(subject, property, object);
+
+     saveOntology();
 }
 }
