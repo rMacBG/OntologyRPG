@@ -167,7 +167,12 @@ public List<String> getAllClasses(){
      return result;
 }
 
-public void addPropertyToIndividual(String subjectName, String propertyName, String objectName){
+
+    public boolean IndividualExists(String name) {
+        return model.getIndividual(NS + name) != null;
+    }
+
+    public void addPropertyToIndividual(String subjectName, String propertyName, String objectName){
      var subject = model.getIndividual(NS + subjectName);
 
      if(subject == null){
