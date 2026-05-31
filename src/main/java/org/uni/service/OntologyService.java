@@ -123,6 +123,50 @@ public void deleteIndividual(String individualName){
  saveOntology();
 }
 
+public List<String> getPropertiesOfIndividual(String individualName, String propertyName) {
+    List<String> result = new ArrayList<>();
+
+    var individual = model.getIndividual(NS + individualName);
+
+    if (individual == null) {
+        return result;
+    }
+
+    var proeprty = model.getProperty(NS + propertyName);
+
+    if (individual == null) {
+        return result;
+    }
+
+    var iterator = individual.listPropertyValues(proeprty);
+
+    while (iterator.hasNext()) {
+        var node = iterator.next();
+
+        if (node.isResource()) {
+            result.add(
+                    node.asResource().getLocalName()
+            );
+        }
+    }
+    return result;
+}
+
+public List<String> getAllClasses(){
+     List<String> result = new ArrayList<>();
+
+     var iterator = model.listClasses();
+
+     while(iterator.hasNext()){
+         var cls = iterator.next();
+
+         if(cls.getURI()!= null){
+             result.add(cls.getLocalName());
+         }
+     }
+     return result;
+}
+
 public void addPropertyToIndividual(String subjectName, String propertyName, String objectName){
      var subject = model.getIndividual(NS + subjectName);
 
