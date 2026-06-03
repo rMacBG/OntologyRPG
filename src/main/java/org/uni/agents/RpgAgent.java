@@ -32,13 +32,35 @@ public class RpgAgent extends Agent {
                 }
 
                 System.out.println("Received: " + message.getContent());
-            }
+
+                    String[] parts = message.getContent().split(":");
+
+
+                if(parts.length < 2) {
+                    return;
+                }
+                    if(parts[0].equals("GET_CLASS")){
+                        String className = parts[1];
+                        var result = ontologyService.getIndividualsByClass(className);
+                        ACLMessage reply =
+                                message.createReply();
+
+                        reply.setContent(result.toString());
+
+                        send(reply);
+                    }
+                    else if(parts[0].equals("GET_TYPES")){
+                        String individualName = parts[1];
+
+                        var result = ontologyService.getInferredTypes(individualName);
+
+                        ACLMessage reply = message.createReply();
+
+                        reply.setContent(result.toString());
+
+                        send(reply);
+                    }
+                }
         });
-
-
-
-        super.setup();
-
-
     }
 }

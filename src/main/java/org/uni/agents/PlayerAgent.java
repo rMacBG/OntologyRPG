@@ -18,7 +18,7 @@ public class PlayerAgent extends Agent {
                 new AID("Rpg", AID.ISLOCALNAME)
         );
 
-        message.setContent("Warriors");
+        message.setContent("GET_WARRIORS");
 
         send(message);
 
