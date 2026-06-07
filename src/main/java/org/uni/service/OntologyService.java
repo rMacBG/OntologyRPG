@@ -229,4 +229,6 @@ public List<String> getInferredTypes(String individualName){
      }
      return result;
 }
+
+
 }

@@ -60,6 +60,15 @@ public class RpgAgent extends Agent {
 
                         send(reply);
                     }
+                    else if(parts[0].equals("GET_PROPERTIES")){
+                        String individualName = parts[1];
+                        String propertyName = parts[2];
+                        var result = ontologyService.getPropertiesOfIndividual(individualName, propertyName);
+                        ACLMessage reply = message.createReply();
+
+                        reply.setContent(result.toString());
+                        send(reply);
+                    }
                 }
         });
     }
