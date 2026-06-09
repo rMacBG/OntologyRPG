@@ -42,34 +42,69 @@ public class RpgAgent extends Agent {
                     if(parts[0].equals("GET_CLASS")){
                         String className = parts[1];
                         var result = ontologyService.getIndividualsByClass(className);
-                        ACLMessage reply =
-                                message.createReply();
 
-                        reply.setContent(result.toString());
-
-                        send(reply);
+                        sendReply(message, result.toString());
                     }
                     else if(parts[0].equals("GET_TYPES")){
                         String individualName = parts[1];
-
                         var result = ontologyService.getInferredTypes(individualName);
 
-                        ACLMessage reply = message.createReply();
-
-                        reply.setContent(result.toString());
-
-                        send(reply);
+                        sendReply(message, result.toString());
                     }
                     else if(parts[0].equals("GET_PROPERTIES")){
                         String individualName = parts[1];
                         String propertyName = parts[2];
                         var result = ontologyService.getPropertiesOfIndividual(individualName, propertyName);
-                        ACLMessage reply = message.createReply();
 
-                        reply.setContent(result.toString());
-                        send(reply);
+                        sendReply(message, result.toString());
                     }
+                    else if (parts[0].equals("CREATE")){
+                        String className = parts[1];
+                        String individualName = parts[2];
+                        ontologyService.addIndividual(className, individualName);
+
+                        sendReply(message, "Created" + individualName);
+                    }
+                    else if(parts[0].equals("DELETE")){
+                        String individualName = parts[1];
+                        ontologyService.deleteIndividual(individualName);
+
+                        sendReply(message, "Deleted" + individualName);
+                    }
+
+                    else if(parts[0].equals("ADD_PROPERTY")) {
+
+                        String subject = parts[1];
+                        String property = parts[2];
+                        String object = parts[3];
+
+                        ontologyService.addPropertyToIndividual(subject, property, object
+                        );
+
+                        sendReply(message, "Property added");
+                    }
+
+
+                    else if(parts[0].equals("REMOVE_PROPERTY")) {
+
+                        String subject = parts[1];
+                        String property = parts[2];
+                        String object = parts[3];
+                        ontologyService.removePropertyFromIndividual(subject, property, object);
+
+                        sendReply(message, "Property removed");
+                    }
+
+
+
                 }
         });
+    }
+
+    private void sendReply(ACLMessage message, String content) {
+
+        ACLMessage reply = message.createReply();
+        reply.setContent(content);
+        send(reply);
     }
 }
