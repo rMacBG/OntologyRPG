@@ -1,0 +1,301 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology">
+    <Prefix name="" IRI="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology/"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Declaration>
+        <Class IRI="#AggressiveBehavior"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Attack"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Behavior"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#BossMonster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Boulder"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Creature"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DefensiveBehavior"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Element"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Fire"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Hit"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Ice"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Lightning"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#MagicAttack"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#MeleeAttack"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Monster"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#NeutralBehavior"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#PassiveBehavior"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#RangedAttack"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Water"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#hasBehavior"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#strongAgainst"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#usesAttack"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#weakAgainst"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Aggressive"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Dragon"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Fire"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#FireBreath"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Ice"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#AggressiveBehavior"/>
+        <Class IRI="#Behavior"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#BossMonster"/>
+        <Class IRI="#Monster"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Boulder"/>
+        <Class IRI="#Element"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DefensiveBehavior"/>
+        <Class IRI="#Behavior"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Fire"/>
+        <Class IRI="#Element"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Hit"/>
+        <Class IRI="#Element"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Ice"/>
+        <Class IRI="#Element"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Lightning"/>
+        <Class IRI="#Element"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#MagicAttack"/>
+        <Class IRI="#Attack"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#MeleeAttack"/>
+        <Class IRI="#Attack"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Monster"/>
+        <Class IRI="#Creature"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#NeutralBehavior"/>
+        <Class IRI="#Behavior"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#PassiveBehavior"/>
+        <Class IRI="#Behavior"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#RangedAttack"/>
+        <Class IRI="#Attack"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Water"/>
+        <Class IRI="#Element"/>
+    </SubClassOf>
+    <DisjointClasses>
+        <Class IRI="#AggressiveBehavior"/>
+        <Class IRI="#DefensiveBehavior"/>
+        <Class IRI="#NeutralBehavior"/>
+        <Class IRI="#PassiveBehavior"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#Attack"/>
+        <Class IRI="#Behavior"/>
+        <Class IRI="#Creature"/>
+        <Class IRI="#Element"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#Boulder"/>
+        <Class IRI="#Fire"/>
+        <Class IRI="#Hit"/>
+        <Class IRI="#Ice"/>
+        <Class IRI="#Lightning"/>
+        <Class IRI="#Water"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#MagicAttack"/>
+        <Class IRI="#MeleeAttack"/>
+        <Class IRI="#RangedAttack"/>
+    </DisjointClasses>
+    <ClassAssertion>
+        <Class IRI="#AggressiveBehavior"/>
+        <NamedIndividual IRI="#Aggressive"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#BossMonster"/>
+        <NamedIndividual IRI="#Dragon"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Fire"/>
+        <NamedIndividual IRI="#Fire"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#MagicAttack"/>
+        <NamedIndividual IRI="#FireBreath"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Ice"/>
+        <NamedIndividual IRI="#Ice"/>
+    </ClassAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasBehavior"/>
+        <NamedIndividual IRI="#Dragon"/>
+        <NamedIndividual IRI="#Aggressive"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#strongAgainst"/>
+        <NamedIndividual IRI="#Dragon"/>
+        <NamedIndividual IRI="#Fire"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#usesAttack"/>
+        <NamedIndividual IRI="#Dragon"/>
+        <NamedIndividual IRI="#FireBreath"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#weakAgainst"/>
+        <NamedIndividual IRI="#Dragon"/>
+        <NamedIndividual IRI="#Ice"/>
+    </ObjectPropertyAssertion>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#hasBehavior"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#strongAgainst"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#usesAttack"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#weakAgainst"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#hasBehavior"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#hasBehavior"/>
+            <Class IRI="#Monster"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#strongAgainst"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#strongAgainst"/>
+            <Class IRI="#Monster"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#usesAttack"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#usesAttack"/>
+            <Class IRI="#Monster"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#weakAgainst"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#weakAgainst"/>
+            <Class IRI="#Monster"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#hasBehavior"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#hasBehavior"/>
+            <Class IRI="#Behavior"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#strongAgainst"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#strongAgainst"/>
+            <Class IRI="#Element"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#usesAttack"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#usesAttack"/>
+            <Class IRI="#Element"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#weakAgainst"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#weakAgainst"/>
+            <Class IRI="#Element"/>
+        </ObjectSomeValuesFrom>
+    </ObjectPropertyRange>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+

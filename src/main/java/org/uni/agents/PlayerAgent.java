@@ -18,9 +18,12 @@ public class PlayerAgent extends Agent {
                 new AID("Rpg", AID.ISLOCALNAME));
         message.addReceiver(
                 new AID("Quest", AID.ISLOCALNAME));
+        message.addReceiver(
+                new AID("Combat", AID.ISLOCALNAME));
 
         message.setContent("GET_WARRIORS");
-
+        message.setContent("QUEST:DAILY");
+        message.setContent("FIGHT:Dragon");
         send(message);
 
         System.out.println("Request sent.");
