@@ -3,20 +3,23 @@ package org.uni.agents;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import org.uni.service.DatabaseService;
 import org.uni.service.OntologyService;
+
+import javax.xml.crypto.Data;
 
 
 public class RpgAgent extends Agent {
 
     private OntologyService ontologyService;
-
+    private DatabaseService databaseService;
     @Override
     protected void setup() {
 
         System.out.println("RPG Agent Started.");
 
         ontologyService = new OntologyService();
-
+        databaseService = new DatabaseService();
 //        System.out.println(
 //                ontologyService.getIndividualsByClass("Warrior")
 //        );
