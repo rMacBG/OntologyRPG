@@ -117,4 +117,21 @@ public class DatabaseService {
             }
 
     }
+
+    public void deletePlayer(String username){
+            String sql = """
+                    DELETE FROM players
+                    WHERE username = ?
+                    """;
+
+            try(PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setString(1, username);
+                ps.executeUpdate();
+
+            }    catch (Exception e ){
+                e.printStackTrace();
+            }
+
+
+    }
 }

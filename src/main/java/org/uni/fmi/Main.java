@@ -7,6 +7,7 @@ import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
 import org.uni.agents.PlayerAgent;
+import org.uni.agents.QuestAgent;
 import org.uni.agents.RpgAgent;
 
 public class Main {
@@ -21,15 +22,19 @@ public class Main {
         AgentContainer mainContainer = runtime.createMainContainer(profile);
 
         AgentController Rpg;
+        AgentController Quest;
         try{
             Rpg = mainContainer.createNewAgent("Rpg", RpgAgent.class.getName(), null);
+            Quest = mainContainer.createNewAgent("Quest", QuestAgent.class.getName(), null);
             AgentController client = mainContainer.createNewAgent("Player", PlayerAgent.class.getName(), null);
 
             Rpg.start();
+            Quest.start();
             client.start();
         } catch (StaleProxyException e){
             e.printStackTrace();
         }
+
 
     }
 }

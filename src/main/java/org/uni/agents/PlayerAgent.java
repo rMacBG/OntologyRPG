@@ -15,8 +15,9 @@ public class PlayerAgent extends Agent {
         ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
 
         message.addReceiver(
-                new AID("Rpg", AID.ISLOCALNAME)
-        );
+                new AID("Rpg", AID.ISLOCALNAME));
+        message.addReceiver(
+                new AID("Quest", AID.ISLOCALNAME));
 
         message.setContent("GET_WARRIORS");
 

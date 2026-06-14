@@ -20,9 +20,7 @@ public class RpgAgent extends Agent {
 
         ontologyService = new OntologyService();
         databaseService = new DatabaseService();
-//        System.out.println(
-//                ontologyService.getIndividualsByClass("Warrior")
-//        );
+
 
         addBehaviour(new CyclicBehaviour(){
             @Override
@@ -86,8 +84,6 @@ public class RpgAgent extends Agent {
 
                         sendReply(message, "Property added");
                     }
-
-
                     else if(parts[0].equals("REMOVE_PROPERTY")) {
 
                         String subject = parts[1];
@@ -97,7 +93,40 @@ public class RpgAgent extends Agent {
 
                         sendReply(message, "Property removed");
                     }
+                    else if(parts[0].equals("CREATE_PLAYER")){
+                        String username = parts[1];
 
+                        databaseService.addPlayer(username);
+
+                        sendReply(message, "Player created");
+                    }
+                    else if(parts[0].equals("GET_PLAYER")){
+                        String username = parts[1];
+
+                        String result =
+                                databaseService.getPlayer(username);
+
+                        sendReply(message, result);
+                    }
+                    else if(parts[0].equals("ADD_GOLD")){
+                        String username = parts[1];
+                        int gold = Integer.parseInt(parts[2]);
+
+                        databaseService.addGold(
+                                username,
+                                gold
+                        );
+
+
+                        sendReply(message, "Gold added!");
+                    }
+                    else if (parts[0].equals("DELETE_PLAYER")){
+                        String username = parts[1];
+
+                        databaseService.deletePlayer(username);
+
+                        sendReply(message, "Player deleted.");
+                    }
 
 
                 }
