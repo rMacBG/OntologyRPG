@@ -230,5 +230,18 @@ public List<String> getInferredTypes(String individualName){
      return result;
 }
 
+public String getPropertyValue(String individualName, String propertyName){
+    var individual = model.getIndividual(NS + individualName);
+    if(individual == null){
+        return null;
+    }
 
+    var proprerty = model.getProperty(NS + propertyName);
+    var value = individual.getPropertyValue(proprerty);
+
+    if(value == null){
+        return null;
+    }
+    return  value.asResource().getLocalName();
+}
 }

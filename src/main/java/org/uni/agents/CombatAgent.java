@@ -4,18 +4,19 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import org.uni.service.CombatService;
+import org.uni.service.OntologyService;
 
 public class CombatAgent extends Agent {
 
     private CombatService combatService;
-
+    private OntologyService ontologyService;
 
     @Override
     protected void setup() {
         System.out.println("Combat Agent  Started!");
 
         combatService = new CombatService();
-
+        ontologyService = new OntologyService();
         addBehaviour(new CyclicBehaviour() {
             @Override
             public void action() {
@@ -30,9 +31,10 @@ public class CombatAgent extends Agent {
                         .split(":");
 
                 if(parts[0].equals("FIGHT")){
-                    String enemy = parts[1];
+                    String player = parts[1];
+                    String enemy = parts[2];
 
-                    String result = simulateFight(enemy);
+                    String result = simulateFight(player, enemy);
 
                     sendReply(
                             message,
@@ -50,17 +52,28 @@ public class CombatAgent extends Agent {
         send(reply);
     }
 
-    private String simulateFight(String enemy){
+    private String simulateFight(String player, String enemy){
+
+        String weapon = ontologyService.getPropertyValue(player, "usesWeapon");
+        if (weapon == null){
+            return "no weapon equipped";
+        }
+
+
         String behavior = combatService.getBehavior(enemy);
         String attack = combatService.getAttack(enemy);
         String weakness = combatService.getWeakness(enemy);
 
-        return "Enemy: " + enemy +
-               "\nBehavior: " + behavior +
-               "\nAttack:" + attack +
-               "\nWeakness" + weakness;
+        if(weapon.contains(weakness)){
+            return player + " has an advantage against " + enemy;
+        }
+
+//        return "Enemy: " + enemy +
+//               "\nBehavior: " + behavior +
+//               "\nAttack:" + attack +
+//               "\nWeakness" + weakness;
 
 
-
+        return player + " fights " + enemy;
     }
 }
