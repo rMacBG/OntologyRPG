@@ -3,11 +3,18 @@ package org.uni.agents;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import org.uni.service.CombatService;
 
 public class CombatAgent extends Agent {
+
+    private CombatService combatService;
+
+
     @Override
     protected void setup() {
         System.out.println("Combat Agent  Started!");
+
+        combatService = new CombatService();
 
         addBehaviour(new CyclicBehaviour() {
             @Override
@@ -44,10 +51,16 @@ public class CombatAgent extends Agent {
     }
 
     private String simulateFight(String enemy){
-            if(enemy.equals("Dragon")){
-                return "Dragon has been defeated using fire";
-            }
+        String behavior = combatService.getBehavior(enemy);
+        String attack = combatService.getAttack(enemy);
+        String weakness = combatService.getWeakness(enemy);
 
-            return "Dragon is defeated! Player won the fight";
+        return "Enemy: " + enemy +
+               "\nBehavior: " + behavior +
+               "\nAttack:" + attack +
+               "\nWeakness" + weakness;
+
+
+
     }
 }
