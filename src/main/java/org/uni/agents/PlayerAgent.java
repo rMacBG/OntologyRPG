@@ -7,40 +7,44 @@ import jade.lang.acl.ACLMessage;
 
 public class PlayerAgent extends Agent {
 
+
     @Override
     protected void setup() {
 
-        System.out.println("Player agent started.");
 
-        ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
-
-        message.addReceiver(
-                new AID("Rpg", AID.ISLOCALNAME));
-        message.addReceiver(
-                new AID("Quest", AID.ISLOCALNAME));
-        message.addReceiver(
-                new AID("Combat", AID.ISLOCALNAME));
-
-        message.setContent("GET_WARRIORS");
-        message.setContent("QUEST:DAILY");
-        message.setContent("FIGHT:Dragon");
-        send(message);
-
-        System.out.println("Request sent.");
+        System.out.println("Player Agent started");
 
         addBehaviour(new CyclicBehaviour() {
             @Override
             public void action() {
-                ACLMessage reply = receive();
-                        if(reply == null){
+                ACLMessage message = receive();
+                        if(message == null){
                             block();
                             return;
                         }
 
-                System.out.println("Response received" + reply.getContent());
+                        String content = message.getContent();
+                System.out.println("Player received:" + content);
+                String[] parts = content.split(":");
+                if (parts[0].equals("FIGHT")) {
+                    String enemy = parts[1];
+                    fight(enemy);
+
+                    ACLMessage reply = message.createReply();
+
+                    reply.setContent("Started battle with " + enemy);
+                    send(reply);
+                }
             }
         });
 
         super.setup();
+    }
+
+    public void fight(String enemy){
+        ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
+        message.addReceiver(new AID("Combat",AID.ISLOCALNAME));
+        message.setContent("FIGHT:Player: " + enemy);
+        send(message);
     }
 }
