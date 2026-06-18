@@ -9,10 +9,9 @@ import java.io.InputStream;
 
 public class CombatService {
 
-    private static final String PATH = "../ontology/CombatOntology.owl";
+    private static final String PATH = "ontology/CombatOntology.owl";
     private static final String BASE = "http://www.semanticweb.org/combat";
     private static final String NS = "#";
-
     private OntModel model;
 
     public CombatService(){
@@ -22,7 +21,9 @@ public class CombatService {
     private void loadOntology(){
         model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_RULE_INF);
 
-        try(InputStream in = new FileInputStream(PATH)){
+        try(InputStream in = getClass()
+                .getClassLoader()
+                .getResourceAsStream(PATH)){
             model.read(in, BASE);
 
             System.out.println("Combat Ontology loaded!");

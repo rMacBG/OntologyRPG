@@ -35,6 +35,13 @@ public class PlayerAgent extends Agent {
                     reply.setContent("Started battle with " + enemy);
                     send(reply);
                 }
+                else if(parts[0].equals("RESULT")){
+                    ACLMessage guiMessage = new ACLMessage(ACLMessage.INFORM);
+                    guiMessage.addReceiver(new AID("GUI", AID.ISLOCALNAME));
+                    guiMessage.setContent(content);
+                    send(guiMessage);
+                }
+
             }
         });
 

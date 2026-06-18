@@ -5,7 +5,7 @@ import java.sql.*;
 
 public class DatabaseService {
 
-    public static final String URL = "jdbc.sqlite:rpg.db";
+    public static final String URL = "jdbc:sqlite:rpg.db";
 
     private Connection connection;
 
@@ -116,6 +116,40 @@ public class DatabaseService {
                 e.printStackTrace();
             }
 
+    }
+
+    public int getHP(String name){
+        try{
+            PreparedStatement ps = connection.prepareStatement("SELECT hp FROM characters WHERE name=?");
+
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                return rs.getInt("hp");
+
+
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public int getAttack(String name) {
+        try {
+                PreparedStatement ps = connection.prepareStatement("SELECT atk FROM characters WHERE name=?");
+                ps.setString(1, name);
+                ResultSet rs = ps.executeQuery();
+
+                if(rs.next()){
+                    return rs.getInt("atk");
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public void deletePlayer(String username){

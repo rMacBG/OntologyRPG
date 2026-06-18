@@ -14,7 +14,7 @@ import java.util.List;
 
 public class OntologyService {
 
- private static final String FILE_PATH = "src/main/java/ontology/RPGOntology.owl";
+ private static final String FILE_PATH = "ontology/RPGOntology.owl";
  private static final String BASE = "http://www.semanticweb.org/rpg";
 
  private static final String NS = BASE + "#";
@@ -29,11 +29,11 @@ public class OntologyService {
 
  private void loadOntology() {
   model = ModelFactory.createOntologyModel(
-          OntModelSpec.OWL_MEM_RULE_INF
-  );
+          OntModelSpec.OWL_MEM_RULE_INF);
 
-  try (InputStream in =
-               new FileInputStream(FILE_PATH)) {
+     try(InputStream in = getClass()
+                         .getClassLoader()
+                         .getResourceAsStream(FILE_PATH)){
 
    model.read(in, BASE);
 

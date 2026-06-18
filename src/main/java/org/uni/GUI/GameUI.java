@@ -1,10 +1,12 @@
 package org.uni.GUI;
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.uni.agents.GUIAgent;
 
 
 public class GameUI extends Application {
@@ -12,10 +14,14 @@ public class GameUI extends Application {
     private int playerY = 0;
     private final int SIZE = 10;
 
+    public static GameUI instance;
+
     private Button[][] tiles = new Button[SIZE][SIZE];
+    private Label info = new Label();
     private String[][] map = new String[SIZE][SIZE];
     @Override
     public void start(Stage stage) throws Exception {
+        instance = this;
         GridPane grid = new GridPane();
 
         for (int x = 0; x < SIZE; x++){
@@ -34,8 +40,10 @@ public class GameUI extends Application {
         spawnMonsters();
         updateMap();
         tiles[0][0].setText("P");
+        VBox root = new VBox();
+        root.getChildren().addAll(grid, info);
 
-        Scene scene = new Scene(grid);
+        Scene scene = new Scene(root);
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()){
                 case W ->
@@ -61,7 +69,9 @@ public class GameUI extends Application {
 
 
         if(map[newX][newY] != null){
-            System.out.println("Encounter: " + map[newX][newY]);
+            String enemy = map[newX][newY];
+            System.out.println("Encounter " + enemy);
+            GUIAgent.instance.sendMessage("FIGHT:" + enemy);
             return;
         }
 
@@ -95,6 +105,10 @@ public class GameUI extends Application {
             }
         }
         tiles[playerX][playerY].setText("P");
+    }
+
+    public void showMessage(String message){
+        info.setText(message);
     }
 
     public static void main(String[] args) {
