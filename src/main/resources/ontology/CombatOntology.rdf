@@ -1,0 +1,367 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology/"
+     xml:base="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:Combat_Ontology="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology">
+        <owl:imports rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#hasBehavior -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#hasBehavior">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#hasBehavior"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Monster"/>
+            </owl:Restriction>
+        </rdfs:domain>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#hasBehavior"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Behavior"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#strongAgainst -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#strongAgainst">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#strongAgainst"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Monster"/>
+            </owl:Restriction>
+        </rdfs:domain>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#strongAgainst"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#usesAttack -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#usesAttack">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#usesAttack"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Monster"/>
+            </owl:Restriction>
+        </rdfs:domain>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#usesAttack"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#weakAgainst -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#weakAgainst">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#weakAgainst"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Monster"/>
+            </owl:Restriction>
+        </rdfs:domain>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#weakAgainst"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#AggressiveBehavior -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#AggressiveBehavior">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Behavior"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Attack -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Attack"/>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Behavior -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Behavior"/>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#BossMonster -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#BossMonster">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Monster"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Boulder -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Boulder">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Creature -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Creature"/>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#DefensiveBehavior -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#DefensiveBehavior">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Behavior"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Fire -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Fire">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Hit -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Hit">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Ice -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Ice">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Lightning -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Lightning">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#MagicAttack -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#MagicAttack">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Attack"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#MeleeAttack -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#MeleeAttack">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Attack"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Monster -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Monster">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Creature"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#NeutralBehavior -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#NeutralBehavior">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Behavior"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#PassiveBehavior -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#PassiveBehavior">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Behavior"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#RangedAttack -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#RangedAttack">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Attack"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Water -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Water">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Aggressive -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Aggressive">
+        <rdf:type rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#AggressiveBehavior"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Dragon -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Dragon">
+        <rdf:type rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#BossMonster"/>
+        <Combat_Ontology:hasBehavior rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Aggressive"/>
+        <Combat_Ontology:strongAgainst rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Fire"/>
+        <Combat_Ontology:usesAttack rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#FireBreath"/>
+        <Combat_Ontology:weakAgainst rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Ice"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Fire -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Fire">
+        <rdf:type rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Fire"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#FireBreath -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#FireBreath">
+        <rdf:type rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#MagicAttack"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Ice -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Ice">
+        <rdf:type rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Ice"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#AggressiveBehavior"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#DefensiveBehavior"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#NeutralBehavior"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#PassiveBehavior"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Attack"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Behavior"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Creature"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Element"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Boulder"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Fire"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Hit"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Ice"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Lightning"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#Water"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#MagicAttack"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#MeleeAttack"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#RangedAttack"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+
