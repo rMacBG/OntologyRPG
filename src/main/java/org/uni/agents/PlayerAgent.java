@@ -29,11 +29,6 @@ public class PlayerAgent extends Agent {
                 if (parts[0].equals("FIGHT")) {
                     String enemy = parts[1];
                     fight(enemy);
-
-                    ACLMessage reply = message.createReply();
-
-                    reply.setContent("Started battle with " + enemy);
-                    send(reply);
                 }
                 else if(parts[0].equals("RESULT")){
                     ACLMessage guiMessage = new ACLMessage(ACLMessage.INFORM);
@@ -49,8 +44,10 @@ public class PlayerAgent extends Agent {
     }
 
     public void fight(String enemy){
+        System.out.println("Sent to Combat");
         ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
         message.addReceiver(new AID("Combat",AID.ISLOCALNAME));
+        System.out.println("Combat got: " + message.getContent());
         message.setContent("FIGHT:Player: " + enemy);
         send(message);
     }

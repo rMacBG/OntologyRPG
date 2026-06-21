@@ -1,5 +1,6 @@
 package org.uni.agents;
 
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -29,14 +30,15 @@ public class CombatAgent extends Agent {
                     block();
                     return;
                 }
-                String content = message.getContent();
 
+                String content = message.getContent();
+                System.out.println("Combat received: " + message.getContent());
                 String[] parts = content
                         .split(":");
 
                 if(parts[0].equals("FIGHT")){
-                    String player = parts[1];
-                    String enemy = parts[2];
+                    String player = parts[1].trim();
+                    String enemy = parts[2].trim();
 
                     String result = simulateFight(player, enemy);
 
@@ -56,46 +58,91 @@ public class CombatAgent extends Agent {
         send(reply);
     }
 
+    private void notifyQuestAgent(String enemy){
+
+        ACLMessage message =
+                new ACLMessage(ACLMessage.REQUEST);
+
+        message.addReceiver(
+                new AID("Quest", AID.ISLOCALNAME));
+
+        message.setContent("COMPLETE:" + enemy);
+        send(message);
+    }
+
     private String simulateFight(String player, String enemy){
-
-//        String weapon = ontologyService.getPropertyValue(player, "usesWeapon");
-//        if (weapon == null){
-//            return "no weapon equipped";
-//        }
-//
-//
-//        String behavior = combatService.getBehavior(enemy);
-//        String attack = combatService.getAttack(enemy);
-//        String weakness = combatService.getWeakness(enemy);
-//
-//        if(weapon.contains(weakness)){
-//            return player + " has an advantage against " + enemy;
-//        }
-
-//        return "Enemy: " + enemy +
-//               "\nBehavior: " + behavior +
-//               "\nAttack:" + attack +
-//               "\nWeakness" + weakness;
-//
-//
-//        return player + " fights " + enemy;
 
         int playerHP = databaseService.getHP(player);
         int enemyHP = databaseService.getHP(enemy);
         int playerAtk = databaseService.getAttack(player);
         int enemyAtk = databaseService.getAttack(enemy);
 
+        String behavior = ontologyService.getPropertyValue(enemy, "hasBehavior");
+        String attack = ontologyService.getPropertyValue(enemy, "usesAttack");
+        String weakness = ontologyService.getPropertyValue(enemy, "weakAgainst");
+
+        StringBuilder battlelog = new StringBuilder();
+
+        battlelog.append("Enemy: ")
+                .append(enemy)
+                .append("\n");
+        battlelog.append("Behavior: ")
+                .append(behavior)
+                .append("\n");
+        battlelog.append("Attack: ")
+                .append(attack)
+                .append("\n");
+        battlelog.append("Weakness: ")
+                .append(weakness)
+                .append("\n");
+
+
+
+
         while(playerHP > 0 && enemyHP > 0){
             enemyHP -= playerAtk;
+            battlelog.append(player)
+                    .append(" hits ")
+                    .append(enemy)
+                    .append("\n");
+
 
             if(enemyHP <= 0){
-                return player + " defeated " + enemy;
+                battlelog.append(player)
+                        .append(" defeated ")
+                        .append(enemy);
+                String result = battlelog.toString();
+                databaseService.addBattle(player, enemy, result);
+
+                notifyQuestAgent(enemy);
+                return result;
             }
 
             playerHP -= enemyAtk;
 
+            battlelog.append(enemy)
+                    .append(" attacks ")
+                    .append(player)
+                    .append("\n");
+
 
         }
-        return enemy + " defeated " + player;
+
+        battlelog.append(enemy)
+                .append(" defeated ")
+                .append(player)
+                .append("\n");
+
+        battlelog.append(player)
+                .append(" lost the battle against")
+                .append(enemy);
+
+
+        String result = battlelog.toString();
+
+        databaseService.addBattle(player, enemy, result);
+
+
+        return result;
     }
 }

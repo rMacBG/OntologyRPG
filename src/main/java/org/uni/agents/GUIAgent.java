@@ -28,10 +28,7 @@ public class GUIAgent extends Agent {
                 }
 
                 String[] parts = message.getContent().split(":");
-                if (parts[0].equals("FIGHT")){
-                sendMessage("FIGHT:" + parts[1]);
-                }
-                else if(parts[0].equals("RESULT")){
+                if(parts[0].equals("RESULT")){
                     if (GameUI.instance != null){
                         GameUI.instance.showMessage(message.getContent());
                     }

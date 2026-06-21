@@ -5,17 +5,20 @@ import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.ontology.OntResource;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class OntologyService {
 
- private static final String FILE_PATH = "ontology/RPGOntology.owl";
- private static final String BASE = "http://www.semanticweb.org/rpg";
+ private static final String FILE_PATH = "ontology/RPGGameOntology.rdf";
+ private static final String BASE = "http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology";
 
  private static final String NS = BASE + "#";
 
@@ -35,7 +38,8 @@ public class OntologyService {
                          .getClassLoader()
                          .getResourceAsStream(FILE_PATH)){
 
-   model.read(in, BASE);
+         model.read(in, BASE, "RDF/XML");
+
 
    System.out.println("Ontology loaded.");
 
@@ -43,16 +47,17 @@ public class OntologyService {
 
    e.printStackTrace();
   }
+
  }
 
- private void saveOntology() {
-    try(OutputStream out = new FileOutputStream(FILE_PATH)){
-        model.write(out, "RDF/XML-ABBREV", BASE);
-    } catch (Exception ex){
-        System.out.println(ex.getMessage());
-        return;
+    private void saveOntology() {
+        try(OutputStream out = new FileOutputStream("src/main/resources/" + FILE_PATH)){
+            model.write(out, "RDF/XML", BASE);
+            System.out.println("Ontology saved successfully.");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
- }
 
  public List<String> getAllCharacters() {
   List<String> characters = new ArrayList<>();
@@ -101,7 +106,7 @@ public void addIndividual(String className, String individualName){
          return;
      }
 
-     if(model.getIndividual(NS + individualName) != null){
+     if(model.getOntClass(NS + individualName) != null){
          return;
      }
 

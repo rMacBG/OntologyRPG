@@ -1,5 +1,6 @@
 package org.uni.GUI;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -68,22 +69,33 @@ public class GameUI extends Application {
         }
 
 
-        if(map[newX][newY] != null){
+//        if(map[newX][newY] != null){
+//            String enemy = map[newX][newY];
+//            System.out.println("Encounter " + enemy);
+//            GUIAgent.instance.sendMessage("FIGHT:" + enemy);
+//            return;
+        if(map[newX][newY] != null) {
+
             String enemy = map[newX][newY];
-            System.out.println("Encounter " + enemy);
-            GUIAgent.instance.sendMessage("FIGHT:" + enemy);
+
+            System.out.println("Encounter: " + enemy);
+
+
+            if(GUIAgent.instance != null){
+
+                GUIAgent.instance.sendMessage("FIGHT:" + enemy);
+            }
             return;
         }
-
         playerX = newX;
         playerY = newY;
 
         updateMap();
     }
     private void spawnMonsters(){
-        map[3][4] = "Dragon";
-        map[6][8] = "Goblin";
-        map[4][1] = "Orc";
+        map[3][4] = "DragonBoss";
+        map[6][8] = "GoblinMonster";
+        map[4][1] = "DemonMonster";
 
     }
 
@@ -92,14 +104,14 @@ public class GameUI extends Application {
             for (int y = 0; y < SIZE; y++){
                 tiles[x][y].setText("");
                 if(map[x][y] != null){
-                    if(map[x][y].equals("Dragon")){
+                    if(map[x][y].equals("DragonBoss")){
                         tiles[x][y].setText("D");
                     }
-                    else if(map[x][y].equals("Goblin")){
+                    else if(map[x][y].equals("GoblinMonster")){
                         tiles[x][y].setText("G");
                     }
-                    else if(map[x][y].equals("Orc")){
-                        tiles[x][y].setText("O");
+                    else if(map[x][y].equals("DemonMonster")){
+                        tiles[x][y].setText("D");
                     }
                 }
             }
@@ -108,10 +120,8 @@ public class GameUI extends Application {
     }
 
     public void showMessage(String message){
-        info.setText(message);
-    }
-
-    public static void main(String[] args) {
-        launch();
+        Platform.runLater(() -> {
+            info.setText(message);
+        });
     }
 }

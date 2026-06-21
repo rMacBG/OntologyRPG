@@ -3,10 +3,13 @@ package org.uni.agents;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import org.uni.service.DatabaseService;
 import org.uni.service.OntologyService;
+
 
 public class QuestAgent extends Agent {
     private OntologyService ontologyService;
+    private DatabaseService databaseService;
 
     @Override
     protected void setup() {
@@ -14,6 +17,7 @@ public class QuestAgent extends Agent {
         System.out.println("Quest Agent Started.");
 
         ontologyService = new OntologyService();
+        databaseService = new DatabaseService();
 
         addBehaviour(new CyclicBehaviour() {
             @Override
@@ -37,6 +41,24 @@ public class QuestAgent extends Agent {
                     var quests = ontologyService.getIndividualsByClass("DailyQuest");
 
                     sendReply(message, quests.toString());
+                }
+                else if(parts[0].equals("GET_TARGET")){
+                    String questName = parts[1];
+
+                    var target = ontologyService.getPropertyValue(questName, "targetEnemy");
+
+                    sendReply(message, target);
+
+                }
+                else if(parts[0].equals("COMPLETE")){
+                    String enemy = parts[1];
+                    if (enemy.equals("Dragon")){
+                        databaseService.addGold(
+                                "Player",
+                                100
+                        );
+                    }
+                    System.out.println("Quest progress: killed " + enemy);
                 }
 
             }

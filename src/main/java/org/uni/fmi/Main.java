@@ -6,6 +6,8 @@ import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
+import javafx.application.Application;
+import org.uni.GUI.GameUI;
 import org.uni.agents.*;
 
 public class Main {
@@ -30,11 +32,15 @@ public class Main {
             Gui = mainContainer.createNewAgent("Gui", GUIAgent.class.getName(),null);
             AgentController client = mainContainer.createNewAgent("Player", PlayerAgent.class.getName(), null);
 
+
             Rpg.start();
             Quest.start();
             Combat.start();
             Gui.start();
             client.start();
+            new Thread(() -> {
+                Application.launch(GameUI.class, args);
+            }).start();
         } catch (StaleProxyException e){
             e.printStackTrace();
         }
