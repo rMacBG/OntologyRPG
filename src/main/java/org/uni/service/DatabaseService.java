@@ -9,6 +9,15 @@ public class DatabaseService {
 
     private Connection connection;
 
+    private static DatabaseService instance;
+
+    public static synchronized DatabaseService getInstance() {
+        if (instance == null) {
+            instance = new DatabaseService();
+        }
+        return instance;
+    }
+
     public DatabaseService(){
         connect();
         createTables();
@@ -33,6 +42,7 @@ public class DatabaseService {
                 username TEXT UNIQUE,
                 level INTEGER,
                 gold INTEGER,
+                weapon TEXT,
                 hp INTEGER,
                 atk INTEGER
                 );
@@ -68,17 +78,27 @@ public class DatabaseService {
     }
 
     public void seedData(){
-        addPlayer("player");
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("DELETE FROM players;");
+            stmt.execute("DELETE FROM enemies;");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try (PreparedStatement ps = connection.prepareStatement(
+                "INSERT OR IGNORE INTO players (username, level, gold, weapon, hp, atk) VALUES ('Player', 1, 100, 'StormStaff', 100, 20)")) {
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        addCharacter("DragonBoss",
+                250,
+                20);
 
-        addCharacter("Yrspur the Dragon",
-                180,
-                30);
-
-        addCharacter("Ashvak Goblin Thief",
+        addCharacter("GoblinMonster",
                 50,
                 12);
 
-        addCharacter("Ohvak the Blind Orc",
+        addCharacter("DemonMonster",
                 70,
                 45);
         System.out.println("Data Seeded");
@@ -121,7 +141,7 @@ public class DatabaseService {
             }
     }
 
-    public void addBattle(String player, String enemy, String result){
+    public synchronized void addBattle(String player, String enemy, String result){
         String sql = """
                 INSERT INTO battles(player, enemy, result)
                 VALUES(?,?,?)
@@ -150,12 +170,7 @@ public class DatabaseService {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()){
-                return
-                "Player: " + rs.getString("username")
-                +
-                "Level: " + rs.getInt("level")
-                +
-                "Gold: "  + rs.getInt("gold");
+                return "Player: " + rs.getString("username") + " | Level: " + rs.getInt("level") + " | Gold: " + rs.getInt("gold");
 
             }
         } catch (Exception e){
@@ -164,6 +179,23 @@ public class DatabaseService {
 
 
         return "Player not Found";
+    }
+
+    public String getPlayerWeapon(String username){
+        String sql = """
+                SELECT weapon FROM players WHERE username=?
+                """;
+
+        try(PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                return rs.getString("weapon");
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return "no weapon found!";
     }
 
     public void addGold(String username, int amount){
@@ -185,6 +217,14 @@ public class DatabaseService {
     }
 
     public int getHP(String name){
+        try (PreparedStatement ps = connection.prepareStatement("SELECT hp FROM players WHERE username=?")) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("hp");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try{
             PreparedStatement ps = connection.prepareStatement("SELECT hp FROM enemies WHERE name=?");
 
@@ -204,6 +244,14 @@ public class DatabaseService {
     }
 
     public int getAttack(String name) {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT atk FROM players WHERE username=?")) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("atk");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
                 PreparedStatement ps = connection.prepareStatement("SELECT atk FROM enemies WHERE name=?");
                 ps.setString(1, name);
@@ -233,6 +281,39 @@ public class DatabaseService {
             }
 
 
+    }
+
+    public synchronized void addCustomPlayer(String username,String weapon, int hp, int atk){
+        String sql = "INSERT INTO players (username, level, gold, weapon, hp, atk) VALUES (?, 1, 100, ?, ?, ?)";
+
+        try {
+
+            PreparedStatement del = connection.prepareStatement("DELETE FROM players WHERE username=?");
+            del.setString(1, username);
+            del.executeUpdate();
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setString(1, username);
+                ps.setString(2, weapon);
+                ps.setInt(3, hp);
+                ps.setInt(4, atk);
+                ps.executeUpdate();
+            }
+            System.out.println("Custom Player Created in DB: " + username + " with " + weapon);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void updatePlayerHP(String username, int newHP) {
+        String sql =  "UPDATE players SET hp=? WHERE username=?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, newHP);
+            ps.setString(2, username);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

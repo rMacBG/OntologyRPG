@@ -2,9 +2,8 @@
 <catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
     <uri id="Imports Wizard Entry" name="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology" uri="RPGGameOntology.rdf"/>
     <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public">
-        <uri id="Automatically generated entry, Timestamp=1782064696695" name="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology" uri="RPGOntology.owl"/>
-        <uri id="Automatically generated entry, Timestamp=1782064696695" name="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology/" uri="RPGGameOntology.rdf"/>
-        <uri id="Automatically generated entry, Timestamp=1782064696695" name="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology" uri="CombatOntology.owl"/>
-        <uri id="Automatically generated entry, Timestamp=1782064696695" name="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology/" uri="CombatOntology.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1782389321771" name="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology" uri="RPGOntology.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1782389321771" name="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology" uri="CombatOntology.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1782389321771" name="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology/" uri="CombatOntology.rdf"/>
     </group>
 </catalog>

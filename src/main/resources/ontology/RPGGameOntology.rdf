@@ -1,1015 +1,609 @@
-<?xml version="1.0"?>
-<rdf:RDF xmlns="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology/"
-     xml:base="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology/"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:xml="http://www.w3.org/XML/1998/namespace"
-     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-    <owl:Ontology rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology"/>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Object Properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#belongsToFaction -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#belongsToFaction">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#belongsToFaction"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-            </owl:Restriction>
-        </rdfs:domain>
-        <rdfs:range>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#belongsToFaction"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Faction"/>
-            </owl:Restriction>
-        </rdfs:range>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#completesQuest -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#completesQuest">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#completesQuest"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-            </owl:Restriction>
-        </rdfs:domain>
-        <rdfs:range>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#completesQuest"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest"/>
-            </owl:Restriction>
-        </rdfs:range>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#dropsItem -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#dropsItem">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#dropsItem"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster"/>
-            </owl:Restriction>
-        </rdfs:domain>
-        <rdfs:range>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#dropsItem"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Item"/>
-            </owl:Restriction>
-        </rdfs:range>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#learnsSkill -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#learnsSkill">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#learnsSkill"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-            </owl:Restriction>
-        </rdfs:domain>
-        <rdfs:range>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#learnsSkill"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Skill"/>
-            </owl:Restriction>
-        </rdfs:range>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#locatedIn -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#locatedIn">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#locatedIn"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-            </owl:Restriction>
-        </rdfs:domain>
-        <rdfs:range>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#completesQuest"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-            </owl:Restriction>
-        </rdfs:range>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-            </owl:Restriction>
-        </rdfs:domain>
-        <rdfs:range>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Weapon"/>
-            </owl:Restriction>
-        </rdfs:range>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdfs:domain>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-            </owl:Restriction>
-        </rdfs:domain>
-        <rdfs:range>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor"/>
-                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Armor"/>
-            </owl:Restriction>
-        </rdfs:range>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Classes
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Archer -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Archer">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Player"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Bow"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LightArmor"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Armor -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Armor">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Item"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Assassin -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Assassin">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Player"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LightArmor"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#BeastMonster -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#BeastMonster">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Boss -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Boss">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Bow -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Bow">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Weapon"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#BroadSword -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#BroadSword">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Sword"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#CompoundBow -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#CompoundBow">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Bow"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#CrossBow -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#CrossBow">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Bow"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Weapon"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DailyQuest -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DailyQuest">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DefensiveSkill -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DefensiveSkill">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Skill"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DemonBoss -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DemonBoss">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Boss"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DemonMonster -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DemonMonster">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DirkDagger -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DirkDagger">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DragonBoss -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DragonBoss">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Boss"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DragonMonster -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DragonMonster">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dungeon -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dungeon">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ElectricityStaff -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ElectricityStaff">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#EventQuest -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#EventQuest">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Faction -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Faction"/>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#FireStaff -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#FireStaff">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Forest -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Forest">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ForestMonster -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ForestMonster">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#GreatSword -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#GreatSword">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Sword"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Healer -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Healer">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Player"/>
-        <rdfs:subClassOf>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Sword"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                        <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LightArmor"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HealingSkill -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HealingSkill">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Skill"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HealthPotion -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HealthPotion">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Potion"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HeavyArmor -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HeavyArmor">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Armor"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#IceStaff -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#IceStaff">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Item -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Item">
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LightArmor"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Kingdom -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Kingdom">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LightArmor -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LightArmor">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Armor"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LongBow -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LongBow">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Bow"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#MagicPotion -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#MagicPotion">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Potion"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#MainQuest -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#MainQuest">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Mountain -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Mountain">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#NPC -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#NPC">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ObsidianDagger -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ObsidianDagger">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#OffensiveSkill -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#OffensiveSkill">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Skill"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#PassiveSkill -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#PassiveSkill">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Skill"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Player -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Player">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#PoisonDagger -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#PoisonDagger">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Potion -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Potion">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Item"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest"/>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Raid -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Raid">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#RegenerationPotion -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#RegenerationPotion">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Potion"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#RobeArmor -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#RobeArmor">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Armor"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ShortBow -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ShortBow">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Bow"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ShortSword -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ShortSword">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Sword"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SideQuest -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SideQuest">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Skill -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Skill"/>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SkyMonster -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SkyMonster">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SpeedPotion -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SpeedPotion">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Potion"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Weapon"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SteelDagger -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SteelDagger">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#StrengthPotion -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#StrengthPotion">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Potion"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Sword -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Sword">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Weapon"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#TankBoss -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#TankBoss">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Boss"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Tower -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Tower">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#UndeadBoss -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#UndeadBoss">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Boss"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#UndeadMonster -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#UndeadMonster">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Village -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Village">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#VineStaff -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#VineStaff">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#VoidStaff -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#VoidStaff">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Warrior -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Warrior">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Player"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Sword"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HeavyArmor"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#WaterStaff -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#WaterStaff">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Weapon -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Weapon">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Item"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#WeeklyQuest -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#WeeklyQuest">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Wizard -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Wizard">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Player"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#wearsArmor"/>
-                <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#RobeArmor"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#usesWeapon"/>
-                <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // General axioms
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Archer"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Assassin"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Healer"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Warrior"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Wizard"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Armor"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Potion"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Weapon"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#BeastMonster"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DemonMonster"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DragonMonster"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ForestMonster"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SkyMonster"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#UndeadMonster"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Boss"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Monster"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#NPC"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Player"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Bow"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dagger"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Staff"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Sword"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#BroadSword"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#GreatSword"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ShortSword"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Character"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Faction"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Item"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Location"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Quest"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Skill"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#CompoundBow"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#CrossBow"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LongBow"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ShortBow"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DailyQuest"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#EventQuest"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#MainQuest"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SideQuest"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#WeeklyQuest"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DefensiveSkill"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HealingSkill"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#OffensiveSkill"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#PassiveSkill"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DemonBoss"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DragonBoss"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#TankBoss"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#UndeadBoss"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#DirkDagger"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ObsidianDagger"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#PoisonDagger"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SteelDagger"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Dungeon"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Forest"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Kingdom"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Mountain"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Raid"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Tower"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#Village"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#ElectricityStaff"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#FireStaff"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#IceStaff"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#VineStaff"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#VoidStaff"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#WaterStaff"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HealthPotion"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#MagicPotion"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#RegenerationPotion"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#SpeedPotion"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#StrengthPotion"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#HeavyArmor"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#LightArmor"/>
-            <rdf:Description rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#RobeArmor"/>
-        </owl:members>
-    </rdf:Description>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <owl:Ontology rdf:about=""/>
+  <owl:Class rdf:ID="Item"/>
+  <owl:Class rdf:ID="RegenerationPotion">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Potion"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="MeleeDagger">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Dagger"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="Location"/>
+  <owl:Class rdf:ID="StrengthPotion">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Potion"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="MagicPotion">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Potion"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="Healer">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass>
+          <owl:Class rdf:ID="LightArmor"/>
+        </owl:onClass>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:ID="wearsArmor"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass>
+          <owl:Class rdf:ID="Wand"/>
+        </owl:onClass>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:ID="usesWeapon"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Player"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="TankBoss">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Boss"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="PassiveSkill">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Skill"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="NPC">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Character"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="Raid">
+    <rdfs:subClassOf rdf:resource="#Location"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Player">
+    <j.0:hasHp rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >1200</j.0:hasHp>
+    <j.0:hasBaseDamage rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >22</j.0:hasBaseDamage>
+    <j.0:hp rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >8720</j.0:hp>
+    <j.0:atk rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</j.0:atk>
+    <rdfs:subClassOf rdf:resource="#Character"/>
+    <j.0:hasHP rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >100</j.0:hasHP>
+  </owl:Class>
+  <owl:Class rdf:ID="Dungeon">
+    <rdfs:subClassOf rdf:resource="#Location"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Armor">
+    <rdfs:subClassOf rdf:resource="#Item"/>
+  </owl:Class>
+  <owl:Class rdf:ID="DragonMonster">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Monster"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="BeastMonster">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Monster"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="ElementalDagger">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Dagger"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="Sword">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Weapon"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="CrystalDagger">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Dagger"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#Potion">
+    <rdfs:subClassOf rdf:resource="#Item"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Kingdom">
+    <rdfs:subClassOf rdf:resource="#Location"/>
+  </owl:Class>
+  <owl:Class rdf:ID="DemonBoss">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Boss"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="SkyMonster">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Monster"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="GreatSword">
+    <rdfs:subClassOf rdf:resource="#Sword"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Tower">
+    <rdfs:subClassOf rdf:resource="#Location"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Mountain">
+    <rdfs:subClassOf rdf:resource="#Location"/>
+  </owl:Class>
+  <owl:Class rdf:ID="CompoundBow">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Bow"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="OffensiveSkill">
+    <rdfs:subClassOf rdf:resource="#Skill"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Wand">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Weapon"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="BroadSword">
+    <rdfs:subClassOf rdf:resource="#Sword"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Forest">
+    <rdfs:subClassOf rdf:resource="#Location"/>
+  </owl:Class>
+  <owl:Class rdf:ID="HeavyArmor">
+    <rdfs:subClassOf rdf:resource="#Armor"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Dagger">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Weapon"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="Warrior">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass rdf:resource="#HeavyArmor"/>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="#wearsArmor"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass rdf:resource="#Sword"/>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="#usesWeapon"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="#Player"/>
+  </owl:Class>
+  <owl:Class rdf:ID="MagicWand">
+    <rdfs:subClassOf rdf:resource="#Wand"/>
+  </owl:Class>
+  <owl:Class rdf:ID="DragonBoss">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Boss"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="DailyQuest">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Quest"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="ElementalStaff">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Staff"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="ElementalWand">
+    <rdfs:subClassOf rdf:resource="#Wand"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Boss">
+    <rdfs:subClassOf rdf:resource="#Character"/>
+  </owl:Class>
+  <owl:Class rdf:ID="RobeArmor">
+    <rdfs:subClassOf rdf:resource="#Armor"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ShortSword">
+    <rdfs:subClassOf rdf:resource="#Sword"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Weapon">
+    <rdfs:subClassOf rdf:resource="#Item"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ForestMonster">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Monster"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#LightArmor">
+    <rdfs:subClassOf rdf:resource="#Armor"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Wizard">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass rdf:resource="#RobeArmor"/>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="#wearsArmor"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass>
+          <owl:Class rdf:about="#Staff"/>
+        </owl:onClass>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="#usesWeapon"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="#Player"/>
+  </owl:Class>
+  <owl:Class rdf:ID="HealingSkill">
+    <rdfs:subClassOf rdf:resource="#Skill"/>
+  </owl:Class>
+  <owl:Class rdf:ID="UndeadMonster">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Monster"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="Village">
+    <rdfs:subClassOf rdf:resource="#Location"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Assassin">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass rdf:resource="#LightArmor"/>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="#wearsArmor"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass rdf:resource="#Dagger"/>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="#usesWeapon"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="#Player"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Archer">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass rdf:resource="#LightArmor"/>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="#wearsArmor"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onClass>
+          <owl:Class rdf:about="#Bow"/>
+        </owl:onClass>
+        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        >1</owl:qualifiedCardinality>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="#usesWeapon"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="#Player"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ShortBow">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Bow"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="SpeedPotion">
+    <rdfs:subClassOf rdf:resource="#Potion"/>
+  </owl:Class>
+  <owl:Class rdf:ID="EventQuest">
+    <rdfs:subClassOf rdf:resource="#Quest"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Staff">
+    <rdfs:subClassOf rdf:resource="#Weapon"/>
+  </owl:Class>
+  <owl:Class rdf:ID="MagicStaff">
+    <rdfs:subClassOf rdf:resource="#Staff"/>
+  </owl:Class>
+  <owl:Class rdf:ID="LongBow">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Bow"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="CrossBow">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Bow"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="MainQuest">
+    <rdfs:subClassOf rdf:resource="#Quest"/>
+  </owl:Class>
+  <owl:Class rdf:ID="DemonMonster">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Monster"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="DefensiveSkill">
+    <rdfs:subClassOf rdf:resource="#Skill"/>
+  </owl:Class>
+  <owl:Class rdf:ID="SideQuest">
+    <rdfs:subClassOf rdf:resource="#Quest"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ThrowingDagger">
+    <rdfs:subClassOf rdf:resource="#Dagger"/>
+  </owl:Class>
+  <owl:Class rdf:ID="WeeklyQuest">
+    <rdfs:subClassOf rdf:resource="#Quest"/>
+  </owl:Class>
+  <owl:Class rdf:ID="UndeadBoss">
+    <rdfs:subClassOf rdf:resource="#Boss"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Faction"/>
+  <owl:Class rdf:about="#Monster">
+    <rdfs:subClassOf rdf:resource="#Character"/>
+  </owl:Class>
+  <owl:Class rdf:ID="HealthPotion">
+    <rdfs:subClassOf rdf:resource="#Potion"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Bow">
+    <rdfs:subClassOf rdf:resource="#Weapon"/>
+  </owl:Class>
+  <owl:ObjectProperty rdf:about="#usesWeapon">
+    <rdfs:range>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Weapon"/>
+        <owl:onProperty rdf:resource="#usesWeapon"/>
+      </owl:Restriction>
+    </rdfs:range>
+    <rdfs:domain>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Character"/>
+        <owl:onProperty rdf:resource="#usesWeapon"/>
+      </owl:Restriction>
+    </rdfs:domain>
+    <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:ID="learnsSkill">
+    <rdfs:range>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Skill"/>
+        <owl:onProperty rdf:resource="#learnsSkill"/>
+      </owl:Restriction>
+    </rdfs:range>
+    <rdfs:domain>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Character"/>
+        <owl:onProperty rdf:resource="#learnsSkill"/>
+      </owl:Restriction>
+    </rdfs:domain>
+    <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:ID="dropsItem">
+    <rdfs:range>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Item"/>
+        <owl:onProperty rdf:resource="#dropsItem"/>
+      </owl:Restriction>
+    </rdfs:range>
+    <rdfs:domain>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Monster"/>
+        <owl:onProperty rdf:resource="#dropsItem"/>
+      </owl:Restriction>
+    </rdfs:domain>
+    <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:ID="completesQuest">
+    <rdfs:range>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Quest"/>
+        <owl:onProperty rdf:resource="#completesQuest"/>
+      </owl:Restriction>
+    </rdfs:range>
+    <rdfs:domain>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Character"/>
+        <owl:onProperty rdf:resource="#completesQuest"/>
+      </owl:Restriction>
+    </rdfs:domain>
+    <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:ID="belongsToFaction">
+    <rdfs:range>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Faction"/>
+        <owl:onProperty rdf:resource="#belongsToFaction"/>
+      </owl:Restriction>
+    </rdfs:range>
+    <rdfs:domain>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Character"/>
+        <owl:onProperty rdf:resource="#belongsToFaction"/>
+      </owl:Restriction>
+    </rdfs:domain>
+    <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="#wearsArmor">
+    <rdfs:range>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Armor"/>
+        <owl:onProperty rdf:resource="#wearsArmor"/>
+      </owl:Restriction>
+    </rdfs:range>
+    <rdfs:domain>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Character"/>
+        <owl:onProperty rdf:resource="#wearsArmor"/>
+      </owl:Restriction>
+    </rdfs:domain>
+    <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:ID="locatedIn">
+    <rdfs:range rdf:resource="#Location"/>
+    <rdfs:domain>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Character"/>
+        <owl:onProperty rdf:resource="#locatedIn"/>
+      </owl:Restriction>
+    </rdfs:domain>
+    <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+  </owl:ObjectProperty>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#CompoundBow"/>
+      <owl:Class rdf:about="#CrossBow"/>
+      <owl:Class rdf:about="#LongBow"/>
+      <owl:Class rdf:about="#ShortBow"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#HealthPotion"/>
+      <owl:Class rdf:about="#MagicPotion"/>
+      <owl:Class rdf:about="#RegenerationPotion"/>
+      <owl:Class rdf:about="#SpeedPotion"/>
+      <owl:Class rdf:about="#StrengthPotion"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#BroadSword"/>
+      <owl:Class rdf:about="#GreatSword"/>
+      <owl:Class rdf:about="#ShortSword"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#Archer"/>
+      <owl:Class rdf:about="#Assassin"/>
+      <owl:Class rdf:about="#Healer"/>
+      <owl:Class rdf:about="#Warrior"/>
+      <owl:Class rdf:about="#Wizard"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#Armor"/>
+      <owl:Class rdf:about="#Potion"/>
+      <owl:Class rdf:about="#Weapon"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#Boss"/>
+      <owl:Class rdf:about="#Monster"/>
+      <owl:Class rdf:about="#NPC"/>
+      <owl:Class rdf:about="#Player"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#DemonBoss"/>
+      <owl:Class rdf:about="#DragonBoss"/>
+      <owl:Class rdf:about="#TankBoss"/>
+      <owl:Class rdf:about="#UndeadBoss"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#Character"/>
+      <owl:Class rdf:about="#Faction"/>
+      <owl:Class rdf:about="#Item"/>
+      <owl:Class rdf:about="#Location"/>
+      <owl:Class rdf:about="#Quest"/>
+      <owl:Class rdf:about="#Skill"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#DefensiveSkill"/>
+      <owl:Class rdf:about="#HealingSkill"/>
+      <owl:Class rdf:about="#OffensiveSkill"/>
+      <owl:Class rdf:about="#PassiveSkill"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#DailyQuest"/>
+      <owl:Class rdf:about="#EventQuest"/>
+      <owl:Class rdf:about="#MainQuest"/>
+      <owl:Class rdf:about="#SideQuest"/>
+      <owl:Class rdf:about="#WeeklyQuest"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#BeastMonster"/>
+      <owl:Class rdf:about="#DemonMonster"/>
+      <owl:Class rdf:about="#DragonMonster"/>
+      <owl:Class rdf:about="#ForestMonster"/>
+      <owl:Class rdf:about="#SkyMonster"/>
+      <owl:Class rdf:about="#UndeadMonster"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#CrystalDagger"/>
+      <owl:Class rdf:about="#ElementalDagger"/>
+      <owl:Class rdf:about="#MeleeDagger"/>
+      <owl:Class rdf:about="#ThrowingDagger"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#Bow"/>
+      <owl:Class rdf:about="#Dagger"/>
+      <owl:Class rdf:about="#Staff"/>
+      <owl:Class rdf:about="#Sword"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#HeavyArmor"/>
+      <owl:Class rdf:about="#LightArmor"/>
+      <owl:Class rdf:about="#RobeArmor"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <owl:Class rdf:about="#Dungeon"/>
+      <owl:Class rdf:about="#Forest"/>
+      <owl:Class rdf:about="#Kingdom"/>
+      <owl:Class rdf:about="#Mountain"/>
+      <owl:Class rdf:about="#Raid"/>
+      <owl:Class rdf:about="#Tower"/>
+      <owl:Class rdf:about="#Village"/>
+    </owl:members>
+  </owl:AllDisjointClasses>
 </rdf:RDF>
-
-
-
-<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
-
