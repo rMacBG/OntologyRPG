@@ -46,7 +46,6 @@ public class GUIAgent extends Agent {
                         javafx.application.Platform.runLater(() -> {
                             GameUI.instance.showMessage("You lost");
                         });
-                        System.out.println("CRITICAL: GameUI.instance is NULL! Cannot update screen.");
                     }
                 }
             }

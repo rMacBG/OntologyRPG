@@ -58,7 +58,7 @@ public class PlayerAgent extends Agent {
 
         String activePlayerClass = "WarriorClass";
         if (db.getHP("WarriorClass") > 0) activePlayerClass = "WarriorClass";
-        else if (db.getHP("MageClass") > 0) activePlayerClass = "MageClass";
+        else if (db.getHP("WizardClass") > 0) activePlayerClass = "WizardClass";
         else if (db.getHP("ArcherClass") > 0) activePlayerClass = "ArcherClass";
         else if (db.getHP("RogueClass") > 0) activePlayerClass = "RogueClass";
         ACLMessage message = new ACLMessage(ACLMessage.REQUEST);

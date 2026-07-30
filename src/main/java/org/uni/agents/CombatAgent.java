@@ -14,13 +14,13 @@ import java.util.Random;
 public class CombatAgent extends Agent {
 
     private CombatService combatService;
-    private OntologyService ontologyService;
+    //private OntologyService ontologyService;
     private DatabaseService databaseService = DatabaseService.getInstance();
     @Override
     protected void setup() {
 
         this.combatService = new CombatService();
-        this.ontologyService = new OntologyService();
+        //this.ontologyService = new OntologyService();
         System.out.println("Combat Agent  Started!");
 
         addBehaviour(new CyclicBehaviour() {
@@ -40,7 +40,6 @@ public class CombatAgent extends Agent {
 
 
                 if (parts[0].equals("FIGHT")) {
-                    // Викаме главния метод за управление на битката
                     executeBattleRound(message, parts);
                 }
             }
@@ -111,7 +110,7 @@ public class CombatAgent extends Agent {
             currentAtk = (int) (currentAtk * 1.35);
             if (rand.nextInt(20) == 0) {
                 currentAtk = (int) (currentAtk * 2.1);
-                System.out.println("🔥 CRITICAL HIT! Damage multiplied: " + currentAtk);
+                System.out.println("CRITICAL HIT! Damage multiplied: " + currentAtk);
             }
         }
         else if (!isWeakAgainst && isToughAgainst) {
@@ -124,8 +123,6 @@ public class CombatAgent extends Agent {
         ACLMessage reply = message.createReply();
         reply.setPerformative(ACLMessage.INFORM);
         reply.setContent(content);
-        send(reply);
-
         send(reply);
     }
 
@@ -141,58 +138,6 @@ public class CombatAgent extends Agent {
         send(message);
     }
 
-//    private String executeCombatRound(String player, String enemy, int enemyHP, ACLMessage originalMsg, String x, String y) {
-//        int playerHP = databaseService.getHP(player);
-//        int playerAtk = databaseService.getAttack(player);
-//        String playerWeapon = databaseService.getPlayerWeapon(player);
-//
-//        int enemyAtk = databaseService.getAttack(enemy);
-//        String weakness = ontologyService.getPropertyValue(enemy, "weakAgainst");
-//        String toughness = ontologyService.getPropertyValue(enemy, "strongAgainst");
-//
-//        String playerWeaponElement = null;
-//        if (playerWeapon != null) {
-//            playerWeaponElement = ontologyService.getPropertyValue(playerWeapon, "usesAttack");
-//        }
-//
-//        Random rand = new Random();
-//        boolean hasElement = (playerWeaponElement != null && !playerWeaponElement.isEmpty());
-//        boolean isWeakAgainst = hasElement && (weakness != null && weakness.contains(playerWeaponElement));
-//        boolean isToughAgainst = hasElement && (toughness != null && toughness.contains(playerWeaponElement));
-//
-//        if (isWeakAgainst && !isToughAgainst) {
-//            playerAtk = (int) (playerAtk * 1.35);
-//            if (rand.nextInt(20) == 0) {
-//                playerAtk = (int) (playerAtk * 2.1);
-//                System.out.println("CRITICAL HIT! " + playerAtk);
-//            }
-//        } else if (!isWeakAgainst && isToughAgainst) {
-//            playerAtk = (int) (playerAtk * 0.66);
-//        }
-//
-//        enemyHP -= playerAtk;
-//        String logLine = player + " hit " + enemy + " for " + playerAtk + " dmg. ";
-//
-//        if (enemyHP <= 0) {
-//            enemyHP = 0;
-//
-//            notifyQuestAgent(enemy);
-//
-//            sendReply(originalMsg, "ROUND_RESULT:WIN:" + x + ":" + y + ":" + enemyHP + ":" + playerHP + ":" + logLine + "Victory!");
-//            return "WIN";
-//        }
-//        playerHP -= enemyAtk;
-//        logLine += enemy + " attacked back for " + enemyAtk + " dmg.";
-//
-//        if (playerHP <= 0) {
-//            playerHP = 0;
-//
-//            databaseService.updatePlayerHP(player, playerHP);
-//            sendReply(originalMsg, "ROUND_RESULT:LOSE:" + x + ":" + y + ":" + enemyHP + ":" + playerHP + ":" + logLine + " You Died!");
-//            return "LOSE";
-//        }
-//        sendReply(originalMsg, "ROUND_RESULT:CONTINUE:" + x + ":" + y + ":" + enemyHP + ":" + playerHP + ":" + logLine);
-//        return "CONTINUE";
-//    }
+
 }
 

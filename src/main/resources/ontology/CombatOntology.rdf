@@ -39,6 +39,15 @@
     
 
 
+    <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#hasWeapon -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#hasWeapon">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:range rdf:resource="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Weapon"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#strongAgainst -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#strongAgainst">
@@ -579,8 +588,8 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#WizardClass">
         <rdf:type rdf:resource="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Wizard"/>
-        <Combat_Ontology:hasBaseDamage rdf:datatype="http://www.w3.org/2001/XMLSchema#int">100</Combat_Ontology:hasBaseDamage>
         <Combat_Ontology:hasBaseDamage rdf:datatype="http://www.w3.org/2001/XMLSchema#int">22</Combat_Ontology:hasBaseDamage>
+        <Combat_Ontology:hasHP rdf:datatype="http://www.w3.org/2001/XMLSchema#int">100</Combat_Ontology:hasHP>
     </owl:NamedIndividual>
     
 

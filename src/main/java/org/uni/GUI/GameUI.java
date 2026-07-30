@@ -15,9 +15,11 @@ import org.uni.agents.GUIAgent;
 import org.uni.agents.PlayerAgent;
 import org.uni.service.CombatService;
 import org.uni.service.DatabaseService;
+import org.uni.service.DungeonGenerator;
 import org.uni.service.OntologyService;
 
-import javax.xml.crypto.Data;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -26,6 +28,12 @@ public class GameUI extends Application {
     private int playerX = 0;
     private int playerY = 0;
     private final int SIZE = 10;
+
+    private int currentDungeonLevel = 1;
+    private int activeMonstersCount = 0;
+    private DungeonGenerator dungeonGenerator = new DungeonGenerator(SIZE);
+    private DungeonGenerator.Tile[][] mapData;
+
 
     public static GameUI instance;
     private DatabaseService databaseService = DatabaseService.getInstance();
@@ -44,6 +52,8 @@ public class GameUI extends Application {
     private Label hpLabel = new Label();
     private Label atkLabel = new Label();
     private Label weaponLabel = new Label();
+    private Label levelLabel = new Label();
+    private boolean isGameOver = false;
 
 
 
@@ -87,7 +97,32 @@ public class GameUI extends Application {
 
     }
 
+    private void loadLevel(int dungeonLevel) {
+        this.currentDungeonLevel = dungeonLevel;
+        this.playerX = 0;
+        this.playerY = 0;
 
+        List<String> ontologyMonsters = new ArrayList<>();
+        ontologyMonsters.add("Dragon");
+        ontologyMonsters.add("Goblin");
+        ontologyMonsters.add("Demon");
+
+        this.mapData = dungeonGenerator.generateLevel(currentDungeonLevel, ontologyMonsters);
+
+        activeMonstersCount = 0;
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
+                if (mapData[x][y].type.equals("MONSTER")) {
+                    activeMonstersCount++;
+                }
+            }
+        }
+        if (battleLogArea != null) {
+            battleLogArea.appendText("Entering new floor" + currentDungeonLevel + " --- \n");
+            battleLogArea.appendText("Enemies left: " + activeMonstersCount + "\n");
+        }
+
+    }
     private void spawnMonsters() {
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
@@ -113,6 +148,7 @@ public class GameUI extends Application {
     }
 
     private void showMainMenu() {
+        this.isGameOver = false;
         VBox menuBox = new VBox(20);
         menuBox.setAlignment(Pos.CENTER);
         Label title = new Label("Chronicles of Jaba: The Reckoning of the Onterolog");
@@ -127,6 +163,8 @@ public class GameUI extends Application {
         exitBtn.setOnAction(e -> Platform.exit());
 
         menuBox.getChildren().addAll(title, startBtn, exitBtn);
+        mainLayout.setRight(null);
+        mainLayout.setBottom(null);
         mainLayout.setCenter(menuBox);
 
 
@@ -153,10 +191,10 @@ public class GameUI extends Application {
         rbArcher.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
         rbArcher.setUserData("ArcherClass");
 
-        RadioButton rbMage = new RadioButton("Mage (100 HP, 22 ATK) - Starts with StormStaff");
+        RadioButton rbMage = new RadioButton("Wizard (100 HP, 22 ATK) - Starts with StormStaff");
         rbMage.setToggleGroup(group);
         rbMage.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        rbMage.setUserData("MageClass");
+        rbMage.setUserData("WizardClass");
 
         RadioButton rbRogue = new RadioButton("Assassin (135 HP, 20 ATK) - Starts with SteelDagger");
         rbRogue.setToggleGroup(group);
@@ -175,33 +213,20 @@ public class GameUI extends Application {
             int initialHP = cs.getIntProperty(this.selectedPlayerClass, "hasHP");
             int initialATK = cs.getIntProperty(this.selectedPlayerClass, "hasBaseDamage");
 
-//            if (initialHP == 0) {
-//                if (selectedClassIndividual.equals("WarriorClass")) initialHP = 150;
-//                else if (selectedClassIndividual.equals("ArcherClass")) initialHP = 120;
-//                else if (selectedClassIndividual.equals("MageClass")) initialHP = 100;
-//                else if (selectedClassIndividual.equals("RogueClass")) initialHP = 135;
-//            }
-//            if (initialATK == 0) {
-//                if (selectedClassIndividual.equals("WarriorClass")) initialATK = 15;
-//                else if (selectedClassIndividual.equals("ArcherClass")) initialATK = 17;
-//                else if (selectedClassIndividual.equals("MageClass")) initialATK = 22;
-//                else if (selectedClassIndividual.equals("RogueClass")) initialATK = 20;
-//            }
             String startingWeapon = "Starting Weapon";
             if (selectedPlayerClass.equals("WarriorClass")) startingWeapon = "IronSword";
             else if (selectedPlayerClass.equals("ArcherClass")) startingWeapon = "ShortBow";
-            else if (selectedPlayerClass.equals("MageClass")) startingWeapon = "StormStaff";
+            else if (selectedPlayerClass.equals("WizardClass")) startingWeapon = "StormStaff";
             else if (selectedPlayerClass.equals("RogueClass")) startingWeapon = "SteelDagger";
 
-//            ontologyService.updateIndividualProperty("Player", "hasHP", initialHP);
-//            ontologyService.updateIndividualProperty("Player", "hasBaseDamage", initialATK);
 
             databaseService.addCustomPlayer(this.selectedPlayerClass, startingWeapon, initialHP, initialATK);
             this.currentPlayerHpInCombat = initialHP;
-            //databaseService.updatePlayerHP("Player", initialHP);
 
             spawnMonsters();
+            loadLevel(1);
             buildGameMap();
+
         });
 
         creationBox.getChildren().addAll(header, rbWarrior, rbArcher, rbMage, rbRogue, confirmBtn);
@@ -273,21 +298,25 @@ public class GameUI extends Application {
             return;
         }
 
+        DungeonGenerator.Tile targetTile = mapData[newX][newY];
 
-        if (map[newX][newY] != null) {
-            String enemy = map[newX][newY];
+        if (targetTile.type.equals("WALL")) {
+            showMessage("Пътят е блокиран от скала/стена!");
+            return;
+        }
+
+        if (targetTile.type.equals("MONSTER")) {
+            String enemy = targetTile.monsterName;
             System.out.println("Encounter: " + enemy);
 
             this.currentEnemyX = newX;
             this.currentEnemyY = newY;
             this.currentEnemyName = enemy;
 
-            this.currentEnemyMaxHp = cs.getIntProperty(this.currentEnemyName, "hasHP");
+            int baseHP = cs.getIntProperty(this.currentEnemyName, "hasHP");
+            if (baseHP <= 0) baseHP = 100;
 
-            if (this.currentEnemyMaxHp == 0) {
-                this.currentEnemyMaxHp = 100;
-            }
-
+            this.currentEnemyMaxHp = (int) (baseHP * (1.0 + (currentDungeonLevel - 1) * 0.20));
             this.currentEnemyHp = this.currentEnemyMaxHp;
 
             int dbHP = databaseService.getHP(this.selectedPlayerClass);
@@ -296,11 +325,83 @@ public class GameUI extends Application {
             openTurnBasedCombatScreen();
             return;
         }
+
+        if (targetTile.type.equals("POTION")) {
+            int currentHP = databaseService.getHP(this.selectedPlayerClass);
+            int healedHP = currentHP + 30;
+            databaseService.updatePlayerHP(this.selectedPlayerClass, healedHP);
+            this.currentPlayerHpInCombat = healedHP;
+
+            mapData[newX][newY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
+            updatePlayerStatsMenu();
+            showMessage("Взехте лечебна отвара! +30 HP.");
+            if (battleLogArea != null) battleLogArea.appendText("Намерихте отвара и възстановихте 30 HP!\n");
+        }
+
+        if (targetTile.type.equals("EXIT")) {
+            if (activeMonstersCount <= 0) {
+                showNextLevelDialog();
+                return;
+            } else {
+                showMessage("Порталът е заключен! Победете останалите " + activeMonstersCount + " чудовища.");
+            }
+        }
+
         playerX = newX;
         playerY = newY;
 
         updateMap();
     }
+
+    private void showNextLevelDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Етажът е изчистен!");
+        alert.setHeaderText("Отлично, Герой!");
+        alert.setContentText("Успешно изчистихте Етаж " + currentDungeonLevel + "! Преминавате към Етаж " + (currentDungeonLevel + 1) + ".");
+        alert.showAndWait();
+
+        loadLevel(currentDungeonLevel + 1);
+        levelLabel.setText("Dungeon Level: " + currentDungeonLevel);
+        updateMap();
+    }
+
+
+//    private void movePlayer(int newX, int newY) {
+//        if (mainLayout.getCenter() != grid) {
+//            return;
+//        }
+//
+//        if (newX < 0 || newY < 0 || newX >= SIZE || newY >= SIZE) {
+//            return;
+//        }
+//
+//        if (map[newX][newY] != null) {
+//            String enemy = map[newX][newY];
+//            System.out.println("Encounter: " + enemy);
+//
+//            this.currentEnemyX = newX;
+//            this.currentEnemyY = newY;
+//            this.currentEnemyName = enemy;
+//
+//            this.currentEnemyMaxHp = cs.getIntProperty(this.currentEnemyName, "hasHP");
+//
+//            if (this.currentEnemyMaxHp == 0) {
+//                this.currentEnemyMaxHp = 100;
+//            }
+//
+//            this.currentEnemyHp = this.currentEnemyMaxHp;
+//
+//            int dbHP = databaseService.getHP(this.selectedPlayerClass);
+//            this.currentPlayerHpInCombat = dbHP > 0 ? dbHP : 150;
+//
+//            openTurnBasedCombatScreen();
+//            return;
+//        }
+//        playerX = newX;
+//        playerY = newY;
+//
+//        updateMap();
+//    }
 
     private void openTurnBasedCombatScreen() {
         VBox combatScreen = new VBox(20);
@@ -393,24 +494,174 @@ public class GameUI extends Application {
         mainLayout.setCenter(combatScreen);
     }
 
+//    public void handleMonsterDefeated(int monsterX, int monsterY) {
+//        Platform.runLater(() -> {
+//            map[monsterX][monsterY] = null;
+//            playerX = monsterX;
+//            playerY = monsterY;
+//            mainLayout.setCenter(grid);
+//
+//            updateMap();
+//
+//            updatePlayerStatsMenu();
+//            grid.requestFocus();
+//
+//            if (battleLogArea != null) {
+//                String cleanName = currentEnemyName.replace("Monster", "").replace("Boss", "");
+//                battleLogArea.appendText("Victory! Defeated the " + currentEnemyName + "!\n");
+//            }
+//            showMessage("Monster Defeated! Position updated.");
+//
+//            boolean monstersLeft = false;
+//            for (int x = 0; x < SIZE; x++) {
+//                for (int y = 0; y < SIZE; y++) {
+//                    if (map[x][y] != null) {
+//                        monstersLeft = true;
+//                        break;
+//                    }
+//                }
+//                if (monstersLeft) break;
+//            }
+//
+//            if (!monstersLeft && !isGameOver) {
+//                isGameOver = true;
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setTitle("ИГРАТА Е СПЕЧЕЛЕНА! 🎉");
+//                alert.setHeaderText("Поздравления, Герой! 👑");
+//                alert.setContentText("Ти прочисти цялата карта от силите на злото и спаси Onterolog! Chronicles of Jaba ще помнят твоето име вовеки!");
+//
+//                alert.showAndWait();
+//
+//                playerX = 0;
+//                playerY = 0;
+//                if (battleLogArea != null) battleLogArea.clear();
+//
+//                showMainMenu();
+//
+//        }
+//        });
+//    }
+//
+//    private void updateMap() {
+//        for (int x = 0; x < SIZE; x++) {
+//            for (int y = 0; y < SIZE; y++) {
+//                tiles[x][y].setText("");
+//                tiles[x][y].setStyle("-fx-background-color: #34495e; -fx-border-color: #2c3e50; -fx-text-fill: white;");
+//
+//                if (map[x][y] != null) {
+//                    if (map[x][y].equals("Dragon")) {
+//                        tiles[x][y].setText("🐲");
+//                        tiles[x][y].setStyle("-fx-background-color: #c0392b;");
+//                    } else if (map[x][y].equals("Goblin")) {
+//                        tiles[x][y].setText("👺");
+//                        tiles[x][y].setStyle("-fx-background-color: #27ae60;");
+//                    } else if (map[x][y].equals("Demon")) {
+//                        tiles[x][y].setText("😈");
+//                        tiles[x][y].setStyle("-fx-background-color: #8e44ad;");
+//                    }
+//                }
+//            }
+//        }
+//        tiles[playerX][playerY].setText("🧙‍♂️");
+//        tiles[playerX][playerY].setStyle("-fx-background-color: #f1c40f;");
+//    }
+//
+//    public void handleCombatRoundResult(String status, int monsterX, int monsterY, int newEnemyHp, int newPlayerHp, String logMessage) {
+//
+//
+//        mainLayout.setCenter(grid);
+//        Platform.runLater(() -> {
+//            this.currentEnemyHp = newEnemyHp;
+//            this.currentPlayerHpInCombat = newPlayerHp;
+//
+//            databaseService.updatePlayerHP(this.selectedPlayerClass, newPlayerHp);
+//            updatePlayerStatsMenu();
+//
+//            if (battleLogArea != null) {
+//                battleLogArea.appendText(logMessage + "\n");
+//            }
+//
+//            if (status.equals("CONTINUE")) {
+//                openTurnBasedCombatScreen();
+//            } else if (status.equals("WIN")) {
+//                handleMonsterDefeated(monsterX, monsterY);
+//                mainLayout.setCenter(grid);
+//            } else if (status.equals("LOSE")) {
+//                showMessage("GAME OVER! You were defeated.");
+//                showMainMenu();
+//
+//            }
+//
+//        });
+//    }
+//
+//    public void updatePlayerStatsMenu() {
+//        int currentHP = this.currentPlayerHpInCombat;
+//        if (currentHP <= 0) {
+//            currentHP = databaseService.getHP(this.selectedPlayerClass);
+//        }
+//        int currentAtk = databaseService.getAttack(this.selectedPlayerClass);
+//        //if (currentAtk <= 0) currentAtk = 15;
+//
+//        String currentWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
+//        if (currentWeapon == null) currentWeapon = "Class Weapon";
+//
+//        int finalHP = currentHP;
+//        int finalAtk = currentAtk;
+//        Platform.runLater(() -> {
+//            hpLabel.setText("HP: " + finalHP);
+//            atkLabel.setText("ATK: " + finalAtk);
+//            weaponLabel.setText("Active Class: " + this.selectedPlayerClass.replace("Class", ""));
+//        });
+//    }
+//
+//    public void showMessage(String message) {
+//        Platform.runLater(() -> {
+//            info.setText(message);
+//        });
+//    }
+//}
+
+
+
     public void handleMonsterDefeated(int monsterX, int monsterY) {
         Platform.runLater(() -> {
-            map[monsterX][monsterY] = null;
+            // Превръщаме клетката в празна след победа
+            mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
+            activeMonstersCount--;
+
             playerX = monsterX;
             playerY = monsterY;
             mainLayout.setCenter(grid);
 
-            updateMap();
+            // Ако всички чудовища са мъртви - отключваме портала!
+            if (activeMonstersCount <= 0) {
+                unlockPortal();
+            }
 
+            updateMap();
             updatePlayerStatsMenu();
             grid.requestFocus();
 
             if (battleLogArea != null) {
-                String cleanName = currentEnemyName.replace("Monster", "").replace("Boss", "");
-                battleLogArea.appendText("Victory! Defeated the " + currentEnemyName + "!\n");
+                battleLogArea.appendText("Victory! Defeated " + currentEnemyName + "! Остават: " + activeMonstersCount + "\n");
             }
-            showMessage("Monster Defeated! Position updated.");
+            showMessage("Monster Defeated!");
         });
+    }
+
+    private void unlockPortal() {
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
+                if (mapData[x][y].type.equals("EXIT")) {
+                    mapData[x][y].icon = "🚪"; // Отключен портал
+                }
+            }
+        }
+        if (battleLogArea != null) {
+            battleLogArea.appendText("🎉 Всички чудовища са победени! Порталът (🚪) е отключен!\n");
+        }
+        showMessage("Порталът е отключен!");
     }
 
     private void updateMap() {
@@ -419,17 +670,20 @@ public class GameUI extends Application {
                 tiles[x][y].setText("");
                 tiles[x][y].setStyle("-fx-background-color: #34495e; -fx-border-color: #2c3e50; -fx-text-fill: white;");
 
-                if (map[x][y] != null) {
-                    if (map[x][y].equals("Dragon")) {
-                        tiles[x][y].setText("🐲");
-                        tiles[x][y].setStyle("-fx-background-color: #c0392b;");
-                    } else if (map[x][y].equals("Goblin")) {
-                        tiles[x][y].setText("👺");
-                        tiles[x][y].setStyle("-fx-background-color: #27ae60;");
-                    } else if (map[x][y].equals("Demon")) {
-                        tiles[x][y].setText("😈");
-                        tiles[x][y].setStyle("-fx-background-color: #8e44ad;");
-                    }
+                DungeonGenerator.Tile tileData = mapData[x][y];
+
+                if (tileData.type.equals("WALL")) {
+                    tiles[x][y].setText("⬛");
+                    tiles[x][y].setStyle("-fx-background-color: #111111;");
+                } else if (tileData.type.equals("MONSTER")) {
+                    tiles[x][y].setText(tileData.icon);
+                    tiles[x][y].setStyle("-fx-background-color: #c0392b;");
+                } else if (tileData.type.equals("POTION")) {
+                    tiles[x][y].setText("🧪");
+                    tiles[x][y].setStyle("-fx-background-color: #27ae60;");
+                } else if (tileData.type.equals("EXIT")) {
+                    tiles[x][y].setText(tileData.icon);
+                    tiles[x][y].setStyle("-fx-background-color: #d35400;");
                 }
             }
         }
@@ -438,6 +692,7 @@ public class GameUI extends Application {
     }
 
     public void handleCombatRoundResult(String status, int monsterX, int monsterY, int newEnemyHp, int newPlayerHp, String logMessage) {
+        mainLayout.setCenter(grid);
         Platform.runLater(() -> {
             this.currentEnemyHp = newEnemyHp;
             this.currentPlayerHpInCombat = newPlayerHp;
@@ -451,14 +706,12 @@ public class GameUI extends Application {
 
             if (status.equals("CONTINUE")) {
                 openTurnBasedCombatScreen();
-            }
-            else if (status.equals("WIN")) {
+            } else if (status.equals("WIN")) {
                 handleMonsterDefeated(monsterX, monsterY);
                 mainLayout.setCenter(grid);
-            }
-            else if (status.equals("LOSE")) {
+            } else if (status.equals("LOSE")) {
                 showMessage("GAME OVER! You were defeated.");
-                mainLayout.setCenter(grid);
+                showMainMenu();
             }
         });
     }
@@ -469,7 +722,6 @@ public class GameUI extends Application {
             currentHP = databaseService.getHP(this.selectedPlayerClass);
         }
         int currentAtk = databaseService.getAttack(this.selectedPlayerClass);
-        //if (currentAtk <= 0) currentAtk = 15;
 
         String currentWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
         if (currentWeapon == null) currentWeapon = "Class Weapon";
@@ -489,4 +741,3 @@ public class GameUI extends Application {
         });
     }
 }
-
