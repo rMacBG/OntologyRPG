@@ -4,6 +4,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import org.uni.model.Monster;
 import org.uni.service.CombatService;
 import org.uni.service.DatabaseService;
 import org.uni.service.OntologyService;
@@ -53,9 +54,19 @@ public class CombatAgent extends Agent {
         String monsterY = parts[4].trim();
         String hpPart = parts[5].trim();
 
-        int enemyHP = hpPart.equals("START") || hpPart.isEmpty()
-                ? combatService.getIntProperty(enemyName, "hasHP")
-                : Integer.parseInt(hpPart);
+        int dungeonLevel = (parts.length > 6) ? Integer.parseInt(parts[6].trim()) : 1;
+
+        Monster tempMonster = combatService.createMonster(enemyName, dungeonLevel);
+
+        int enemyAtk = (tempMonster != null) ? tempMonster.getAtk() : combatService.getMonsterAttackDamage(enemyName);
+        if (enemyAtk <= 0) enemyAtk = 10;
+
+        int enemyHP;
+        if (hpPart.equals("START") || hpPart.isEmpty()) {
+            enemyHP = (tempMonster != null) ? tempMonster.getMaxHp() : 100;
+        } else {
+            enemyHP = Integer.parseInt(hpPart);
+        }
         if (enemyHP <= 0) enemyHP = 100;
 
         int playerHP = databaseService.getHP(playerClass);
@@ -65,9 +76,6 @@ public class CombatAgent extends Agent {
         int basePlayerAtk = databaseService.getAttack(playerClass);
         if (basePlayerAtk <= 0) basePlayerAtk = combatService.getIntProperty(playerClass, "hasBaseDamage");
         if (basePlayerAtk <= 0) basePlayerAtk = 15;
-
-        int enemyAtk = combatService.getMonsterAttackDamage(enemyName);
-        if (enemyAtk <= 0) enemyAtk = 10;
 
         int finalPlayerDamage = calculateDamage(playerClass, enemyName, basePlayerAtk);
 

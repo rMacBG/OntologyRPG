@@ -6,11 +6,15 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
+import org.uni.model.Hero;
+import org.uni.model.Item;
+import org.uni.model.Monster;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class CombatService {
 
@@ -24,7 +28,6 @@ public class CombatService {
     public CombatService() {
         loadOntology();
     }
-
     private void loadOntology() {
         model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
         var docManager = model.getDocumentManager();
@@ -51,19 +54,74 @@ public class CombatService {
 
     }
 
+    public Monster createMonster(String monsterName, int dungeonLevel) {
+        if (monsterName == null) return null;
+
+        int baseHp = getMonsterHP(monsterName);
+        int baseAtk = getMonsterAttackDamage(monsterName);
+        String weakness = getWeakness(monsterName);
+        String behavior = getBehavior(monsterName);
+
+        return new Monster(monsterName, baseHp, baseAtk, weakness, behavior, dungeonLevel);
+    }
+
+    public Hero createHero(String heroClass, String weaponName) {
+        if (heroClass == null) return null;
+
+        int baseHp = getIntProperty(heroClass, "hasHP");
+        if (baseHp <= 0) baseHp = 150;
+
+        int baseAtk = getIntProperty(heroClass, "hasBaseDamage");
+        if (baseAtk <= 0) baseAtk = 15;
+
+        int weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
+        if (weaponAtk > 0) {
+            baseAtk += weaponAtk;
+        }
+
+        return new Hero(heroClass, baseHp, baseHp, baseAtk, weaponName, new ArrayList<>());
+    }
+
+    public String executeAttack(Hero hero, Monster monster) {
+        if (hero == null || monster == null) return "ERROR";
+
+        int heroDamage = hero.getAtk();
+        monster.takeDamage(heroDamage);
+
+        if (!monster.isAlive()) {
+            return "VICTORY";
+        }
+
+        int monsterDamage = monster.getAtk();
+        hero.takeDamage(monsterDamage);
+
+        if (!hero.isAlive()) {
+            return "DEFEAT";
+        }
+
+        return "CONTINUE";
+    }
+    public void applyItem(Hero hero, Item item) {
+        if (hero == null || item == null || item.getQuantity() <= 0) return;
+
+        if ("HEAL".equalsIgnoreCase(item.getItemType())) {
+            hero.heal(item.getEffectiveValue());
+        } else if ("BUFF".equalsIgnoreCase(item.getItemType())) {
+            hero.setAtk(hero.getAtk() + item.getEffectiveValue());
+        }
+
+        item.setQuantity(item.getQuantity() - 1);
+    }
+
     public String getAttack(String monsterName) {
         if (monsterName == null) return "None";
-
-        String attackName = getStringProperty(monsterName, "usesAttack");
-        System.out.println("-> No such attack found " + monsterName + ": " + attackName);
-        return attackName;
+        return getStringProperty(monsterName, "usesAttack");
     }
 
     public String getWeakness(String monsterName) {
         if (model == null || monsterName == null) return "Unknown";
 
         var monster = model.getOntClass(NS + monsterName);
-
         if (monster == null) {
             var individual = model.getIndividual(NS + monsterName);
             if (individual != null) {
@@ -76,78 +134,35 @@ public class CombatService {
 
         var property = model.getProperty(NS + "weakAgainst");
         var value = monster.getPropertyValue(property);
-
-        if (value == null) {
-            return "None";
-        }
-        return value.asResource().getLocalName();
+        return (value != null) ? value.asResource().getLocalName() : "None";
     }
 
     public int getMonsterHP(String monsterName) {
-        if(monsterName == null) return 100;
+        if (monsterName == null) return 100;
         int hp = getIntProperty(monsterName, "hasHP");
+        if (hp <= 0) hp = getIntProperty(monsterName + "Monster", "hasHP");
         return hp > 0 ? hp : 100;
     }
 
-    public int getIntProperty(String entityName, String propertyName) {
-        if (model == null || entityName == null || propertyName == null) {
-            return 0;
-        }
-
-        String combatNS = "http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#";
-        String rpgNS = "http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#";
-
-
-        var entity = model.getIndividual(combatNS + entityName);
-        if (entity == null) entity = model.getIndividual(BASE + entityName);
-        if (entity == null) entity = model.getIndividual(rpgNS + entityName);
-
-        if (entity == null) {
-            System.out.println("Individual [" + entityName + "] not found!");
-            return 0;
-        }
-
-
-        var stmtIter = entity.listProperties();
-        while (stmtIter.hasNext()) {
-            var stmt = stmtIter.nextStatement();
-            var pred = stmt.getPredicate();
-
-
-            //String predString = (pred != null) ? pred.toString() : "";
-
-                String subjStr = stmt.getSubject().getURI();
-                String predStr = stmt.getPredicate().getLocalName();
-
-                if (subjStr != null && subjStr.toLowerCase().endsWith("#" + entityName.toLowerCase())) {
-                    if (predStr != null && predStr.equalsIgnoreCase(propertyName)) {
-                        try {
-                            return stmt.getObject().asLiteral().getInt();
-                        } catch (Exception e) {
-
-                        }
-                    }
-                }
-            }
-
-        //System.out.println("No property found " + propertyName + " for " + entityName);
-        return 0;
-    }
-
     public int getMonsterAttackDamage(String monsterName) {
-        if (monsterName == null) return 10;
+        if (monsterName == null) return 0;
 
-        String attackName = getAttack(monsterName);
         int damage = 0;
 
-
-        if (attackName != null && !attackName.equalsIgnoreCase("None")) {
-            damage = getIntProperty(attackName, "hasBaseDamage");
-        }
+        damage = getIntProperty(monsterName, "hasBaseDamage");
+        if (damage <= 0) damage = getIntProperty(monsterName, "hasAttackDamage");
+        if (damage <= 0) damage = getIntProperty(monsterName, "hasDamage");
+        if (damage <= 0) damage = getIntProperty(monsterName, "hasATK");
 
         if (damage <= 0) {
-            damage = getIntProperty(monsterName, "hasBaseDamage");
+            String attackName = getAttack(monsterName);
+            if (attackName != null && !attackName.equalsIgnoreCase("None")) {
+                damage = getIntProperty(attackName, "hasBaseDamage");
+                if (damage <= 0) damage = getIntProperty(attackName, "hasAttackDamage");
+                if (damage <= 0) damage = getIntProperty(attackName, "hasDamage");
+            }
         }
+
         return damage;
     }
 
@@ -155,7 +170,6 @@ public class CombatService {
         if (model == null || monsterName == null) return "None";
 
         var monster = model.getOntClass(NS + monsterName);
-
         if (monster == null) {
             var individual = model.getIndividual(NS + monsterName);
             if (individual != null) {
@@ -168,17 +182,72 @@ public class CombatService {
 
         var property = model.getProperty(NS + "hasBehavior");
         var value = monster.getPropertyValue(property);
+        return (value != null) ? value.asResource().getLocalName() : "None";
+    }
 
-        if (value == null) {
-            return "None";
+    public int getIntProperty(String entityName, String propertyName) {
+        if (model == null || entityName == null || propertyName == null) {
+            return 0;
         }
 
-        return value.asResource().getLocalName();
+        String combatNS = "http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#";
+        String rpgNS = "http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#";
+
+        var entity = model.getIndividual(combatNS + entityName);
+        if (entity == null) entity = model.getIndividual(BASE + entityName);
+        if (entity == null) entity = model.getIndividual(rpgNS + entityName);
+
+        if (entity == null) {
+            var ontClass = model.getOntClass(combatNS + entityName);
+            if (ontClass == null) ontClass = model.getOntClass(rpgNS + entityName);
+            if (ontClass == null) ontClass = model.getOntClass(combatNS + entityName + "Class");
+            if (ontClass == null) ontClass = model.getOntClass(rpgNS + entityName + "Class");
+
+            if (ontClass != null) {
+                var stmtIter = ontClass.listProperties();
+                while (stmtIter.hasNext()) {
+                    var stmt = stmtIter.nextStatement();
+                    String predStr = stmt.getPredicate().getLocalName();
+                    if (predStr != null && predStr.equalsIgnoreCase(propertyName)) {
+                        try {
+                            return stmt.getObject().asLiteral().getInt();
+                        } catch (Exception ignored) {}
+                    }
+                }
+            }
+        } else {
+            var stmtIter = entity.listProperties();
+            while (stmtIter.hasNext()) {
+                var stmt = stmtIter.nextStatement();
+                String predStr = stmt.getPredicate().getLocalName();
+                if (predStr != null && predStr.equalsIgnoreCase(propertyName)) {
+                    try {
+                        return stmt.getObject().asLiteral().getInt();
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+
+        var stmtIter = model.listStatements();
+        while (stmtIter.hasNext()) {
+            var stmt = stmtIter.nextStatement();
+            String subjStr = stmt.getSubject().getURI();
+            String predStr = stmt.getPredicate().getLocalName();
+
+            if (subjStr != null && subjStr.toLowerCase().contains(entityName.toLowerCase())) {
+                if (predStr != null && predStr.equalsIgnoreCase(propertyName)) {
+                    try {
+                        return stmt.getObject().asLiteral().getInt();
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+
+        return 0;
     }
 
     public String getStringProperty(String entityName, String propertyName) {
         if (model == null || entityName == null || propertyName == null) return "None";
-
 
         try {
             var individual = model.getIndividual(NS + entityName);
