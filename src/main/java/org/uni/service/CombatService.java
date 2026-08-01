@@ -119,22 +119,31 @@ public class CombatService {
     }
 
     public String getWeakness(String monsterName) {
-        if (model == null || monsterName == null) return "Unknown";
+        if (model == null || monsterName == null || monsterName.isEmpty()) return "Unknown";
 
-        var monster = model.getOntClass(NS + monsterName);
-        if (monster == null) {
-            var individual = model.getIndividual(NS + monsterName);
-            if (individual != null) {
-                var property = model.getProperty(NS + "weakAgainst");
-                var value = individual.getPropertyValue(property);
-                if (value != null) return value.asResource().getLocalName();
+        var resIter = model.listSubjects();
+        while (resIter.hasNext()) {
+            var res = resIter.nextResource();
+            if (res.getLocalName() != null && res.getLocalName().equalsIgnoreCase(monsterName)) {
+
+                var stmtIter = res.listProperties();
+                while (stmtIter.hasNext()) {
+                    var stmt = stmtIter.nextStatement();
+                    String propName = stmt.getPredicate().getLocalName();
+
+                    if (propName != null && (propName.equalsIgnoreCase("weakAgainst") || propName.equalsIgnoreCase("hasWeakness"))) {
+                        var obj = stmt.getObject();
+                        if (obj.isResource()) {
+                            return obj.asResource().getLocalName();
+                        } else if (obj.isLiteral()) {
+                            return obj.asLiteral().getString();
+                        }
+                    }
+                }
             }
-            return "Unknown";
         }
 
-        var property = model.getProperty(NS + "weakAgainst");
-        var value = monster.getPropertyValue(property);
-        return (value != null) ? value.asResource().getLocalName() : "None";
+        return "Unknown";
     }
 
     public int getMonsterHP(String monsterName) {

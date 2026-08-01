@@ -48,13 +48,24 @@ public class CombatAgent extends Agent {
     }
 
     private void executeBattleRound(ACLMessage originalMsg, String[] parts) {
-        String playerClass = parts[1].trim();
-        String enemyName = parts[2].trim();
-        String monsterX = parts[3].trim();
-        String monsterY = parts[4].trim();
-        String hpPart = parts[5].trim();
+        // ВЕЧЕ НОВИЯТ СТРУКТУРИРАН МАСИВ:
+        // parts[0] = "FIGHT"
+        // parts[1] = actionType ("ATTACK" или "SKILL")
+        // parts[2] = playerClass ("WarriorClass")
+        // parts[3] = enemyName ("Goblin")
+        // parts[4] = monsterX
+        // parts[5] = monsterY
+        // parts[6] = hpPart ("100" или "START")
+        // parts[7] = dungeonLevel
 
-        int dungeonLevel = (parts.length > 6) ? Integer.parseInt(parts[6].trim()) : 1;
+        String actionType = parts[1].trim();
+        String playerClass = parts[2].trim();
+        String enemyName = parts[3].trim(); // Оправено! Вече сочи към чудовището (напр. Goblin)
+        String monsterX = parts[4].trim();
+        String monsterY = parts[5].trim();
+        String hpPart = parts[6].trim();
+
+        int dungeonLevel = (parts.length > 7) ? Integer.parseInt(parts[7].trim()) : 1;
 
         Monster tempMonster = combatService.createMonster(enemyName, dungeonLevel);
 
@@ -77,19 +88,23 @@ public class CombatAgent extends Agent {
         if (basePlayerAtk <= 0) basePlayerAtk = combatService.getIntProperty(playerClass, "hasBaseDamage");
         if (basePlayerAtk <= 0) basePlayerAtk = 15;
 
-        int finalPlayerDamage = calculateDamage(playerClass, enemyName, basePlayerAtk);
+        // Изчисляваме щетите с оглед на действието (ATTACK/SKILL) и елементите
+        int finalPlayerDamage = calculateDamage(playerClass, enemyName, basePlayerAtk, actionType);
 
         enemyHP -= finalPlayerDamage;
         if (enemyHP < 0) enemyHP = 0;
 
-        String logLine = playerClass.replace("Class", "") + " hit " + enemyName + " for " + finalPlayerDamage + " dmg. ";
+        String actionUsed = actionType.equalsIgnoreCase("SKILL") ? getSkillName(playerClass) : "attacked";
+        String logLine = playerClass.replace("Class", "") + " " + actionUsed + " " + enemyName + " for " + finalPlayerDamage + " dmg. ";
 
+        // ПРОВЕРКА ЗА ПОБЕДА
         if (enemyHP <= 0) {
-            notifyQuestAgent(enemyName);
+            notifyQuestAgent(enemyName); // Сега ще изпрати "Goblin", а не "WarriorClass"!
             sendReply(originalMsg, "ROUND_RESULT:WIN:" + monsterX + ":" + monsterY + ":" + enemyHP + ":" + playerHP + ":" + logLine + " Victory!");
             return;
         }
 
+        // ХОД НА ЧУДОВИЩЕТО
         playerHP -= enemyAtk;
         if (playerHP < 0) playerHP = 0;
         logLine += enemyName + " attacked back for " + enemyAtk + " dmg.";
@@ -103,29 +118,52 @@ public class CombatAgent extends Agent {
         }
     }
 
-    private int calculateDamage(String playerClass, String enemyName, int currentAtk) {
+    private int calculateDamage(String playerClass, String enemyName, int currentAtk, String actionType) {
+        double multiplier = 1.0;
+
+        // 1. Умението прави +65% базови щети
+        if (actionType.equalsIgnoreCase("SKILL")) {
+            multiplier *= 1.65;
+        }
+
+        // 2. Вземаме елементите
         String weakness = combatService.getWeakness(enemyName);
         String toughness = combatService.getBehavior(enemyName);
         String playerWeaponElement = databaseService.getPlayerWeapon(playerClass);
-        if (playerWeaponElement == null) playerWeaponElement = "None";
 
-        Random rand = new Random();
-        boolean hasElement = !playerWeaponElement.equals("None") && !playerWeaponElement.isEmpty();
-        boolean isWeakAgainst = hasElement && (weakness != null && weakness.contains(playerWeaponElement));
-        boolean isToughAgainst = hasElement && (toughness != null && toughness.contains(playerWeaponElement));
+        if (playerWeaponElement == null || playerWeaponElement.isEmpty()) {
+            if (playerClass.contains("Mage")) playerWeaponElement = "Fire";
+            else playerWeaponElement = "None";
+        }
 
+        boolean hasElement = !playerWeaponElement.equalsIgnoreCase("None");
+        boolean isWeakAgainst = hasElement && weakness != null && weakness.equalsIgnoreCase(playerWeaponElement);
+        boolean isToughAgainst = hasElement && toughness != null && toughness.equalsIgnoreCase(playerWeaponElement);
+
+        // 3. Елементално предимство
         if (isWeakAgainst && !isToughAgainst) {
-            currentAtk = (int) (currentAtk * 1.35);
-            if (rand.nextInt(20) == 0) {
-                currentAtk = (int) (currentAtk * 2.1);
-                System.out.println("CRITICAL HIT! Damage multiplied: " + currentAtk);
-            }
-        }
-        else if (!isWeakAgainst && isToughAgainst) {
-            currentAtk = (int) (currentAtk * 0.66);
+            multiplier *= 1.4; // +40% щети
+            System.out.println("🔥 SUPER EFFECTIVE! Weapon element: " + playerWeaponElement);
+        } else if (!isWeakAgainst && isToughAgainst) {
+            multiplier *= 0.65; // -35% щети
+            System.out.println("🛡️ Monster resists element " + playerWeaponElement);
         }
 
-        return currentAtk;
+        // 4. Шанс за Критичен удар (15% шанс за x1.8)
+        Random rand = new Random();
+        if (rand.nextInt(100) < 15) {
+            multiplier *= 1.8;
+            System.out.println("💥 CRITICAL HIT!");
+        }
+
+        return (int) Math.round(currentAtk * multiplier);
+    }
+
+    private String getSkillName(String playerClass) {
+        if (playerClass.contains("Warrior")) return "used [SHIELD SLAM] on";
+        if (playerClass.contains("Mage")) return "cast [FIREBALL] at";
+        if (playerClass.contains("Rogue")) return "executed [SHADOW STRIKE] on";
+        return "used a special skill on";
     }
     private void sendReply(ACLMessage message, String content){
         ACLMessage reply = message.createReply();
