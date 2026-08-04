@@ -48,15 +48,6 @@ public class CombatAgent extends Agent {
     }
 
     private void executeBattleRound(ACLMessage originalMsg, String[] parts) {
-        // ВЕЧЕ НОВИЯТ СТРУКТУРИРАН МАСИВ:
-        // parts[0] = "FIGHT"
-        // parts[1] = actionType ("ATTACK" или "SKILL")
-        // parts[2] = playerClass ("WarriorClass")
-        // parts[3] = enemyName ("Goblin")
-        // parts[4] = monsterX
-        // parts[5] = monsterY
-        // parts[6] = hpPart ("100" или "START")
-        // parts[7] = dungeonLevel
 
         String actionType = parts[1].trim();
         String playerClass = parts[2].trim();
@@ -88,7 +79,6 @@ public class CombatAgent extends Agent {
         if (basePlayerAtk <= 0) basePlayerAtk = combatService.getIntProperty(playerClass, "hasBaseDamage");
         if (basePlayerAtk <= 0) basePlayerAtk = 15;
 
-        // Изчисляваме щетите с оглед на действието (ATTACK/SKILL) и елементите
         int finalPlayerDamage = calculateDamage(playerClass, enemyName, basePlayerAtk, actionType);
 
         enemyHP -= finalPlayerDamage;
@@ -97,14 +87,11 @@ public class CombatAgent extends Agent {
         String actionUsed = actionType.equalsIgnoreCase("SKILL") ? getSkillName(playerClass) : "attacked";
         String logLine = playerClass.replace("Class", "") + " " + actionUsed + " " + enemyName + " for " + finalPlayerDamage + " dmg. ";
 
-        // ПРОВЕРКА ЗА ПОБЕДА
         if (enemyHP <= 0) {
             notifyQuestAgent(enemyName); // Сега ще изпрати "Goblin", а не "WarriorClass"!
             sendReply(originalMsg, "ROUND_RESULT:WIN:" + monsterX + ":" + monsterY + ":" + enemyHP + ":" + playerHP + ":" + logLine + " Victory!");
             return;
         }
-
-        // ХОД НА ЧУДОВИЩЕТО
         playerHP -= enemyAtk;
         if (playerHP < 0) playerHP = 0;
         logLine += enemyName + " attacked back for " + enemyAtk + " dmg.";
@@ -158,6 +145,7 @@ public class CombatAgent extends Agent {
 
         return (int) Math.round(currentAtk * multiplier);
     }
+
 
     private String getSkillName(String playerClass) {
         if (playerClass.contains("Warrior")) return "used [SHIELD SLAM] on";

@@ -82,6 +82,51 @@ public class CombatService {
         return new Hero(heroClass, baseHp, baseHp, baseAtk, weaponName, new ArrayList<>());
     }
 
+
+    private String getWeaponElement(String weaponName){
+        if(model == null || weaponName == null || weaponName.isEmpty()) return "Physical attack";
+
+        var stmtIter = model.listStatements();
+        while(stmtIter.hasNext()){
+            var stmt = stmtIter.nextStatement();
+            String subj = stmt.getSubject().getLocalName();
+            String pred = stmt.getPredicate().getLocalName();
+
+            if(subj != null && subj.equalsIgnoreCase(weaponName)){
+                if(pred != null && (pred.equalsIgnoreCase("hasElement") || pred.equalsIgnoreCase("hasDamageType"))){
+                    var obj = stmt.getObject();
+                    if(obj.isResource()){
+                        return obj.asResource().getLocalName();
+                    }
+                    else if(obj.isLiteral()){
+                        return obj.asLiteral().getString();
+                    }
+                }
+            }
+        }
+        return  "Physical";
+    }
+
+    public String getResistance(String monsterName) {
+        if (model == null || monsterName == null || monsterName.isEmpty()) return "None";
+
+        var stmtIter = model.listStatements();
+        while (stmtIter.hasNext()) {
+            var stmt = stmtIter.nextStatement();
+            String subj = stmt.getSubject().getLocalName();
+            String pred = stmt.getPredicate().getLocalName();
+
+            if (subj != null && subj.equalsIgnoreCase(monsterName)) {
+                if (pred != null && (pred.equalsIgnoreCase("resistsElement") || pred.equalsIgnoreCase("hasToughness"))) {
+                    var obj = stmt.getObject();
+                    if (obj.isResource()) return obj.asResource().getLocalName();
+                    if (obj.isLiteral()) return obj.asLiteral().getString();
+                }
+            }
+        }
+        return "None";
+    }
+
     public String executeAttack(Hero hero, Monster monster) {
         if (hero == null || monster == null) return "ERROR";
 
