@@ -545,6 +545,8 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#SmallBow">
         <rdf:type rdf:resource="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#ShortBow"/>
+        <Combat_Ontology:usesAttack rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#RangedHit"/>
+        <Combat_Ontology:hasBaseDamage rdf:datatype="http://www.w3.org/2001/XMLSchema#int">5</Combat_Ontology:hasBaseDamage>
     </owl:NamedIndividual>
     
 
@@ -554,6 +556,7 @@
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#SteelDagger">
         <rdf:type rdf:resource="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#MeleeDagger"/>
         <Combat_Ontology:usesAttack rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#MeleeHit"/>
+        <Combat_Ontology:hasBaseDamage rdf:datatype="http://www.w3.org/2001/XMLSchema#int">8</Combat_Ontology:hasBaseDamage>
     </owl:NamedIndividual>
     
 
