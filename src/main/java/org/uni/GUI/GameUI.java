@@ -276,12 +276,11 @@ public class GameUI extends Application {
             RadioButton selected = (RadioButton) group.getSelectedToggle();
             this.selectedPlayerClass = selected.getUserData().toString();
 
-            String startingWeapon = "IronSword";
-            if (selectedPlayerClass.equals("ArcherClass")) startingWeapon = "ShortBow";
+            String startingWeapon = "IronLongSword";
+            if (selectedPlayerClass.equals("ArcherClass")) startingWeapon = "SmallBow";
             else if (selectedPlayerClass.equals("WizardClass")) startingWeapon = "StormStaff";
             else if (selectedPlayerClass.equals("AssassinClass")) startingWeapon = "SteelDagger";
 
-            // 🌟 Инициализираме Героя чрез CombatService
             this.hero = cs.createHero(this.selectedPlayerClass, startingWeapon);
 
             databaseService.addCustomPlayer(this.selectedPlayerClass, startingWeapon, hero.getHp(), hero.getAtk());

@@ -15,15 +15,11 @@ import java.util.Random;
 public class CombatAgent extends Agent {
 
     private CombatService combatService;
-    //private OntologyService ontologyService;
     private DatabaseService databaseService = DatabaseService.getInstance();
     @Override
     protected void setup() {
-
         this.combatService = new CombatService();
-        //this.ontologyService = new OntologyService();
         System.out.println("Combat Agent  Started!");
-
         addBehaviour(new CyclicBehaviour() {
             @Override
             public void action() {
@@ -51,7 +47,7 @@ public class CombatAgent extends Agent {
 
         String actionType = parts[1].trim();
         String playerClass = parts[2].trim();
-        String enemyName = parts[3].trim(); // Оправено! Вече сочи към чудовището (напр. Goblin)
+        String enemyName = parts[3].trim();
         String monsterX = parts[4].trim();
         String monsterY = parts[5].trim();
         String hpPart = parts[6].trim();
@@ -75,11 +71,14 @@ public class CombatAgent extends Agent {
         if (playerHP <= 0) playerHP = combatService.getIntProperty(playerClass, "hasHP");
         if (playerHP <= 0) playerHP = 150;
 
-        int basePlayerAtk = databaseService.getAttack(playerClass);
-        if (basePlayerAtk <= 0) basePlayerAtk = combatService.getIntProperty(playerClass, "hasBaseDamage");
-        if (basePlayerAtk <= 0) basePlayerAtk = 15;
+        int playerClassAtk = databaseService.getAttack(playerClass);
+        if (playerClassAtk <= 0) playerClassAtk = combatService.getIntProperty(playerClass, "hasBaseDamage");
+        if (playerClassAtk <= 0) playerClassAtk = 15;
+        String playerWeapon = databaseService.getPlayerWeapon(playerClass);
+        int weaponAtk = combatService.getWeaponBaseDamage(playerWeapon);
+        int totalBaseAtk = playerClassAtk + weaponAtk;
+        int finalPlayerDamage = calculateDamage(playerClass, enemyName, totalBaseAtk, actionType);
 
-        int finalPlayerDamage = calculateDamage(playerClass, enemyName, basePlayerAtk, actionType);
 
         enemyHP -= finalPlayerDamage;
         if (enemyHP < 0) enemyHP = 0;
@@ -88,7 +87,7 @@ public class CombatAgent extends Agent {
         String logLine = playerClass.replace("Class", "") + " " + actionUsed + " " + enemyName + " for " + finalPlayerDamage + " dmg. ";
 
         if (enemyHP <= 0) {
-            notifyQuestAgent(enemyName); // Сега ще изпрати "Goblin", а не "WarriorClass"!
+            notifyQuestAgent(enemyName);
             sendReply(originalMsg, "ROUND_RESULT:WIN:" + monsterX + ":" + monsterY + ":" + enemyHP + ":" + playerHP + ":" + logLine + " Victory!");
             return;
         }
@@ -108,12 +107,10 @@ public class CombatAgent extends Agent {
     private int calculateDamage(String playerClass, String enemyName, int currentAtk, String actionType) {
         double multiplier = 1.0;
 
-        // 1. Умението прави +65% базови щети
         if (actionType.equalsIgnoreCase("SKILL")) {
             multiplier *= 1.65;
         }
 
-        // 2. Вземаме елементите
         String weakness = combatService.getWeakness(enemyName);
         String toughness = combatService.getBehavior(enemyName);
         String playerWeaponElement = databaseService.getPlayerWeapon(playerClass);
@@ -127,16 +124,14 @@ public class CombatAgent extends Agent {
         boolean isWeakAgainst = hasElement && weakness != null && weakness.equalsIgnoreCase(playerWeaponElement);
         boolean isToughAgainst = hasElement && toughness != null && toughness.equalsIgnoreCase(playerWeaponElement);
 
-        // 3. Елементално предимство
         if (isWeakAgainst && !isToughAgainst) {
-            multiplier *= 1.4; // +40% щети
+            multiplier *= 1.4;
             System.out.println("🔥 SUPER EFFECTIVE! Weapon element: " + playerWeaponElement);
         } else if (!isWeakAgainst && isToughAgainst) {
-            multiplier *= 0.65; // -35% щети
+            multiplier *= 0.65;
             System.out.println("🛡️ Monster resists element " + playerWeaponElement);
         }
 
-        // 4. Шанс за Критичен удар (15% шанс за x1.8)
         Random rand = new Random();
         if (rand.nextInt(100) < 15) {
             multiplier *= 1.8;
@@ -145,6 +140,8 @@ public class CombatAgent extends Agent {
 
         return (int) Math.round(currentAtk * multiplier);
     }
+
+
 
 
     private String getSkillName(String playerClass) {

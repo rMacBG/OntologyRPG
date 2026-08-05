@@ -83,28 +83,43 @@ public class CombatService {
     }
 
 
-    private String getWeaponElement(String weaponName){
-        if(model == null || weaponName == null || weaponName.isEmpty()) return "Physical attack";
+    public String getWeaponElement(String weaponName) {
+        if (model == null || weaponName == null || weaponName.isEmpty()) return "Physical";
 
         var stmtIter = model.listStatements();
-        while(stmtIter.hasNext()){
+        while (stmtIter.hasNext()) {
             var stmt = stmtIter.nextStatement();
             String subj = stmt.getSubject().getLocalName();
             String pred = stmt.getPredicate().getLocalName();
 
-            if(subj != null && subj.equalsIgnoreCase(weaponName)){
-                if(pred != null && (pred.equalsIgnoreCase("hasElement") || pred.equalsIgnoreCase("hasDamageType"))){
-                    var obj = stmt.getObject();
-                    if(obj.isResource()){
-                        return obj.asResource().getLocalName();
+            if (subj != null && subj.equalsIgnoreCase(weaponName)) {
+
+                if (pred != null && pred.equalsIgnoreCase("usesAttack")) {
+                    var attackObj = stmt.getObject();
+                    if (attackObj.isResource()) {
+                        String attackName = attackObj.asResource().getLocalName();
+
+                        String attackElement = getWeaponElement(attackName);
+                        if (!attackElement.equalsIgnoreCase("Physical")) {
+                            return attackElement;
+                        }
                     }
-                    else if(obj.isLiteral()){
-                        return obj.asLiteral().getString();
+                }
+                if (pred != null && (pred.equalsIgnoreCase("hasElement") || pred.equalsIgnoreCase("usesAttack"))) {
+                    var obj = stmt.getObject();
+                    if (obj.isResource()) {
+                        String elemName = obj.asResource().getLocalName();
+                        if (elemName.toLowerCase().contains("lightning")) return "LightningElement";
+                        if (elemName.toLowerCase().contains("fire")) return "FireElement";
+                        if (elemName.toLowerCase().contains("ice")) return "IceElement";
+                        if (elemName.toLowerCase().contains("water")) return "WaterElement";
+                        return elemName;
                     }
                 }
             }
         }
-        return  "Physical";
+
+        return "Physical";
     }
 
     public String getResistance(String monsterName) {
@@ -218,6 +233,28 @@ public class CombatService {
         }
 
         return damage;
+    }
+
+    public int getWeaponBaseDamage(String weaponName){
+
+        if(model == null || weaponName == null || weaponName.isEmpty()) return 0;
+
+        var stmtIter = model.listStatements();
+        while(stmtIter.hasNext()){
+            var stmt = stmtIter.nextStatement();
+            String subj = stmt.getSubject().getLocalName();
+            String pred = stmt.getPredicate().getLocalName();
+
+            if(subj != null && subj.equalsIgnoreCase(weaponName)){
+                if(pred != null && pred.equalsIgnoreCase("hasBaseDamage")){
+                    if(stmt.getObject().isLiteral()){
+                        return stmt.getObject().asLiteral().getInt();
+                    }
+                }
+            }
+        }
+
+            return 0;
     }
 
     public String getBehavior(String monsterName) {

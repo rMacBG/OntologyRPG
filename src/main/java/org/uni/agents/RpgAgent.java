@@ -127,8 +127,16 @@ public class RpgAgent extends Agent {
 
                         sendReply(message, "Player deleted.");
                     }
+                    else if (parts[0].equals("EQUIP_WEAPON")) {
+                        if (parts.length >= 3) {
+                            String playerClass = parts[1];
+                            String newWeaponName = parts[2];
 
+                            databaseService.equipWeapon(playerClass, newWeaponName);
+                            sendReply(message, "EQUIPPED_SUCCESS:" + playerClass + ":" + newWeaponName);
+                        }
 
+                    }
                 }
         });
     }

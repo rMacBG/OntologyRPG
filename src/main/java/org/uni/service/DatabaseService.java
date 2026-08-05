@@ -157,6 +157,18 @@ public class DatabaseService {
             e.printStackTrace();
         }
     }
+    public void equipWeapon(String playerClass, String newWeaponName) {
+        String query = "UPDATE players SET equipped_weapon = ? WHERE class_name = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, newWeaponName);
+            pstmt.setString(2, playerClass);
+            pstmt.executeUpdate();
+            System.out.println("Equipped new weapon: " + newWeaponName + " for " + playerClass);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public String getPlayer(String username){
         String sql = """
