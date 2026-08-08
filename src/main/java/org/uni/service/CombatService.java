@@ -15,13 +15,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class CombatService {
 
     private static final String PATH = "ontology/CombatOntology.rdf";
     private static final String BASE = "http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology/";
     private static final String NS = BASE + "#";
-
+    private static OntologyService ontologyService = new OntologyService();
 
     private OntModel model;
 
@@ -140,6 +141,42 @@ public class CombatService {
             }
         }
         return "None";
+    }
+
+    public boolean canEquip(String playerClass, String weaponName) {
+        if (playerClass.equals("WizardClass") && weaponName.contains("Staff")) return true;
+        if (playerClass.equals("WarriorClass") && (weaponName.contains("Sword") || weaponName.contains("Claymore"))) return true;
+        if (playerClass.equals("ArcherClass") && weaponName.contains("Bow")) return true;
+        if (playerClass.equals("AssassinClass") && weaponName.contains("Dagger")) return true;
+
+        return false;
+    }
+
+    public boolean equipWeaponForHero(Hero hero, String playerClass, String newWeapon) {
+        if (!canEquip(playerClass, newWeapon)) {
+            System.out.println("❌ " + playerClass + " cannot equip " + newWeapon + "!");
+            return false;
+        }
+        int weaponAtk = 0;
+        try {
+            String dmgStr = ontologyService.getPropertyValue(newWeapon, "damage");
+            if (dmgStr != null) {
+                weaponAtk = Integer.parseInt(dmgStr);
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Could not parse damage for " + newWeapon + ", using default +10");
+            weaponAtk = 10;
+        }
+
+        hero.setEquippedWeapon(newWeapon);
+
+        int baseAtk = DatabaseService.getInstance().getAttack(playerClass);
+        hero.setAtk(baseAtk + weaponAtk);
+
+        DatabaseService.getInstance().equipWeapon(playerClass, newWeapon);
+        System.out.println("⚔️ " + playerClass + " successfully equipped " + newWeapon + " (+ " + weaponAtk + " ATK)!");
+
+        return true;
     }
 
     public String executeAttack(Hero hero, Monster monster) {
@@ -366,5 +403,19 @@ public class CombatService {
             }
         }
         return "None";
+    }
+
+    public String generateLoot(String monsterName){
+        Random rand = new Random();
+        int chance = rand.nextInt(100);
+
+        if(chance < 40){
+            return "Health Potion";
+        }
+        else {//if(chance < 75){
+            String[] possibleWeapons = {"StormStaff", "SteelDagger", "FloodStaff", "FlameClaymore", "PrecisionBow"};
+            return possibleWeapons[rand.nextInt(possibleWeapons.length)];
+        }
+        //return "none";
     }
 }

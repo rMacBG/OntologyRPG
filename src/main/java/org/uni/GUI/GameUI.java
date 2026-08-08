@@ -175,69 +175,6 @@ public class GameUI extends Application {
 
     }
 
-//    private void showCharacterCreation() {
-//        VBox creationBox = new VBox(20);
-//        creationBox.setAlignment(Pos.CENTER);
-//        creationBox.setPadding(new Insets(30));
-//
-//        Label header = new Label("CHOOSE YOUR CLASS");
-//        header.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
-//
-//        ToggleGroup group = new ToggleGroup();
-//
-//        RadioButton rbWarrior = new RadioButton("Warrior (150 HP, 15 ATK - Starts with IronSword)");
-//        rbWarrior.setToggleGroup(group);
-//        rbWarrior.setSelected(true);
-//        rbWarrior.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-//        rbWarrior.setUserData("WarriorClass");
-//
-//        RadioButton rbArcher = new RadioButton("Archer (120 HP, 17 ATK) - Starts with ShortBow");
-//        rbArcher.setToggleGroup(group);
-//        rbArcher.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-//        rbArcher.setUserData("ArcherClass");
-//
-//        RadioButton rbMage = new RadioButton("Wizard (100 HP, 22 ATK) - Starts with StormStaff");
-//        rbMage.setToggleGroup(group);
-//        rbMage.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-//        rbMage.setUserData("WizardClass");
-//
-//        RadioButton rbRogue = new RadioButton("Assassin (135 HP, 20 ATK) - Starts with SteelDagger");
-//        rbRogue.setToggleGroup(group);
-//        rbRogue.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-//        rbRogue.setUserData("AssassinClass");
-//
-//        Button confirmBtn = new Button("UNFOLD THE ADVENTURE OF A MILLENIA!");
-//        confirmBtn.setPrefSize(220, 45);
-//
-//        confirmBtn.setOnAction(e -> {
-//            RadioButton selected = (RadioButton) group.getSelectedToggle();
-//            //String selectedClassIndividual = selected.getUserData().toString();
-//            this.selectedPlayerClass = selected.getUserData().toString();
-//
-//
-//            int initialHP = cs.getIntProperty(this.selectedPlayerClass, "hasHP");
-//            int initialATK = cs.getIntProperty(this.selectedPlayerClass, "hasBaseDamage");
-//
-//            String startingWeapon = "Starting Weapon";
-//            if (selectedPlayerClass.equals("WarriorClass")) startingWeapon = "IronSword";
-//            else if (selectedPlayerClass.equals("ArcherClass")) startingWeapon = "ShortBow";
-//            else if (selectedPlayerClass.equals("WizardClass")) startingWeapon = "StormStaff";
-//            else if (selectedPlayerClass.equals("RogueClass")) startingWeapon = "SteelDagger";
-//
-//
-//            databaseService.addCustomPlayer(this.selectedPlayerClass, startingWeapon, initialHP, initialATK);
-//            this.currentPlayerHpInCombat = initialHP;
-//
-//            spawnMonsters();
-//            loadLevel(1);
-//            buildGameMap();
-//
-//        });
-//
-//        creationBox.getChildren().addAll(header, rbWarrior, rbArcher, rbMage, rbRogue, confirmBtn);
-//        mainLayout.setCenter(creationBox);
-//    }
-
     private void showCharacterCreation() {
         VBox creationBox = new VBox(20);
         creationBox.setAlignment(Pos.CENTER);
@@ -313,6 +250,10 @@ public class GameUI extends Application {
         sideBar.setPrefWidth(280);
         sideBar.setStyle("-fx-background-color: #2c3e50;");
 
+        Button invBtn = new Button("🎒 INVENTORY");
+        invBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;");
+        invBtn.setOnAction(e -> openInventoryWindow());
+
         Label statsLabel = new Label("PLAYER STATS");
         statsLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 16px; -fx-font-weight: bold;");
 
@@ -336,7 +277,7 @@ public class GameUI extends Application {
         battleLogArea.setPromptText("Battle Chronolog");
         battleLogArea.setStyle("-fx-control-inner-background: #1e1e1e; -fx-text-fill: #2ecc71;");
 
-        sideBar.getChildren().addAll(statsLabel, hpLabel, atkLabel, weaponLabel, new Label("Battle Log:"), battleLogArea);
+        sideBar.getChildren().addAll(statsLabel, hpLabel, atkLabel, weaponLabel, invBtn, new Label("Battle Log:"), battleLogArea);
 
         info.setStyle("-fx-text-fill: white; -fx-padding: 10; -fx-font-size: 14px;");
         VBox bottomBox = new VBox(info);
@@ -579,7 +520,7 @@ public class GameUI extends Application {
     }
 
 
-    public void handleCombatRoundResult(String status, int monsterX, int monsterY, int newEnemyHp, int newPlayerHp, String logMessage) {
+    public void handleCombatRoundResult(String status, int monsterX, int monsterY, int newEnemyHp, int newPlayerHp, String lootItem, String logMessage) {
         mainLayout.setCenter(grid);
         Platform.runLater(() -> {
             if (currentMonster != null) currentMonster.setHp(newEnemyHp);
@@ -596,10 +537,74 @@ public class GameUI extends Application {
                 openTurnBasedCombatScreen();
             } else if (status.equals("WIN")) {
                 handleMonsterDefeated(monsterX, monsterY);
+                if (lootItem != null && !lootItem.equals("NONE")) {
+                    if (lootItem.equals("Health Potion")) {
+                        if (battleLogArea != null) battleLogArea.appendText("🎁 LOOT: Found Health Potion!\n");
+                        showMessage("Found Health Potion!");
+                    } else {
+                        if (battleLogArea != null) battleLogArea.appendText("⚔️ LOOT: Found " + lootItem + "!\n");
+                        showEquipLootDialog(lootItem); // Извикваме диалога за оборудване
+                    }
+                }
                 mainLayout.setCenter(grid);
             } else if (status.equals("LOSE")) {
                 showMessage("GAME OVER! You were defeated.");
                 showMainMenu();
+            }
+        });
+    }
+
+    private void showEquipLootDialog(String weaponName) {
+
+        if (!cs.canEquip(this.selectedPlayerClass, weaponName)) {
+            showMessage("Намерихте " + weaponName + ", но вашият клас не може да го ползва!");
+            if (battleLogArea != null) {
+                battleLogArea.appendText("📦 Found " + weaponName + " (Added to inventory, cannot equip).\n");
+            }
+            return;
+        }
+
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("New Weapon Found!");
+            alert.setHeaderText("🎁 Monster dropped: " + weaponName);
+            alert.setContentText("Do you want to equip " + weaponName + " right now?");
+
+            var result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                String equipMessage = "EQUIP_WEAPON:" + this.selectedPlayerClass + ":" + weaponName;
+                GUIAgent.instance.sendMessage(equipMessage);
+                showMessage("Equipped " + weaponName + "!");
+            }
+        });
+    }
+
+    private void openInventoryWindow() {
+        String invData = databaseService.getPlayerInventory(this.selectedPlayerClass);
+        if (invData == null || invData.trim().isEmpty()) {
+            showMessage("Инвентарът ви е празен!");
+            return;
+        }
+
+        String[] items = invData.split(",");
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(items[0], items);
+        dialog.setTitle("🎒 Инвентар");
+        dialog.setHeaderText("Изберете предмет от Вашия раница:");
+        dialog.setContentText("Предмети:");
+
+        var result = dialog.showAndWait();
+        result.ifPresent(selectedItem -> {
+            if (selectedItem.equals("Health Potion")) {
+                hero.heal(40);
+                databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
+                updatePlayerStatsMenu();
+                showMessage("Изпихте отвара и възстановихте 40 HP!");
+            } else {
+                String equipMsg = "EQUIP_WEAPON:" + this.selectedPlayerClass + ":" + selectedItem;
+                GUIAgent.instance.sendMessage(equipMsg);
+                showMessage("Оборудвахте: " + selectedItem);
+                updatePlayerStatsMenu();
             }
         });
     }

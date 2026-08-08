@@ -36,10 +36,11 @@ public class GUIAgent extends Agent {
                         int enemyHp = Integer.parseInt(parts[4].trim());
                         int playerHp = Integer.parseInt(parts[5].trim());
                         String logMsg = parts[6].trim();
+                        String lootItem = (parts.length > 7) ? parts[7] : "NONE";
                         System.out.println("--> Values to UI: EnemyHP=" + enemyHp + ", PlayerHP=" + playerHp);
 
                         javafx.application.Platform.runLater(() -> {
-                            GameUI.instance.handleCombatRoundResult(status, monsterX, monsterY, enemyHp, playerHp, logMsg);
+                            GameUI.instance.handleCombatRoundResult(status, monsterX, monsterY, enemyHp, playerHp, lootItem, logMsg);
                         });
                     }
                     else {

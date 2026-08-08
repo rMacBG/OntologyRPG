@@ -43,6 +43,7 @@ public class DatabaseService {
                 level INTEGER,
                 gold INTEGER,
                 weapon TEXT,
+                inventory TEXT DEFAULT '',
                 hp INTEGER,
                 atk INTEGER
                 );
@@ -157,17 +158,16 @@ public class DatabaseService {
             e.printStackTrace();
         }
     }
-    public void equipWeapon(String playerClass, String newWeaponName) {
-        String query = "UPDATE players SET equipped_weapon = ? WHERE class_name = ?";
+    public void equipWeapon(String username, String newWeaponName) {
+        String query = "UPDATE players SET weapon = ? WHERE username = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, newWeaponName);
-            pstmt.setString(2, playerClass);
+            pstmt.setString(2, username);
             pstmt.executeUpdate();
-            System.out.println("Equipped new weapon: " + newWeaponName + " for " + playerClass);
+            System.out.println("⚔️ Equipped new weapon: " + newWeaponName + " for " + username);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     public String getPlayer(String username){
@@ -295,19 +295,59 @@ public class DatabaseService {
 
     }
 
-    public synchronized void addCustomPlayer(String username,String weapon, int hp, int atk){
-        String sql = "INSERT INTO players (username, level, gold, weapon, hp, atk) VALUES (?, 1, 100, ?, ?, ?)";
+    public String getPlayerInventory(String username) {
+        String sql = "SELECT inventory FROM players WHERE username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("inventory");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 
+    public void addLootToInventory(String username, String itemName) {
+        String checkQuery = "SELECT inventory FROM players WHERE username = ?";
+        String updateQuery = "UPDATE players SET inventory = ? WHERE username = ?";
+
+        try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
+            checkStmt.setString(1, username);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                String currentInventory = rs.getString("inventory");
+                String newInventory = (currentInventory == null || currentInventory.isEmpty())
+                        ? itemName
+                        : currentInventory + "," + itemName;
+
+                try (PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
+                    updateStmt.setString(1, newInventory);
+                    updateStmt.setString(2, username);
+                    updateStmt.executeUpdate();
+                    System.out.println("📦 Added " + itemName + " to " + username + "'s inventory!");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void addCustomPlayer(String username, String weapon, int hp, int atk){
+        String sql = "INSERT INTO players (username, level, gold, weapon, inventory, hp, atk) VALUES (?, 1, 100, ?, ?, ?, ?)";
         try {
-
             PreparedStatement del = connection.prepareStatement("DELETE FROM players WHERE username=?");
             del.setString(1, username);
             del.executeUpdate();
+
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setString(1, username);
                 ps.setString(2, weapon);
-                ps.setInt(3, hp);
-                ps.setInt(4, atk);
+                ps.setString(3, weapon); // Записваме оръжието и като начален предмет в inventory
+                ps.setInt(4, hp);
+                ps.setInt(5, atk);
                 ps.executeUpdate();
             }
             System.out.println("Custom Player Created in DB: " + username + " with " + weapon);
