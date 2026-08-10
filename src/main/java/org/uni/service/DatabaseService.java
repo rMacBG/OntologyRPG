@@ -1,6 +1,9 @@
 package org.uni.service;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class DatabaseService {
@@ -352,6 +355,37 @@ public class DatabaseService {
             }
             System.out.println("Custom Player Created in DB: " + username + " with " + weapon);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void removeItemFromInventory(String username, String itemName){
+        String checkQuery = "SELECT inventory FROM players WHERE username = ?";
+        String updateQuery = "UPDATE players SET inventory = ? WHERE username = ?";
+
+        try(PreparedStatement checkStmt = connection.prepareStatement(checkQuery)){
+            checkStmt.setString(1, username);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if(rs.next()){
+                String currentInventory = rs.getString("inventory");
+                if(currentInventory != null && !currentInventory.isEmpty()){
+                    List<String> items = new ArrayList<>(Arrays.asList(currentInventory.split(",")));
+                    if(items.remove(itemName)) {
+                        String newInventory = String.join(",", items);
+
+                        try (PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
+                            updateStmt.setString(1, newInventory);
+                            updateStmt.setString(2, username);
+                            updateStmt.executeUpdate();
+                            System.out.println("🗑️ Removed " + itemName + " from " + username + "'s inventory!");
+                        }
+
+                    }
+                }
+
+            }
+        } catch (SQLException e){
             e.printStackTrace();
         }
     }

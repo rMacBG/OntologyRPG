@@ -144,10 +144,14 @@ public class CombatService {
     }
 
     public boolean canEquip(String playerClass, String weaponName) {
-        if (playerClass.equals("WizardClass") && weaponName.contains("Staff")) return true;
-        if (playerClass.equals("WarriorClass") && (weaponName.contains("Sword") || weaponName.contains("Claymore"))) return true;
-        if (playerClass.equals("ArcherClass") && weaponName.contains("Bow")) return true;
-        if (playerClass.equals("AssassinClass") && weaponName.contains("Dagger")) return true;
+        if (playerClass == null || weaponName == null) return false;
+
+        String weapon = weaponName.toLowerCase();
+
+        if (playerClass.contains("Wizard") && (weapon.contains("staff") || weapon.contains("wand"))) return true;
+        if (playerClass.contains("Warrior") && (weapon.contains("sword") || weapon.contains("claymore") || weapon.contains("greatsword"))) return true;
+        if (playerClass.contains("Archer") && (weapon.contains("bow") || weapon.contains("crossbow"))) return true;
+        if (playerClass.contains("Assassin") && (weapon.contains("dagger") || weapon.contains("blade"))) return true;
 
         return false;
     }
@@ -157,16 +161,15 @@ public class CombatService {
             System.out.println("❌ " + playerClass + " cannot equip " + newWeapon + "!");
             return false;
         }
-        int weaponAtk = 0;
-        try {
-            String dmgStr = ontologyService.getPropertyValue(newWeapon, "damage");
-            if (dmgStr != null) {
-                weaponAtk = Integer.parseInt(dmgStr);
-            }
-        } catch (Exception e) {
-            System.out.println("⚠️ Could not parse damage for " + newWeapon + ", using default +10");
-            weaponAtk = 10;
+
+        int weaponAtk = getWeaponBaseDamage(newWeapon);
+
+        if (weaponAtk <= 0) {
+            weaponAtk = getIntProperty(newWeapon, "hasBaseDamage");
         }
+//        if (weaponAtk <= 0) {
+//            weaponAtk = 10;
+//        }
 
         hero.setEquippedWeapon(newWeapon);
 
@@ -174,6 +177,7 @@ public class CombatService {
         hero.setAtk(baseAtk + weaponAtk);
 
         DatabaseService.getInstance().equipWeapon(playerClass, newWeapon);
+
         System.out.println("⚔️ " + playerClass + " successfully equipped " + newWeapon + " (+ " + weaponAtk + " ATK)!");
 
         return true;
@@ -283,8 +287,7 @@ public class CombatService {
             String pred = stmt.getPredicate().getLocalName();
 
             if(subj != null && subj.equalsIgnoreCase(weaponName)){
-                if(pred != null && pred.equalsIgnoreCase("hasBaseDamage")){
-                    if(stmt.getObject().isLiteral()){
+                if (pred != null && (pred.equalsIgnoreCase("hasBaseDamage") || pred.equalsIgnoreCase("hasDamage"))) {                    if(stmt.getObject().isLiteral()){
                         return stmt.getObject().asLiteral().getInt();
                     }
                 }

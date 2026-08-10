@@ -5,10 +5,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.uni.agents.GUIAgent;
 import org.uni.model.Hero;
@@ -545,6 +544,7 @@ public class GameUI extends Application {
                         if (battleLogArea != null) battleLogArea.appendText("⚔️ LOOT: Found " + lootItem + "!\n");
                         showEquipLootDialog(lootItem); // Извикваме диалога за оборудване
                     }
+                    updatePlayerStatsMenu();
                 }
                 mainLayout.setCenter(grid);
             } else if (status.equals("LOSE")) {
@@ -579,34 +579,150 @@ public class GameUI extends Application {
         });
     }
 
+    private javafx.scene.image.ImageView getItemImageView(String itemName) {
+        javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
+        imageView.setFitWidth(40);
+        imageView.setFitHeight(40);
+
+        String imagePath = "/images/" + itemName + ".png";
+        try {
+            var stream = getClass().getResourceAsStream(imagePath);
+            if (stream != null) {
+                imageView.setImage(new javafx.scene.image.Image(stream));
+            } else {
+                imageView.setStyle("-fx-border-color: #7f8c8d; -fx-background-color: #2c3e50;");
+            }
+        } catch (Exception e) {
+        }
+        return imageView;
+    }
+
     private void openInventoryWindow() {
+        Stage invStage = new Stage();
+        invStage.initModality(Modality.APPLICATION_MODAL);
+        invStage.setTitle("🎒 INVENTORY & EQUIPMENT");
+
+        HBox root = new HBox(20);
+        root.setPadding(new Insets(20));
+        root.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #e74c3c; -fx-border-width: 2;");
+
+        VBox equipPanel = new VBox(15);
+        equipPanel.setAlignment(Pos.TOP_CENTER);
+        equipPanel.setPrefWidth(220);
+        equipPanel.setStyle("-fx-background-color: #16213e; -fx-padding: 15; -fx-background-radius: 8;");
+
+        Label equipTitle = new Label("⚔️ EQUIPPED");
+        equipTitle.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+        // This is the weapon slot
+        VBox weaponSlot = new VBox(5);
+        weaponSlot.setAlignment(Pos.CENTER);
+        weaponSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #e74c3c;");
+        Label weaponSlotLabel = new Label("WEAPON");
+        weaponSlotLabel.setStyle("-fx-text-fill: #bdc3c7; -fx-font-size: 11px;");
+
+
+        String currentWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
+        Label weaponNameLabel = new Label(currentWeapon);
+        weaponNameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+
+        ImageView weaponImg = getItemImageView(currentWeapon);
+        weaponSlot.getChildren().addAll(weaponSlotLabel, weaponImg, weaponNameLabel);
+
+        //This is the armor slot
+        VBox armorSlot = new VBox(5);
+        armorSlot.setAlignment(Pos.CENTER);
+        armorSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
+        Label armorSlotLabel = new Label("ARMOR (Empty)");
+        armorSlotLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+        armorSlot.getChildren().addAll(armorSlotLabel);
+
+        //This is the accessory slot
+        VBox accessorySlot = new VBox(5);
+        accessorySlot.setAlignment(Pos.CENTER);
+        accessorySlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
+        Label accSlotLabel = new Label("ACCESSORY (Empty)");
+        accSlotLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+        accessorySlot.getChildren().addAll(accSlotLabel);
+
+        equipPanel.getChildren().addAll(equipTitle, weaponSlot, armorSlot, accessorySlot);
+
+        VBox backpackPanel = new VBox(10);
+        backpackPanel.setPrefWidth(320);
+
+        Label backpackTitle = new Label("🎒 BACKPACK");
+        backpackTitle.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(300);
+        scrollPane.setStyle("-fx-background: #16213e; -fx-background-color: transparent;");
+
+        VBox itemsContainer = new VBox(8);
+        itemsContainer.setPadding(new Insets(10));
+
         String invData = databaseService.getPlayerInventory(this.selectedPlayerClass);
-        if (invData == null || invData.trim().isEmpty()) {
-            showMessage("Инвентарът ви е празен!");
-            return;
+        if (invData != null && !invData.trim().isEmpty()) {
+            String[] items = invData.split(",");
+
+            for (String item : items) {
+                if (item.trim().isEmpty()) continue;
+
+                HBox itemRow = new HBox(10);
+                itemRow.setAlignment(Pos.CENTER_LEFT);
+                itemRow.setStyle("-fx-background-color: #0f3460; -fx-padding: 8; -fx-background-radius: 5;");
+
+                ImageView icon = getItemImageView(item);
+                Label nameLbl = new Label(item);
+                nameLbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                Button actionBtn = new Button(item.equals("Health Potion") ? "DRINK" : "EQUIP");
+                actionBtn.setStyle(item.equals("Health Potion")
+                        ? "-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"
+                        : "-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
+
+                actionBtn.setOnAction(e -> {
+                    if (item.equals("Health Potion")) {
+                        hero.heal(40);
+                        databaseService.removeItemFromInventory(this.selectedPlayerClass, "Health Potion");
+                        databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
+                        updatePlayerStatsMenu();
+                        showMessage("🧪 Drank Health Potion (+40 HP)");
+                        invStage.close();
+                    } else {
+                        boolean equipped = cs.equipWeaponForHero(hero, this.selectedPlayerClass, item);
+                        if (equipped) {
+                            String equipMsg = "EQUIP_WEAPON:" + this.selectedPlayerClass + ":" + item;
+                            GUIAgent.instance.sendMessage(equipMsg);
+                            updatePlayerStatsMenu();
+                            showMessage("⚔️ Equipped " + item);
+                            invStage.close();
+                        } else {
+                            showMessage("❌ Your class cannot equip " + item);
+                        }
+                    }
+                });
+
+                itemRow.getChildren().addAll(icon, nameLbl, spacer, actionBtn);
+                itemsContainer.getChildren().add(itemRow);
+            }
+        } else {
+            Label emptyLbl = new Label("Your backpack is empty.");
+            emptyLbl.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
+            itemsContainer.getChildren().add(emptyLbl);
         }
 
-        String[] items = invData.split(",");
+        scrollPane.setContent(itemsContainer);
+        backpackPanel.getChildren().addAll(backpackTitle, scrollPane);
 
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(items[0], items);
-        dialog.setTitle("🎒 Инвентар");
-        dialog.setHeaderText("Изберете предмет от Вашия раница:");
-        dialog.setContentText("Предмети:");
+        root.getChildren().addAll(equipPanel, backpackPanel);
 
-        var result = dialog.showAndWait();
-        result.ifPresent(selectedItem -> {
-            if (selectedItem.equals("Health Potion")) {
-                hero.heal(40);
-                databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
-                updatePlayerStatsMenu();
-                showMessage("Изпихте отвара и възстановихте 40 HP!");
-            } else {
-                String equipMsg = "EQUIP_WEAPON:" + this.selectedPlayerClass + ":" + selectedItem;
-                GUIAgent.instance.sendMessage(equipMsg);
-                showMessage("Оборудвахте: " + selectedItem);
-                updatePlayerStatsMenu();
-            }
-        });
+        Scene scene = new Scene(root);
+        invStage.setScene(scene);
+        invStage.show();
     }
 
     public void updatePlayerStatsMenu() {

@@ -88,14 +88,17 @@ public class CombatAgent extends Agent {
 
         if (enemyHP <= 0) {
             notifyQuestAgent(enemyName);
-            String droppedLoot = combatService.generateLoot(enemyName);
 
-            if(!droppedLoot.equals("none") && droppedLoot.equals("Health Potion")){
+            String droppedLoot = combatService.generateLoot(enemyName);
+            System.out.println("DEBUG [CombatAgent]: Dropped loot = " + droppedLoot);
+
+            if (!droppedLoot.equalsIgnoreCase("NONE")) {
                 databaseService.addLootToInventory(playerClass, droppedLoot);
             }
 
+            String victoryMsg = "ROUND_RESULT:WIN:" + monsterX + ":" + monsterY + ":" + enemyHP + ":" + playerHP + ":" + logLine + " Victory!:" + droppedLoot;
 
-            String victoryMsg = "ROUND_RESULT:WIN:" + monsterX + ":" + monsterY + ":" + enemyHP + ":" + playerHP + ":" + logLine + " Victory!:" + droppedLoot;            sendReply(originalMsg, victoryMsg);
+            sendReply(originalMsg, victoryMsg);
             return;
         }
         playerHP -= enemyAtk;

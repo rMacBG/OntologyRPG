@@ -63,8 +63,8 @@ from
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files>
-      <object connection-id="5a48ae8a-e71b-43c7-808f-0d66299576d0" object-ref="schemas/main/tables/players" />
       <object connection-id="5a48ae8a-e71b-43c7-808f-0d66299576d0" object-ref="schemas/main/tables/battles" />
+      <object connection-id="5a48ae8a-e71b-43c7-808f-0d66299576d0" object-ref="schemas/main/tables/players" />
     </open-files>
   </component>
   <component name="DBNavigator.Project.DatabasePrerequisiteManager">
@@ -75,6 +75,10 @@ from
     <connection id="dc39f25d-b768-490c-a85d-0ddfaba091f4" />
     <connection id="28f20f9b-063e-4ed4-8ed6-f50813055105" />
     <connection id="5a48ae8a-e71b-43c7-808f-0d66299576d0" />
+  </component>
+  <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-actions connection-id="5a48ae8a-e71b-43c7-808f-0d66299576d0" dataset="main.players" active-filter-id="" />
+    <filter-actions connection-id="5a48ae8a-e71b-43c7-808f-0d66299576d0" dataset="main.battles" active-filter-id="" />
   </component>
   <component name="DBNavigator.Project.ExecutionManager">
     <retain-sticky-names value="false" />
