@@ -21,6 +21,7 @@ import org.uni.service.OntologyService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
 
 public class GameUI extends Application {
@@ -49,29 +50,24 @@ public class GameUI extends Application {
     private GridPane grid;
     private VBox sideBar;
     private TextArea battleLogArea;
-
+    private HBox inventoryOverlay;
+    private StackPane mainStackPane;
     private Label hpLabel = new Label();
     private Label atkLabel = new Label();
     private Label weaponLabel = new Label();
     private Label levelLabel = new Label();
+    private StackPane levelCompleteOverlay;
+    private StackPane lootOverlay;
     private boolean isGameOver = false;
+    private boolean isTransitioningLevel = false;
 
     private Hero hero;
     private Monster currentMonster;
     private int currentEnemyX = 0;
     private int currentEnemyY = 0;
 
-//    private String currentEnemyName = "";
-//    private int currentEnemyHp = 0;
-//    private int currentEnemyMaxHp;
-//    private int currentEnemyAtk = 0;
-//    private int currentEnemyX = 0;
-//    private int currentEnemyY = 0;
-//    int currentPlayerHp = databaseService.getHP(this.selectedPlayerClass);
-//    int currentPlayerAtk = databaseService.getAttack(this.selectedPlayerClass);
-//    private int currentPlayerHpInCombat = 0;
-      private String selectedPlayerClass = "WarriorClass";
-      private int currentPlayerHpInCombat = 0;
+    private String selectedPlayerClass = "WarriorClass";
+    private int currentPlayerHpInCombat = 0;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -85,7 +81,10 @@ public class GameUI extends Application {
         Scene scene = new Scene(mainLayout, 850, 650);
 
         scene.setOnKeyPressed(event -> {
-            if (mainLayout.getCenter() == grid) {
+            boolean isInventoryOpen = inventoryOverlay != null && inventoryOverlay.isVisible();
+            boolean isLevelCompleteOpen = levelCompleteOverlay != null && levelCompleteOverlay.isVisible();
+
+            if (!isInventoryOpen && !isLevelCompleteOpen) {
                 switch (event.getCode()) {
                     case W -> movePlayer(playerX, playerY - 1);
                     case S -> movePlayer(playerX, playerY + 1);
@@ -127,6 +126,7 @@ public class GameUI extends Application {
         }
 
     }
+
     private void spawnMonsters() {
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
@@ -251,7 +251,7 @@ public class GameUI extends Application {
 
         Button invBtn = new Button("🎒 INVENTORY");
         invBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;");
-        invBtn.setOnAction(e -> openInventoryWindow());
+        invBtn.setOnAction(e -> javafx.application.Platform.runLater(() -> openInventoryWindow()));
 
         Label statsLabel = new Label("PLAYER STATS");
         statsLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 16px; -fx-font-weight: bold;");
@@ -288,11 +288,34 @@ public class GameUI extends Application {
         mainLayout.setCenter(grid);
         mainLayout.setRight(sideBar);
         mainLayout.setBottom(bottomBox);
+
+        inventoryOverlay = new HBox(20);
+        inventoryOverlay.setAlignment(Pos.CENTER);
+        inventoryOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);"); // Полупрозрачен заден фон
+        inventoryOverlay.setVisible(false);
+
+        levelCompleteOverlay = new StackPane();
+        levelCompleteOverlay.setPrefSize(850, 650); // 👈 Взима пълния размер на прозореца
+        levelCompleteOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
+        levelCompleteOverlay.setVisible(false);
+
+        lootOverlay = new StackPane();
+        lootOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
+        lootOverlay.setVisible(false);
+
+        // 2. Слагаме САМО картата (grid) и овърлея в StackPane
+        mainStackPane = new StackPane();
+        mainStackPane.getChildren().addAll(grid, inventoryOverlay, levelCompleteOverlay, lootOverlay);
+
+        // 3. Задаваме централната зона и менютата в mainLayout
+        mainLayout.setCenter(mainStackPane);
+        mainLayout.setRight(sideBar);
+        mainLayout.setBottom(bottomBox);
     }
 
 
     private void movePlayer(int newX, int newY) {
-        if (mainLayout.getCenter() != grid) {
+        if (isTransitioningLevel || (inventoryOverlay != null && inventoryOverlay.isVisible())) {
             return;
         }
 
@@ -330,32 +353,76 @@ public class GameUI extends Application {
             if (battleLogArea != null) battleLogArea.appendText("Намерихте отвара и възстановихте 30 HP!\n");
         }
 
-        if (targetTile.type.equals("EXIT")) {
-            if (activeMonstersCount <= 0) {
-                showNextLevelDialog();
-                return;
-            } else {
-                showMessage("Порталът е заключен! Победете останалите " + activeMonstersCount + " чудовища.");
-            }
-        }
-
         playerX = newX;
         playerY = newY;
 
+        if (targetTile.type.equals("EXIT")) {
+            if (activeMonstersCount <= 0) {
+                isTransitioningLevel = true;
+                updateMap();
+                Platform.runLater(this::showNextLevelDialog);
+            } else {
+                showMessage("Порталът е заключен! Победете останалите " + activeMonstersCount + " чудовища.");
+                return;
+            }
+        }
+
+
         updateMap();
+
     }
 
     private void showNextLevelDialog() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Етажът е изчистен!");
-        alert.setHeaderText("Отлично, Герой!");
-        alert.setContentText("Успешно изчистихте Етаж " + currentDungeonLevel + "! Преминавате към Етаж " + (currentDungeonLevel + 1) + ".");
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            levelCompleteOverlay.getChildren().clear();
 
-        loadLevel(currentDungeonLevel + 1);
-        levelLabel.setText("Dungeon Level: " + currentDungeonLevel);
-        updateMap();
+            VBox victoryBox = new VBox(15);
+            victoryBox.setAlignment(Pos.CENTER);
+            victoryBox.setPadding(new Insets(25));
+            victoryBox.setMaxSize(400, 220);
+            victoryBox.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #f1c40f; -fx-border-width: 3px; -fx-background-radius: 10; -fx-border-radius: 10;");
+
+            Label title = new Label("🏆 ЕТАЖЪТ Е ИЗЧИСТЕН!");
+            title.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 20px; -fx-font-weight: bold;");
+
+            Label desc = new Label("Успешно премина през Етаж " + currentDungeonLevel + "!");
+            desc.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+
+            Button nextLevelBtn = new Button("КЪМ ЕТАЖ " + (currentDungeonLevel + 1) + " 🚪");
+            nextLevelBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16;");
+
+            nextLevelBtn.setOnAction(e -> {
+                levelCompleteOverlay.setVisible(false);
+                levelCompleteOverlay.getChildren().clear();
+
+                currentDungeonLevel++;
+
+                playerX = 0;
+                playerY = 0;
+
+                loadLevel(currentDungeonLevel);
+
+                if (levelLabel != null) {
+                    levelLabel.setText("Dungeon Level: " + currentDungeonLevel);
+                }
+
+                updateMap();
+                isTransitioningLevel = false; // 🔓 ОСВОБОЖДАВАМЕ ДВИЖЕНИЕТО
+
+                if (mainLayout != null) {
+                    mainLayout.requestFocus();
+                }
+            });
+
+            victoryBox.getChildren().addAll(title, desc, nextLevelBtn);
+            levelCompleteOverlay.getChildren().add(victoryBox);
+
+            levelCompleteOverlay.setVisible(true);
+            levelCompleteOverlay.toFront();
+            nextLevelBtn.requestFocus();
+        });
     }
+
 
     private void openTurnBasedCombatScreen() {
         VBox combatScreen = new VBox(20);
@@ -437,8 +504,8 @@ public class GameUI extends Application {
 
         fleeBtn.setOnAction(e -> {
             battleLogArea.appendText("You ran away safely!\n");
-            mainLayout.setCenter(grid);
-            grid.requestFocus();
+            mainLayout.setCenter(mainStackPane);
+            mainLayout.requestFocus();
         });
 
         actionButtons.getChildren().addAll(attackBtn, skillBtn, healBtn, fleeBtn);
@@ -449,9 +516,6 @@ public class GameUI extends Application {
     }
 
 
-
-
-
     public void handleMonsterDefeated(int monsterX, int monsterY) {
         Platform.runLater(() -> {
 
@@ -460,7 +524,8 @@ public class GameUI extends Application {
 
             playerX = monsterX;
             playerY = monsterY;
-            mainLayout.setCenter(grid);
+            //mainLayout.setCenter(grid);
+            mainLayout.setCenter(mainStackPane);
 
             if (activeMonstersCount <= 0) {
                 unlockPortal();
@@ -468,7 +533,8 @@ public class GameUI extends Application {
 
             updateMap();
             updatePlayerStatsMenu();
-            grid.requestFocus();
+            //grid.requestFocus();
+            mainLayout.requestFocus();
 
             if (battleLogArea != null) {
                 battleLogArea.appendText("Victory! Defeated " + currentMonster.getName() + "! Остават: " + activeMonstersCount + "\n");
@@ -481,46 +547,61 @@ public class GameUI extends Application {
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
                 if (mapData[x][y].type.equals("EXIT")) {
-                    mapData[x][y].icon = "🚪"; // Отключен портал
+                    mapData[x][y].icon = "🚪"; // Ако и това забива, промени го на "EXIT" или "[E]"
                 }
             }
         }
+
+        // Обновяваме UI-а безопасно
+        Platform.runLater(this::updateMap);
+
         if (battleLogArea != null) {
-            battleLogArea.appendText("🎉 Всички чудовища са победени! Порталът (🚪) е отключен!\n");
+            battleLogArea.appendText("🎉 Всички чудовища са победени! Порталът е отключен!\n");
         }
         showMessage("Порталът е отключен!");
     }
 
     private void updateMap() {
+        if (mapData == null || tiles == null) return;
+
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
-                tiles[x][y].setText("");
-                tiles[x][y].setStyle("-fx-background-color: #34495e; -fx-border-color: #2c3e50; -fx-text-fill: white;");
+                // Безопасна проверка за null
+                if (tiles[x][y] == null || mapData[x][y] == null) continue;
 
                 DungeonGenerator.Tile tileData = mapData[x][y];
 
-                if (tileData.type.equals("WALL")) {
+                // Рестартираме базовия стил
+                tiles[x][y].setText("");
+                tiles[x][y].setStyle("-fx-background-color: #34495e; -fx-border-color: #2c3e50; -fx-text-fill: white;");
+
+                if ("WALL".equals(tileData.type)) {
                     tiles[x][y].setText("⬛");
                     tiles[x][y].setStyle("-fx-background-color: #111111;");
-                } else if (tileData.type.equals("MONSTER")) {
-                    tiles[x][y].setText(tileData.icon);
+                } else if ("MONSTER".equals(tileData.type)) {
+                    tiles[x][y].setText(tileData.icon != null ? tileData.icon : "👾");
                     tiles[x][y].setStyle("-fx-background-color: #c0392b;");
-                } else if (tileData.type.equals("POTION")) {
+                } else if ("POTION".equals(tileData.type)) {
                     tiles[x][y].setText("🧪");
                     tiles[x][y].setStyle("-fx-background-color: #27ae60;");
-                } else if (tileData.type.equals("EXIT")) {
-                    tiles[x][y].setText(tileData.icon);
+                } else if ("EXIT".equals(tileData.type)) {
+                    tiles[x][y].setText(tileData.icon != null ? tileData.icon : "🚪");
                     tiles[x][y].setStyle("-fx-background-color: #d35400;");
                 }
             }
         }
-        tiles[playerX][playerY].setText("🧙‍♂️");
-        tiles[playerX][playerY].setStyle("-fx-background-color: #f1c40f;");
+        if (playerX >= 0 && playerX < SIZE && playerY >= 0 && playerY < SIZE) {
+            if (tiles[playerX][playerY] != null) {
+                tiles[playerX][playerY].setText("🧙‍♂️");
+                tiles[playerX][playerY].setStyle("-fx-background-color: #f1c40f;");
+            }
+        }
     }
 
 
     public void handleCombatRoundResult(String status, int monsterX, int monsterY, int newEnemyHp, int newPlayerHp, String lootItem, String logMessage) {
-        mainLayout.setCenter(grid);
+        //mainLayout.setCenter(grid);
+        mainLayout.setCenter(mainStackPane);
         Platform.runLater(() -> {
             if (currentMonster != null) currentMonster.setHp(newEnemyHp);
             if (hero != null) hero.setHp(newPlayerHp);
@@ -546,7 +627,8 @@ public class GameUI extends Application {
                     }
                     updatePlayerStatsMenu();
                 }
-                mainLayout.setCenter(grid);
+                mainLayout.setCenter(mainStackPane);
+                mainLayout.requestFocus();
             } else if (status.equals("LOSE")) {
                 showMessage("GAME OVER! You were defeated.");
                 showMainMenu();
@@ -555,7 +637,6 @@ public class GameUI extends Application {
     }
 
     private void showEquipLootDialog(String weaponName) {
-
         if (!cs.canEquip(this.selectedPlayerClass, weaponName)) {
             showMessage("Намерихте " + weaponName + ", но вашият клас не може да го ползва!");
             if (battleLogArea != null) {
@@ -565,17 +646,52 @@ public class GameUI extends Application {
         }
 
         Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("New Weapon Found!");
-            alert.setHeaderText("🎁 Monster dropped: " + weaponName);
-            alert.setContentText("Do you want to equip " + weaponName + " right now?");
+            lootOverlay.getChildren().clear();
 
-            var result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
+            VBox lootBox = new VBox(15);
+            lootBox.setAlignment(Pos.CENTER);
+            lootBox.setPadding(new Insets(25));
+            lootBox.setMaxSize(420, 220);
+            lootBox.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #e67e22; -fx-border-width: 3px; -fx-background-radius: 10; -fx-border-radius: 10;");
+
+            Label title = new Label("🎁 НАМЕРЕНО ОРЪЖИЕ!");
+            title.setStyle("-fx-text-fill: #e67e22; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+            Label desc = new Label("Чудовището пусна: " + weaponName + "\nИскаш ли да го екипираш веднага?");
+            desc.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-text-alignment: center;");
+
+            HBox buttons = new HBox(15);
+            buttons.setAlignment(Pos.CENTER);
+
+            Button equipBtn = new Button("ЕКИПИРАЙ");
+            equipBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16;");
+
+            Button cancelBtn = new Button("В РАНИЦАТА");
+            cancelBtn.setStyle("-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16;");
+
+            equipBtn.setOnAction(e -> {
                 String equipMessage = "EQUIP_WEAPON:" + this.selectedPlayerClass + ":" + weaponName;
                 GUIAgent.instance.sendMessage(equipMessage);
                 showMessage("Equipped " + weaponName + "!");
-            }
+                updatePlayerStatsMenu();
+
+                lootOverlay.setVisible(false);
+                mainLayout.requestFocus();
+            });
+
+            cancelBtn.setOnAction(e -> {
+                showMessage("Оръжието е запазено в инвентара.");
+                lootOverlay.setVisible(false);
+                mainLayout.requestFocus();
+            });
+
+            buttons.getChildren().addAll(equipBtn, cancelBtn);
+            lootBox.getChildren().addAll(title, desc, buttons);
+
+            lootOverlay.getChildren().add(lootBox);
+            lootOverlay.setVisible(true);
+            lootOverlay.toFront();
+            equipBtn.requestFocus();
         });
     }
 
@@ -597,15 +713,24 @@ public class GameUI extends Application {
         return imageView;
     }
 
-    private void openInventoryWindow() {
-        Stage invStage = new Stage();
-        invStage.initModality(Modality.APPLICATION_MODAL);
-        invStage.setTitle("🎒 INVENTORY & EQUIPMENT");
 
+    private void openInventoryWindow() {
+        javafx.application.Platform.runLater(() -> {
+            refreshInventoryUI();
+            inventoryOverlay.setVisible(true);
+        });
+    }
+
+    private void refreshInventoryUI() {
+        inventoryOverlay.getChildren().clear(); // Изчистваме старите данни
+
+        // Създаваме контейнера, който изглежда като прозорец
         HBox root = new HBox(20);
         root.setPadding(new Insets(20));
-        root.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #e74c3c; -fx-border-width: 2;");
+        root.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-background-radius: 10; -fx-border-radius: 10;");
+        root.setMaxSize(600, 450); // Ограничаваме размера, за да не заема целия екран
 
+        // --- ЛЯВ ПАНЕЛ: ЕКИПИРОВКА ---
         VBox equipPanel = new VBox(15);
         equipPanel.setAlignment(Pos.TOP_CENTER);
         equipPanel.setPrefWidth(220);
@@ -614,13 +739,11 @@ public class GameUI extends Application {
         Label equipTitle = new Label("⚔️ EQUIPPED");
         equipTitle.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 18px; -fx-font-weight: bold;");
 
-        // This is the weapon slot
         VBox weaponSlot = new VBox(5);
         weaponSlot.setAlignment(Pos.CENTER);
         weaponSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #e74c3c;");
         Label weaponSlotLabel = new Label("WEAPON");
         weaponSlotLabel.setStyle("-fx-text-fill: #bdc3c7; -fx-font-size: 11px;");
-
 
         String currentWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
         Label weaponNameLabel = new Label(currentWeapon);
@@ -629,7 +752,6 @@ public class GameUI extends Application {
         ImageView weaponImg = getItemImageView(currentWeapon);
         weaponSlot.getChildren().addAll(weaponSlotLabel, weaponImg, weaponNameLabel);
 
-        //This is the armor slot
         VBox armorSlot = new VBox(5);
         armorSlot.setAlignment(Pos.CENTER);
         armorSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
@@ -637,7 +759,6 @@ public class GameUI extends Application {
         armorSlotLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
         armorSlot.getChildren().addAll(armorSlotLabel);
 
-        //This is the accessory slot
         VBox accessorySlot = new VBox(5);
         accessorySlot.setAlignment(Pos.CENTER);
         accessorySlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
@@ -647,11 +768,26 @@ public class GameUI extends Application {
 
         equipPanel.getChildren().addAll(equipTitle, weaponSlot, armorSlot, accessorySlot);
 
+        // --- ДЕСЕН ПАНЕЛ: РАНИЦА ---
         VBox backpackPanel = new VBox(10);
         backpackPanel.setPrefWidth(320);
 
+        // Горен ред с раницата и бутона за затваряне
+        HBox headerBox = new HBox();
+        headerBox.setAlignment(Pos.CENTER_LEFT);
         Label backpackTitle = new Label("🎒 BACKPACK");
         backpackTitle.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+        Region spacerHeader = new Region();
+        HBox.setHgrow(spacerHeader, Priority.ALWAYS);
+
+        Button closeBtn = new Button("❌");
+        closeBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-size: 16px; -fx-cursor: hand;");
+        closeBtn.setOnAction(e -> {
+            inventoryOverlay.setVisible(false);
+            mainStackPane.requestFocus();
+        });
+        headerBox.getChildren().addAll(backpackTitle, spacerHeader, closeBtn);
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
@@ -665,8 +801,9 @@ public class GameUI extends Application {
         if (invData != null && !invData.trim().isEmpty()) {
             String[] items = invData.split(",");
 
-            for (String item : items) {
-                if (item.trim().isEmpty()) continue;
+            for (String itemRaw : items) {
+                String item = itemRaw.trim();
+                if (item.isEmpty()) continue;
 
                 HBox itemRow = new HBox(10);
                 itemRow.setAlignment(Pos.CENTER_LEFT);
@@ -679,10 +816,20 @@ public class GameUI extends Application {
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                Button actionBtn = new Button(item.equals("Health Potion") ? "DRINK" : "EQUIP");
-                actionBtn.setStyle(item.equals("Health Potion")
-                        ? "-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"
-                        : "-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
+                Button actionBtn = new Button();
+
+                // Логика за стил на бутона (Включва и предпазителя за вече сложено оръжие)
+                if (item.equals("Health Potion")) {
+                    actionBtn.setText("DRINK");
+                    actionBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+                } else if (item.equalsIgnoreCase(currentWeapon)) {
+                    actionBtn.setText("EQUIPPED");
+                    actionBtn.setDisable(true);
+                    actionBtn.setStyle("-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold;");
+                } else {
+                    actionBtn.setText("EQUIP");
+                    actionBtn.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
+                }
 
                 actionBtn.setOnAction(e -> {
                     if (item.equals("Health Potion")) {
@@ -691,7 +838,9 @@ public class GameUI extends Application {
                         databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
                         updatePlayerStatsMenu();
                         showMessage("🧪 Drank Health Potion (+40 HP)");
-                        invStage.close();
+
+                        javafx.application.Platform.runLater(() -> refreshInventoryUI());
+
                     } else {
                         boolean equipped = cs.equipWeaponForHero(hero, this.selectedPlayerClass, item);
                         if (equipped) {
@@ -699,7 +848,8 @@ public class GameUI extends Application {
                             GUIAgent.instance.sendMessage(equipMsg);
                             updatePlayerStatsMenu();
                             showMessage("⚔️ Equipped " + item);
-                            invStage.close();
+
+                            javafx.application.Platform.runLater(() -> refreshInventoryUI());
                         } else {
                             showMessage("❌ Your class cannot equip " + item);
                         }
@@ -716,13 +866,10 @@ public class GameUI extends Application {
         }
 
         scrollPane.setContent(itemsContainer);
-        backpackPanel.getChildren().addAll(backpackTitle, scrollPane);
+        backpackPanel.getChildren().addAll(headerBox, scrollPane);
 
         root.getChildren().addAll(equipPanel, backpackPanel);
-
-        Scene scene = new Scene(root);
-        invStage.setScene(scene);
-        invStage.show();
+        inventoryOverlay.getChildren().add(root);
     }
 
     public void updatePlayerStatsMenu() {
@@ -734,9 +881,139 @@ public class GameUI extends Application {
         });
     }
 
+
+
     public void showMessage(String message) {
         Platform.runLater(() -> {
             info.setText(message);
         });
     }
 }
+
+//    private void openInventoryWindow() {
+//        Stage invStage = new Stage();
+//        invStage.initModality(Modality.APPLICATION_MODAL);
+//        invStage.setTitle("🎒 INVENTORY & EQUIPMENT");
+//
+//        HBox root = new HBox(20);
+//        root.setPadding(new Insets(20));
+//        root.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #e74c3c; -fx-border-width: 2;");
+//
+//        VBox equipPanel = new VBox(15);
+//        equipPanel.setAlignment(Pos.TOP_CENTER);
+//        equipPanel.setPrefWidth(220);
+//        equipPanel.setStyle("-fx-background-color: #16213e; -fx-padding: 15; -fx-background-radius: 8;");
+//
+//        Label equipTitle = new Label("⚔️ EQUIPPED");
+//        equipTitle.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 18px; -fx-font-weight: bold;");
+//
+//        // This is the weapon slot
+//        VBox weaponSlot = new VBox(5);
+//        weaponSlot.setAlignment(Pos.CENTER);
+//        weaponSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #e74c3c;");
+//        Label weaponSlotLabel = new Label("WEAPON");
+//        weaponSlotLabel.setStyle("-fx-text-fill: #bdc3c7; -fx-font-size: 11px;");
+//
+//
+//        String currentWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
+//        Label weaponNameLabel = new Label(currentWeapon);
+//        weaponNameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+//
+//        ImageView weaponImg = getItemImageView(currentWeapon);
+//        weaponSlot.getChildren().addAll(weaponSlotLabel, weaponImg, weaponNameLabel);
+//
+//        //This is the armor slot
+//        VBox armorSlot = new VBox(5);
+//        armorSlot.setAlignment(Pos.CENTER);
+//        armorSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
+//        Label armorSlotLabel = new Label("ARMOR (Empty)");
+//        armorSlotLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+//        armorSlot.getChildren().addAll(armorSlotLabel);
+//
+//        //This is the accessory slot
+//        VBox accessorySlot = new VBox(5);
+//        accessorySlot.setAlignment(Pos.CENTER);
+//        accessorySlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
+//        Label accSlotLabel = new Label("ACCESSORY (Empty)");
+//        accSlotLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+//        accessorySlot.getChildren().addAll(accSlotLabel);
+//
+//        equipPanel.getChildren().addAll(equipTitle, weaponSlot, armorSlot, accessorySlot);
+//
+//        VBox backpackPanel = new VBox(10);
+//        backpackPanel.setPrefWidth(320);
+//
+//        Label backpackTitle = new Label("🎒 BACKPACK");
+//        backpackTitle.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 18px; -fx-font-weight: bold;");
+//
+//        ScrollPane scrollPane = new ScrollPane();
+//        scrollPane.setFitToWidth(true);
+//        scrollPane.setPrefHeight(300);
+//        scrollPane.setStyle("-fx-background: #16213e; -fx-background-color: transparent;");
+//
+//        VBox itemsContainer = new VBox(8);
+//        itemsContainer.setPadding(new Insets(10));
+//
+//        String invData = databaseService.getPlayerInventory(this.selectedPlayerClass);
+//        if (invData != null && !invData.trim().isEmpty()) {
+//            String[] items = invData.split(",");
+//
+//            for (String item : items) {
+//                if (item.trim().isEmpty()) continue;
+//
+//                HBox itemRow = new HBox(10);
+//                itemRow.setAlignment(Pos.CENTER_LEFT);
+//                itemRow.setStyle("-fx-background-color: #0f3460; -fx-padding: 8; -fx-background-radius: 5;");
+//
+//                ImageView icon = getItemImageView(item);
+//                Label nameLbl = new Label(item);
+//                nameLbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+//
+//                Region spacer = new Region();
+//                HBox.setHgrow(spacer, Priority.ALWAYS);
+//
+//                Button actionBtn = new Button(item.equals("Health Potion") ? "DRINK" : "EQUIP");
+//                actionBtn.setStyle(item.equals("Health Potion")
+//                        ? "-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"
+//                        : "-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
+//
+//                actionBtn.setOnAction(e -> {
+//                    if (item.equals("Health Potion")) {
+//                        hero.heal(40);
+//                        databaseService.removeItemFromInventory(this.selectedPlayerClass, "Health Potion");
+//                        databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
+//                        updatePlayerStatsMenu();
+//                        showMessage("🧪 Drank Health Potion (+40 HP)");
+//                        invStage.close();
+//                    } else {
+//                        boolean equipped = cs.equipWeaponForHero(hero, this.selectedPlayerClass, item);
+//                        if (equipped) {
+//                            String equipMsg = "EQUIP_WEAPON:" + this.selectedPlayerClass + ":" + item;
+//                            GUIAgent.instance.sendMessage(equipMsg);
+//                            updatePlayerStatsMenu();
+//                            showMessage("⚔️ Equipped " + item);
+//                            invStage.close();
+//                        } else {
+//                            showMessage("❌ Your class cannot equip " + item);
+//                        }
+//                    }
+//                });
+//
+//                itemRow.getChildren().addAll(icon, nameLbl, spacer, actionBtn);
+//                itemsContainer.getChildren().add(itemRow);
+//            }
+//        } else {
+//            Label emptyLbl = new Label("Your backpack is empty.");
+//            emptyLbl.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
+//            itemsContainer.getChildren().add(emptyLbl);
+//        }
+//
+//        scrollPane.setContent(itemsContainer);
+//        backpackPanel.getChildren().addAll(backpackTitle, scrollPane);
+//
+//        root.getChildren().addAll(equipPanel, backpackPanel);
+//
+//        Scene scene = new Scene(root);
+//        invStage.setScene(scene);
+//        invStage.show();
+//    }
