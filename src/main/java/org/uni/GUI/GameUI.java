@@ -10,9 +10,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.uni.agents.GUIAgent;
-import org.uni.model.Hero;
-import org.uni.model.Item;
-import org.uni.model.Monster;
+import org.uni.model.*;
 import org.uni.service.CombatService;
 import org.uni.service.DatabaseService;
 import org.uni.service.DungeonGenerator;
@@ -52,13 +50,17 @@ public class GameUI extends Application {
     private TextArea battleLogArea;
     private HBox inventoryOverlay;
     private StackPane mainStackPane;
-    private Label hpLabel = new Label();
-    private Label atkLabel = new Label();
-    private Label weaponLabel = new Label();
-    private Label levelLabel = new Label();
     private StackPane levelCompleteOverlay;
     private StackPane lootOverlay;
     private boolean isGameOver = false;
+
+
+    private Label hpLabel = new Label();
+    private Label atkLabel = new Label();
+    private Label defLabel = new Label();
+    private Label weaponLabel = new Label();
+    private Label levelLabel = new Label();
+
     private boolean isTransitioningLevel = false;
 
     private Hero hero;
@@ -266,6 +268,8 @@ public class GameUI extends Application {
         hpLabel.setStyle("-fx-text-fill: white;");
         atkLabel.setText("ATK: " + pAtk);
         atkLabel.setStyle("-fx-text-fill: white;");
+        defLabel.setText("DEF: 0");
+        defLabel.setStyle("-fx-text-fill: white;");
         weaponLabel.setText("Weapon: " + pWeapon);
         weaponLabel.setStyle("-fx-text-fill: white;");
 
@@ -276,8 +280,7 @@ public class GameUI extends Application {
         battleLogArea.setPromptText("Battle Chronolog");
         battleLogArea.setStyle("-fx-control-inner-background: #1e1e1e; -fx-text-fill: #2ecc71;");
 
-        sideBar.getChildren().addAll(statsLabel, hpLabel, atkLabel, weaponLabel, invBtn, new Label("Battle Log:"), battleLogArea);
-
+        sideBar.getChildren().addAll(statsLabel, hpLabel, atkLabel, defLabel, weaponLabel, invBtn, new Label("Battle Log:"), battleLogArea);
         info.setStyle("-fx-text-fill: white; -fx-padding: 10; -fx-font-size: 14px;");
         VBox bottomBox = new VBox(info);
         bottomBox.setStyle("-fx-background-color: #1a1a1a;");
@@ -449,6 +452,9 @@ public class GameUI extends Application {
         Label playerAtkLabel = new Label("Your ATK: " + hero.getAtk());
         playerAtkLabel.setStyle("-fx-text-fill: #3498db; -fx-font-size: 16px;");
 
+        Label playerDefLabel = new Label("Your DEF: " + hero.getTotalDefense());
+        playerDefLabel.setStyle("-fx-text-fill: #9b59b6; -fx-font-size: 16px;");
+
         HBox actionButtons = new HBox(20);
         actionButtons.setAlignment(Pos.CENTER);
 
@@ -510,8 +516,10 @@ public class GameUI extends Application {
 
         actionButtons.getChildren().addAll(attackBtn, skillBtn, healBtn, fleeBtn);
         Label separator = new Label("------------------------");
-        combatScreen.getChildren().addAll(fightTitle, weaknessLabel, enemyAtkLabel, enemyHPLabel, separator, playerHPLabel, playerAtkLabel, actionButtons);
-
+        combatScreen.getChildren().addAll(
+                fightTitle, weaknessLabel, enemyAtkLabel, enemyHPLabel,
+                separator, playerHPLabel, playerAtkLabel, playerDefLabel, actionButtons
+        );
         mainLayout.setCenter(combatScreen);
     }
 
@@ -722,13 +730,12 @@ public class GameUI extends Application {
     }
 
     private void refreshInventoryUI() {
-        inventoryOverlay.getChildren().clear(); // Изчистваме старите данни
+        inventoryOverlay.getChildren().clear();
 
-        // Създаваме контейнера, който изглежда като прозорец
         HBox root = new HBox(20);
         root.setPadding(new Insets(20));
         root.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-background-radius: 10; -fx-border-radius: 10;");
-        root.setMaxSize(600, 450); // Ограничаваме размера, за да не заема целия екран
+        root.setMaxSize(600, 450);
 
         // --- ЛЯВ ПАНЕЛ: ЕКИПИРОВКА ---
         VBox equipPanel = new VBox(15);
@@ -739,6 +746,7 @@ public class GameUI extends Application {
         Label equipTitle = new Label("⚔️ EQUIPPED");
         equipTitle.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 18px; -fx-font-weight: bold;");
 
+        // Slot: Weapon
         VBox weaponSlot = new VBox(5);
         weaponSlot.setAlignment(Pos.CENTER);
         weaponSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #e74c3c;");
@@ -746,19 +754,33 @@ public class GameUI extends Application {
         weaponSlotLabel.setStyle("-fx-text-fill: #bdc3c7; -fx-font-size: 11px;");
 
         String currentWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
-        Label weaponNameLabel = new Label(currentWeapon);
+        Label weaponNameLabel = new Label(currentWeapon != null ? currentWeapon : "None");
         weaponNameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-
         ImageView weaponImg = getItemImageView(currentWeapon);
         weaponSlot.getChildren().addAll(weaponSlotLabel, weaponImg, weaponNameLabel);
 
+        // Slot: Armor (Вече динамина и чете от hero.getEquippedArmor())
         VBox armorSlot = new VBox(5);
         armorSlot.setAlignment(Pos.CENTER);
-        armorSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
-        Label armorSlotLabel = new Label("ARMOR (Empty)");
-        armorSlotLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
-        armorSlot.getChildren().addAll(armorSlotLabel);
+        ArmorItem currentArmorObj = hero.getEquippedArmor();
+        String currentArmorName = (currentArmorObj != null) ? currentArmorObj.getName() : null;
 
+        armorSlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: " + (currentArmorName != null ? "#2ecc71" : "#7f8c8d") + ";");
+        Label armorSlotLabel = new Label("ARMOR");
+        armorSlotLabel.setStyle("-fx-text-fill: #bdc3c7; -fx-font-size: 11px;");
+
+        if (currentArmorName != null) {
+            Label armorNameLabel = new Label(currentArmorName);
+            armorNameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            ImageView armorImg = getItemImageView(currentArmorName);
+            armorSlot.getChildren().addAll(armorSlotLabel, armorImg, armorNameLabel);
+        } else {
+            Label emptyArmorLabel = new Label("(Empty)");
+            emptyArmorLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+            armorSlot.getChildren().addAll(armorSlotLabel, emptyArmorLabel);
+        }
+
+        // Slot: Accessory
         VBox accessorySlot = new VBox(5);
         accessorySlot.setAlignment(Pos.CENTER);
         accessorySlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
@@ -772,7 +794,6 @@ public class GameUI extends Application {
         VBox backpackPanel = new VBox(10);
         backpackPanel.setPrefWidth(320);
 
-        // Горен ред с раницата и бутона за затваряне
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER_LEFT);
         Label backpackTitle = new Label("🎒 BACKPACK");
@@ -818,11 +839,14 @@ public class GameUI extends Application {
 
                 Button actionBtn = new Button();
 
-                // Логика за стил на бутона (Включва и предпазителя за вече сложено оръжие)
+                // Проверка дали предметите са вече сложени
+                boolean isEquippedWeapon = item.equalsIgnoreCase(currentWeapon);
+                boolean isEquippedArmor = currentArmorName != null && item.equalsIgnoreCase(currentArmorName);
+
                 if (item.equals("Health Potion")) {
                     actionBtn.setText("DRINK");
                     actionBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
-                } else if (item.equalsIgnoreCase(currentWeapon)) {
+                } else if (isEquippedWeapon || isEquippedArmor) {
                     actionBtn.setText("EQUIPPED");
                     actionBtn.setDisable(true);
                     actionBtn.setStyle("-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -839,19 +863,20 @@ public class GameUI extends Application {
                         updatePlayerStatsMenu();
                         showMessage("🧪 Drank Health Potion (+40 HP)");
 
-                        javafx.application.Platform.runLater(() -> refreshInventoryUI());
+                        javafx.application.Platform.runLater(this::refreshInventoryUI);
 
                     } else {
-                        boolean equipped = cs.equipWeaponForHero(hero, this.selectedPlayerClass, item);
+                        // Подаваме String името директно към CombatService
+                        boolean equipped = cs.equipItemForHero(hero, this.selectedPlayerClass, item);
                         if (equipped) {
-                            String equipMsg = "EQUIP_WEAPON:" + this.selectedPlayerClass + ":" + item;
+                            String equipMsg = "EQUIP_ITEM:" + this.selectedPlayerClass + ":" + item;
                             GUIAgent.instance.sendMessage(equipMsg);
                             updatePlayerStatsMenu();
-                            showMessage("⚔️ Equipped " + item);
+                            showMessage("🛡️/⚔️ Equipped " + item);
 
-                            javafx.application.Platform.runLater(() -> refreshInventoryUI());
+                            javafx.application.Platform.runLater(this::refreshInventoryUI);
                         } else {
-                            showMessage("❌ Your class cannot equip " + item);
+                            showMessage("❌ Cannot equip " + item);
                         }
                     }
                 });
@@ -877,6 +902,7 @@ public class GameUI extends Application {
         Platform.runLater(() -> {
             hpLabel.setText("HP: " + hero.getHp() + " / " + hero.getMaxHP());
             atkLabel.setText("ATK: " + hero.getAtk());
+            defLabel.setText("DEF: " + hero.getTotalDefense());
             weaponLabel.setText("Active Class: " + this.selectedPlayerClass.replace("Class", ""));
         });
     }

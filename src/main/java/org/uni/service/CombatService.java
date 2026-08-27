@@ -6,15 +6,14 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
-import org.uni.model.Hero;
-import org.uni.model.Item;
-import org.uni.model.Monster;
+import org.uni.model.*;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class CombatService {
@@ -75,14 +74,37 @@ public class CombatService {
         int baseAtk = getIntProperty(heroClass, "hasBaseDamage");
         if (baseAtk <= 0) baseAtk = 15;
 
+        // 1. Оръжие
         int weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
-        if (weaponAtk > 0) {
-            baseAtk += weaponAtk;
+        if (weaponAtk < 0) weaponAtk = 0;
+        WeaponItem equippedWeapon = new WeaponItem(weaponName, 1, weaponAtk);
+
+        int totalAtk = baseAtk + weaponAtk;
+
+        List<Item> inventory = new ArrayList<>();
+        inventory.add(equippedWeapon);
+
+        // 2. Създаване на Hero обект
+        Hero hero = new Hero(heroClass, baseHp, baseHp, totalAtk, equippedWeapon, inventory);
+
+        // 3. Задаване на начална броня според класа
+        String defaultArmor = getStartingArmorForClass(heroClass);
+        if (defaultArmor != null) {
+            ArmorItem initialArmor = loadArmorFromOntology(defaultArmor);
+            hero.setEquippedArmor(initialArmor);
+            inventory.add(initialArmor);
         }
 
-        return new Hero(heroClass, baseHp, baseHp, baseAtk, weaponName, new ArrayList<>());
+        return hero;
     }
 
+    private String getStartingArmorForClass(String heroClass) {
+        switch (heroClass) {
+            case "WarriorClass": return "SteelHeavyArmor";
+            case "WizardClass": return "MagicRobe";
+            default: return "LeatherLightArmor";
+        }
+    }
 
     public String getWeaponElement(String weaponName) {
         if (model == null || weaponName == null || weaponName.isEmpty()) return "Physical";
@@ -156,31 +178,54 @@ public class CombatService {
         return false;
     }
 
-    public boolean equipWeaponForHero(Hero hero, String playerClass, String newWeapon) {
-        if (!canEquip(playerClass, newWeapon)) {
-            System.out.println("❌ " + playerClass + " cannot equip " + newWeapon + "!");
+    public boolean equipWeaponForHero(Hero hero, String playerClass, WeaponItem newWeapon) {
+        if (newWeapon == null) return false;
+
+        // 1. Извличаме String името за базата данни и онтологията
+        String weaponName = newWeapon.getName();
+
+        // 2. Предаваме String името към canEquip
+        if (!canEquip(playerClass, weaponName)) {
+            System.out.println("❌ " + playerClass + " cannot equip " + weaponName + "!");
             return false;
         }
 
-        int weaponAtk = getWeaponBaseDamage(newWeapon);
+        // 3. Взимаме щетите директно от обекта WeaponItem
+        int weaponAtk = newWeapon.getBaseDamage();
 
+        // Резервен вариант: ако обектът няма зададени щети, четем от онтологията по String име
         if (weaponAtk <= 0) {
-            weaponAtk = getIntProperty(newWeapon, "hasBaseDamage");
+            weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
+            if (weaponAtk <= 0) weaponAtk = 10;
+            newWeapon.setBaseDamage(weaponAtk);
         }
-//        if (weaponAtk <= 0) {
-//            weaponAtk = 10;
-//        }
 
+        // 4. Екипираме обекта в Hero
         hero.setEquippedWeapon(newWeapon);
 
+        // 5. Обновяваме атаката на Hero
         int baseAtk = DatabaseService.getInstance().getAttack(playerClass);
         hero.setAtk(baseAtk + weaponAtk);
 
-        DatabaseService.getInstance().equipWeapon(playerClass, newWeapon);
+        // 6. Записваме в базата данни с String името
+        DatabaseService.getInstance().equipWeapon(playerClass, weaponName);
 
-        System.out.println("⚔️ " + playerClass + " successfully equipped " + newWeapon + " (+ " + weaponAtk + " ATK)!");
+        System.out.println("⚔️ " + playerClass + " successfully equipped " + weaponName + " (+ " + weaponAtk + " ATK)!");
 
         return true;
+    }
+
+    public boolean equipItemForHero(Hero hero, String playerClass, String itemName) {
+        if (itemName == null || itemName.trim().isEmpty()) return false;
+
+        if (isArmor(itemName)) {
+            ArmorItem armor = loadArmorFromOntology(itemName);
+            hero.setEquippedArmor(armor);
+            return true;
+        }
+
+        WeaponItem weapon = getWeaponItem(itemName);
+        return equipWeaponForHero(hero, playerClass, weapon);
     }
 
     public String executeAttack(Hero hero, Monster monster) {
@@ -407,18 +452,45 @@ public class CombatService {
         }
         return "None";
     }
+    public ArmorItem loadArmorFromOntology(String armorName) {
+        int baseDef = getIntProperty(armorName, "hasBaseDef");
+        int dmgBonus = getIntProperty(armorName, "hasDamageBonus");
+        int dmgPenalty = getIntProperty(armorName, "hasDamagePenalty");
+        int dmgRes = getIntProperty(armorName, "hasDamageResistance");
 
-    public String generateLoot(String monsterName){
+        return new ArmorItem(armorName, 1, baseDef, dmgBonus, dmgPenalty, dmgRes);
+    }
+
+    // 2. Извлича оръжие от онтологията и го превръща във WeaponItem обект
+    public WeaponItem getWeaponItem(String weaponName) {
+        int weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
+        if (weaponAtk <= 0) weaponAtk = 10; // Резервна стойност по подразбиране
+        return new WeaponItem(weaponName, 1, weaponAtk);
+    }
+
+    // 3. Проверява дали предметът е броня в онтологията
+    public boolean isArmor(String itemName) {
+        // Ако предметът има стойност за защита или резистентност > 0, го третираме като броня
+        int baseDef = getIntProperty(itemName, "hasBaseDef");
+        int res = getIntProperty(itemName, "hasDamageResistance");
+        return baseDef > 0 || res > 0;
+    }
+
+
+    public String generateLoot(String monsterName) {
         Random rand = new Random();
         int chance = rand.nextInt(100);
 
-        if(chance < 40){
-            return "Health Potion";
-        }
-        else {//if(chance < 75){
+        if (chance < 30) {
+            return "Health Potion"; // 30% шанс за отвара
+        } else if (chance < 65) {
+            // 35% шанс за оръжие
             String[] possibleWeapons = {"StormStaff", "SteelDagger", "FloodStaff", "FlameClaymore", "PrecisionBow"};
             return possibleWeapons[rand.nextInt(possibleWeapons.length)];
+        } else {
+            // 35% шанс за броня (замени имената с тези от твоята онтология)
+            String[] possibleArmors = {"LeatherArmor", "IronPlate", "MageRobe"};
+            return possibleArmors[rand.nextInt(possibleArmors.length)];
         }
-        //return "none";
     }
 }

@@ -8,13 +8,14 @@ public class Item implements Serializable {
     private int effectiveValue;
     private int quantity;
 
+
     public Item(String name, String itemType, int effectiveValue, int quantity) {
         this.name = name;
         this.itemType = itemType;
         this.effectiveValue = effectiveValue;
         this.quantity = quantity;
-    }
 
+    }
     public String getName() {
         return name;
     }
@@ -22,11 +23,9 @@ public class Item implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-
     public String getItemType() {
         return itemType;
     }
-
     public void setItemType(String itemType) {
         this.itemType = itemType;
     }
@@ -34,15 +33,12 @@ public class Item implements Serializable {
     public int getEffectiveValue() {
         return effectiveValue;
     }
-
     public void setEffectiveValue(int effectiveValue) {
         this.effectiveValue = effectiveValue;
     }
-
     public int getQuantity() {
         return quantity;
     }
-
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }

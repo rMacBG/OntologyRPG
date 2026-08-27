@@ -8,16 +8,29 @@ public class Hero implements Serializable {
     private int hp;
     private int maxHP;
     private int atk;
-    private String equippedWeapon;
+    private WeaponItem equippedWeapon;
+    private ArmorItem equippedArmor;
     private List<Item> inventory;
 
-    public Hero(String heroClass, int hp, int maxHP, int atk, String equippedWeapon, List<Item> inventory) {
+
+
+    public Hero(String heroClass, int hp, int maxHP, int atk, WeaponItem equippedWeapon, List<Item> inventory) {
         this.heroClass = heroClass;
         this.hp = hp;
         this.maxHP = maxHP;
         this.atk = atk;
         this.equippedWeapon = equippedWeapon;
         this.inventory = (inventory != null) ? inventory : new ArrayList<>();
+    }
+
+    public int getTotalAttack(){
+        if (equippedArmor == null) return atk;
+        return Math.max(0, atk + equippedArmor.getDamageBonus() - equippedArmor.getDamagePenalty());
+    }
+
+    public int getTotalDefense() {
+        if (equippedArmor == null) return 0;
+        return equippedArmor.getBaseDef() + equippedArmor.getDamageResistance();
     }
 
     public void takeDamage(int damage) {
@@ -64,12 +77,20 @@ public class Hero implements Serializable {
         this.atk = atk;
     }
 
-    public String getEquippedWeapon() {
+    public WeaponItem getEquippedWeapon() {
         return equippedWeapon;
     }
 
-    public void setEquippedWeapon(String equippedWeapon) {
+    public void setEquippedWeapon(WeaponItem equippedWeapon) {
         this.equippedWeapon = equippedWeapon;
+    }
+
+    public ArmorItem getEquippedArmor() {
+        return equippedArmor;
+    }
+
+    public void setEquippedArmor(ArmorItem equippedArmor) {
+        this.equippedArmor = equippedArmor;
     }
 
     public List<Item> getInventory() {
