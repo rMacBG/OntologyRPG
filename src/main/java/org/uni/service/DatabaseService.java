@@ -48,7 +48,8 @@ public class DatabaseService {
                 weapon TEXT,
                 inventory TEXT DEFAULT '',
                 hp INTEGER,
-                atk INTEGER
+                atk INTEGER,
+                def INTEGER DEFAULT 0
                 );
                 """;
 
@@ -74,6 +75,12 @@ public class DatabaseService {
             stmt.execute(players);
             stmt.execute(characters);
             stmt.execute(battles);
+
+            try {
+                stmt.executeUpdate("ALTER TABLE players ADD COLUMN def INTEGER DEFAULT 0;");
+            } catch (SQLException ignored) {
+
+            }
 
             System.out.println("Tables Created");
         }catch (Exception e){
@@ -281,6 +288,20 @@ public class DatabaseService {
         return 0;
     }
 
+    public int getDefense(String username) {
+        String sql = "SELECT def FROM players WHERE username = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("def");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public void deletePlayer(String username){
             String sql = """
                     DELETE FROM players
@@ -338,8 +359,8 @@ public class DatabaseService {
         }
     }
 
-    public synchronized void addCustomPlayer(String username, String weapon, int hp, int atk){
-        String sql = "INSERT INTO players (username, level, gold, weapon, inventory, hp, atk) VALUES (?, 1, 100, ?, ?, ?, ?)";
+    public synchronized void addCustomPlayer(String username, String weapon, int hp, int atk, int def){
+        String sql = "INSERT INTO players (username, level, gold, weapon, inventory, hp, atk, def) VALUES (?, 1, 100, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement del = connection.prepareStatement("DELETE FROM players WHERE username=?");
             del.setString(1, username);
@@ -351,6 +372,7 @@ public class DatabaseService {
                 ps.setString(3, weapon); // Записваме оръжието и като начален предмет в inventory
                 ps.setInt(4, hp);
                 ps.setInt(5, atk);
+                ps.setInt(6, def);
                 ps.executeUpdate();
             }
             System.out.println("Custom Player Created in DB: " + username + " with " + weapon);
@@ -398,6 +420,17 @@ public class DatabaseService {
             ps.setString(2, username);
             ps.executeUpdate();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updatePlayerDEF(String username, int def) {
+        String sql = "UPDATE players SET def = ? WHERE username = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, def);
+            pstmt.setString(2, username);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

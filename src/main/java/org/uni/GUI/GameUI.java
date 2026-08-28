@@ -176,6 +176,8 @@ public class GameUI extends Application {
 
     }
 
+    private record HeroClassOption(String id, String labelText, String defaultWeapon) {}
+
     private void showCharacterCreation() {
         VBox creationBox = new VBox(20);
         creationBox.setAlignment(Pos.CENTER);
@@ -183,52 +185,57 @@ public class GameUI extends Application {
 
         Label header = new Label("CHOOSE YOUR CLASS");
         header.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
+        creationBox.getChildren().add(header);
 
         ToggleGroup group = new ToggleGroup();
 
-        RadioButton rbWarrior = new RadioButton("Warrior (150 HP, 15 ATK - Starts with IronSword)");
-        rbWarrior.setToggleGroup(group);
-        rbWarrior.setSelected(true);
-        rbWarrior.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        rbWarrior.setUserData("WarriorClass");
+        List<HeroClassOption> classOptions = List.of(
+                new HeroClassOption("WarriorClass", "Warrior (150 HP, 15 ATK) - Starts with Iron Longsword", "IronLongSword"),
+                new HeroClassOption("ArcherClass", "Archer (120 HP, 17 ATK) - Starts with Small Bow", "SmallBow"),
+                new HeroClassOption("WizardClass", "Wizard (100 HP, 22 ATK) - Starts with Storm Staff", "StormStaff"),
+                new HeroClassOption("AssassinClass", "Assassin (135 HP, 20 ATK) - Starts with Steel Dagger", "SteelDagger")
+        );
 
-        RadioButton rbArcher = new RadioButton("Archer (120 HP, 17 ATK) - Starts with ShortBow");
-        rbArcher.setToggleGroup(group);
-        rbArcher.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        rbArcher.setUserData("ArcherClass");
+        for (int i = 0; i < classOptions.size(); i++) {
+            HeroClassOption option = classOptions.get(i);
+            RadioButton rb = new RadioButton(option.labelText());
+            rb.setToggleGroup(group);
+            rb.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+            rb.setUserData(option);
 
-        RadioButton rbMage = new RadioButton("Wizard (100 HP, 22 ATK) - Starts with StormStaff");
-        rbMage.setToggleGroup(group);
-        rbMage.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        rbMage.setUserData("WizardClass");
+            if (i == 0) {
+                rb.setSelected(true);
+            }
 
-        RadioButton rbRogue = new RadioButton("Assassin (135 HP, 20 ATK) - Starts with SteelDagger");
-        rbRogue.setToggleGroup(group);
-        rbRogue.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        rbRogue.setUserData("AssassinClass");
+            creationBox.getChildren().add(rb);
+        }
 
         Button confirmBtn = new Button("UNFOLD THE ADVENTURE OF A MILLENIA!");
         confirmBtn.setPrefSize(220, 45);
 
         confirmBtn.setOnAction(e -> {
             RadioButton selected = (RadioButton) group.getSelectedToggle();
-            this.selectedPlayerClass = selected.getUserData().toString();
+            HeroClassOption selectedOption = (HeroClassOption) selected.getUserData();
 
-            String startingWeapon = "IronLongSword";
-            if (selectedPlayerClass.equals("ArcherClass")) startingWeapon = "SmallBow";
-            else if (selectedPlayerClass.equals("WizardClass")) startingWeapon = "StormStaff";
-            else if (selectedPlayerClass.equals("AssassinClass")) startingWeapon = "SteelDagger";
+            this.selectedPlayerClass = selectedOption.id();
+            String startingWeapon = selectedOption.defaultWeapon();
 
             this.hero = cs.createHero(this.selectedPlayerClass, startingWeapon);
 
-            databaseService.addCustomPlayer(this.selectedPlayerClass, startingWeapon, hero.getHp(), hero.getAtk());
+            databaseService.addCustomPlayer(
+                    this.selectedPlayerClass,
+                    startingWeapon,
+                    hero.getHp(),
+                    hero.getAtk(),
+                    hero.getTotalDefense()
+            );
 
             spawnMonsters();
             loadLevel(1);
             buildGameMap();
         });
 
-        creationBox.getChildren().addAll(header, rbWarrior, rbArcher, rbMage, rbRogue, confirmBtn);
+        creationBox.getChildren().add(confirmBtn);
         mainLayout.setCenter(creationBox);
     }
 
@@ -260,15 +267,15 @@ public class GameUI extends Application {
 
         int pHP = databaseService.getHP(this.selectedPlayerClass);
         int pAtk = databaseService.getAttack(this.selectedPlayerClass);
-        String pWeapon = ontologyService.getPropertyValue(this.selectedPlayerClass, "weapon");
-        if (pWeapon == null) pWeapon = "Class Weapon";
-
+        int pDef = databaseService.getDefense(this.selectedPlayerClass);
+        String pWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
+        if (pWeapon == null || pWeapon.isEmpty()) pWeapon = "Class Weapon";
 
         hpLabel.setText("HP: " + pHP);
         hpLabel.setStyle("-fx-text-fill: white;");
         atkLabel.setText("ATK: " + pAtk);
         atkLabel.setStyle("-fx-text-fill: white;");
-        defLabel.setText("DEF: 0");
+        defLabel.setText("DEF: " + pDef);
         defLabel.setStyle("-fx-text-fill: white;");
         weaponLabel.setText("Weapon: " + pWeapon);
         weaponLabel.setStyle("-fx-text-fill: white;");
@@ -285,7 +292,6 @@ public class GameUI extends Application {
         VBox bottomBox = new VBox(info);
         bottomBox.setStyle("-fx-background-color: #1a1a1a;");
 
-        //spawnMonsters();
         updateMap();
 
         mainLayout.setCenter(grid);
@@ -306,11 +312,9 @@ public class GameUI extends Application {
         lootOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
         lootOverlay.setVisible(false);
 
-        // 2. Слагаме САМО картата (grid) и овърлея в StackPane
         mainStackPane = new StackPane();
         mainStackPane.getChildren().addAll(grid, inventoryOverlay, levelCompleteOverlay, lootOverlay);
 
-        // 3. Задаваме централната зона и менютата в mainLayout
         mainLayout.setCenter(mainStackPane);
         mainLayout.setRight(sideBar);
         mainLayout.setBottom(bottomBox);
@@ -532,7 +536,6 @@ public class GameUI extends Application {
 
             playerX = monsterX;
             playerY = monsterY;
-            //mainLayout.setCenter(grid);
             mainLayout.setCenter(mainStackPane);
 
             if (activeMonstersCount <= 0) {
@@ -541,7 +544,6 @@ public class GameUI extends Application {
 
             updateMap();
             updatePlayerStatsMenu();
-            //grid.requestFocus();
             mainLayout.requestFocus();
 
             if (battleLogArea != null) {
@@ -560,7 +562,6 @@ public class GameUI extends Application {
             }
         }
 
-        // Обновяваме UI-а безопасно
         Platform.runLater(this::updateMap);
 
         if (battleLogArea != null) {
@@ -759,7 +760,6 @@ public class GameUI extends Application {
         ImageView weaponImg = getItemImageView(currentWeapon);
         weaponSlot.getChildren().addAll(weaponSlotLabel, weaponImg, weaponNameLabel);
 
-        // Slot: Armor (Вече динамина и чете от hero.getEquippedArmor())
         VBox armorSlot = new VBox(5);
         armorSlot.setAlignment(Pos.CENTER);
         ArmorItem currentArmorObj = hero.getEquippedArmor();
@@ -780,7 +780,6 @@ public class GameUI extends Application {
             armorSlot.getChildren().addAll(armorSlotLabel, emptyArmorLabel);
         }
 
-        // Slot: Accessory
         VBox accessorySlot = new VBox(5);
         accessorySlot.setAlignment(Pos.CENTER);
         accessorySlot.setStyle("-fx-background-color: #0f3460; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #7f8c8d;");
@@ -790,7 +789,6 @@ public class GameUI extends Application {
 
         equipPanel.getChildren().addAll(equipTitle, weaponSlot, armorSlot, accessorySlot);
 
-        // --- ДЕСЕН ПАНЕЛ: РАНИЦА ---
         VBox backpackPanel = new VBox(10);
         backpackPanel.setPrefWidth(320);
 
@@ -839,7 +837,6 @@ public class GameUI extends Application {
 
                 Button actionBtn = new Button();
 
-                // Проверка дали предметите са вече сложени
                 boolean isEquippedWeapon = item.equalsIgnoreCase(currentWeapon);
                 boolean isEquippedArmor = currentArmorName != null && item.equalsIgnoreCase(currentArmorName);
 

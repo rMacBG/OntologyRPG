@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
+
 public class OntologyService {
 
     private static final String FILE_PATH = "ontology/RPGGameOntology.rdf";

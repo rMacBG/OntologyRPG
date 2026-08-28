@@ -1,11 +1,13 @@
 package org.uni.service;
 
+import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.vocabulary.RDF;
 import org.uni.model.*;
 
 import java.io.FileInputStream;
@@ -21,6 +23,7 @@ public class CombatService {
     private static final String PATH = "ontology/CombatOntology.rdf";
     private static final String BASE = "http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology/";
     private static final String NS = BASE + "#";
+    private static final String RPG_NS = "http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#";
     private static OntologyService ontologyService = new OntologyService();
 
     private OntModel model;
@@ -74,7 +77,6 @@ public class CombatService {
         int baseAtk = getIntProperty(heroClass, "hasBaseDamage");
         if (baseAtk <= 0) baseAtk = 15;
 
-        // 1. Оръжие
         int weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
         if (weaponAtk < 0) weaponAtk = 0;
         WeaponItem equippedWeapon = new WeaponItem(weaponName, 1, weaponAtk);
@@ -83,16 +85,16 @@ public class CombatService {
 
         List<Item> inventory = new ArrayList<>();
         inventory.add(equippedWeapon);
-
-        // 2. Създаване на Hero обект
         Hero hero = new Hero(heroClass, baseHp, baseHp, totalAtk, equippedWeapon, inventory);
 
-        // 3. Задаване на начална броня според класа
+
         String defaultArmor = getStartingArmorForClass(heroClass);
         if (defaultArmor != null) {
             ArmorItem initialArmor = loadArmorFromOntology(defaultArmor);
             hero.setEquippedArmor(initialArmor);
             inventory.add(initialArmor);
+
+            DatabaseService.getInstance().updatePlayerDEF(heroClass, hero.getTotalDefense());
         }
 
         return hero;
@@ -165,49 +167,74 @@ public class CombatService {
         return "None";
     }
 
-    public boolean canEquip(String playerClass, String weaponName) {
-        if (playerClass == null || weaponName == null) return false;
+//        public boolean canEquip(String playerClass, String weaponName) {
+//            if (playerClass == null || weaponName == null) return false;
+//
+//            String weapon = weaponName.toLowerCase();
+//
+//            if (playerClass.contains("Wizard") && (weapon.contains("staff") || weapon.contains("wand"))) return true;
+//            if (playerClass.contains("Warrior") && (weapon.contains("sword") || weapon.contains("claymore") || weapon.contains("greatsword"))) return true;
+//            if (playerClass.contains("Archer") && (weapon.contains("bow") || weapon.contains("crossbow"))) return true;
+//            if (playerClass.contains("Assassin") && (weapon.contains("dagger") || weapon.contains("blade"))) return true;
+//
+//            return false;
+//        }
 
-        String weapon = weaponName.toLowerCase();
+    public boolean canEquip(String playerClass, String itemName) {
+        if (playerClass == null || itemName == null) return false;
 
-        if (playerClass.contains("Wizard") && (weapon.contains("staff") || weapon.contains("wand"))) return true;
-        if (playerClass.contains("Warrior") && (weapon.contains("sword") || weapon.contains("claymore") || weapon.contains("greatsword"))) return true;
-        if (playerClass.contains("Archer") && (weapon.contains("bow") || weapon.contains("crossbow"))) return true;
-        if (playerClass.contains("Assassin") && (weapon.contains("dagger") || weapon.contains("blade"))) return true;
+        String itemOntologyClass = getItemClassType(itemName);
+
+        if (itemOntologyClass.isEmpty()) {
+            itemOntologyClass = itemName;
+        }
+
+        String type = itemOntologyClass.toLowerCase();
+        String pClass = playerClass.toLowerCase();
+
+        if (pClass.contains("warrior")) {
+            return type.contains("heavyarmor") || type.contains("sword") || type.contains("claymore");
+        }
+
+        if (pClass.contains("wizard")) {
+            return type.contains("robearmor") || type.contains("staff") || type.contains("wand");
+        }
+
+        if (pClass.contains("archer")) {
+            return type.contains("lightarmor") || type.contains("bow");
+        }
+
+        if (pClass.contains("assassin")) {
+            return type.contains("lightarmor") || type.contains("dagger") || type.contains("blade");
+        }
 
         return false;
     }
 
+
+
     public boolean equipWeaponForHero(Hero hero, String playerClass, WeaponItem newWeapon) {
         if (newWeapon == null) return false;
 
-        // 1. Извличаме String името за базата данни и онтологията
         String weaponName = newWeapon.getName();
 
-        // 2. Предаваме String името към canEquip
         if (!canEquip(playerClass, weaponName)) {
             System.out.println("❌ " + playerClass + " cannot equip " + weaponName + "!");
             return false;
         }
 
-        // 3. Взимаме щетите директно от обекта WeaponItem
         int weaponAtk = newWeapon.getBaseDamage();
-
-        // Резервен вариант: ако обектът няма зададени щети, четем от онтологията по String име
         if (weaponAtk <= 0) {
             weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
             if (weaponAtk <= 0) weaponAtk = 10;
             newWeapon.setBaseDamage(weaponAtk);
         }
 
-        // 4. Екипираме обекта в Hero
         hero.setEquippedWeapon(newWeapon);
 
-        // 5. Обновяваме атаката на Hero
         int baseAtk = DatabaseService.getInstance().getAttack(playerClass);
         hero.setAtk(baseAtk + weaponAtk);
 
-        // 6. Записваме в базата данни с String името
         DatabaseService.getInstance().equipWeapon(playerClass, weaponName);
 
         System.out.println("⚔️ " + playerClass + " successfully equipped " + weaponName + " (+ " + weaponAtk + " ATK)!");
@@ -218,9 +245,17 @@ public class CombatService {
     public boolean equipItemForHero(Hero hero, String playerClass, String itemName) {
         if (itemName == null || itemName.trim().isEmpty()) return false;
 
+        if (!canEquip(playerClass, itemName)) {
+            System.out.println("❌ " + playerClass + " cannot equip " + itemName + "!");
+            return false;
+        }
+
         if (isArmor(itemName)) {
             ArmorItem armor = loadArmorFromOntology(itemName);
             hero.setEquippedArmor(armor);
+
+            DatabaseService.getInstance().updatePlayerDEF(playerClass, hero.getTotalDefense());
+            System.out.println("🛡️ " + playerClass + " successfully equipped " + itemName + "!");
             return true;
         }
 
@@ -228,25 +263,11 @@ public class CombatService {
         return equipWeaponForHero(hero, playerClass, weapon);
     }
 
-    public String executeAttack(Hero hero, Monster monster) {
-        if (hero == null || monster == null) return "ERROR";
-
-        int heroDamage = hero.getAtk();
-        monster.takeDamage(heroDamage);
-
-        if (!monster.isAlive()) {
-            return "VICTORY";
-        }
-
-        int monsterDamage = monster.getAtk();
-        hero.takeDamage(monsterDamage);
-
-        if (!hero.isAlive()) {
-            return "DEFEAT";
-        }
-
-        return "CONTINUE";
+    public int calculateIncomingMonsterDamage(int monsterAtk, int playerDef) {
+        return Math.max(1, monsterAtk - playerDef);
     }
+
+
     public void applyItem(Hero hero, Item item) {
         if (hero == null || item == null || item.getQuantity() <= 0) return;
 
@@ -489,8 +510,39 @@ public class CombatService {
             return possibleWeapons[rand.nextInt(possibleWeapons.length)];
         } else {
             // 35% шанс за броня (замени имената с тези от твоята онтология)
-            String[] possibleArmors = {"LeatherArmor", "IronPlate", "MageRobe"};
+            String[] possibleArmors = {"LeatherLightArmor", "SteelHeavyArmor", "MagicRobe"};
             return possibleArmors[rand.nextInt(possibleArmors.length)];
         }
+    }
+
+    public String getItemClassType(String itemName) {
+        if (itemName == null || itemName.trim().isEmpty()) return "";
+
+        String cleanName = itemName.replaceAll("\\s+", "");
+
+        // Използваме полетата на класа NS и RPG_NS
+        Resource itemRes = model.getResource(NS + cleanName);
+        if (itemRes == null || !model.containsResource(itemRes)) {
+            itemRes = model.getResource(RPG_NS + cleanName);
+        }
+
+        if (itemRes != null && model.containsResource(itemRes)) {
+            StmtIterator it = model.listStatements(itemRes, RDF.type, (RDFNode) null);
+            while (it.hasNext()) {
+                Statement stmt = it.nextStatement();
+                Resource typeRes = stmt.getObject().asResource();
+                String typeName = typeRes.getLocalName();
+                if (typeName != null && (
+                        typeName.equalsIgnoreCase("HeavyArmor") ||
+                                typeName.equalsIgnoreCase("LightArmor") ||
+                                typeName.equalsIgnoreCase("RobeArmor") ||
+                                typeName.contains("Sword") || typeName.contains("Staff") ||
+                                typeName.contains("Bow") || typeName.contains("Dagger"))) {
+                    return typeName;
+                }
+            }
+        }
+
+        return "";
     }
 }

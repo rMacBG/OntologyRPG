@@ -101,9 +101,13 @@ public class CombatAgent extends Agent {
             sendReply(originalMsg, victoryMsg);
             return;
         }
-        playerHP -= enemyAtk;
+        int playerDEF = databaseService.getDefense(playerClass);
+
+        int actualEnemyAtk = combatService.calculateIncomingMonsterDamage(enemyAtk, playerDEF);
+
+        playerHP -= actualEnemyAtk;
         if (playerHP < 0) playerHP = 0;
-        logLine += enemyName + " attacked back for " + enemyAtk + " dmg.";
+        logLine += enemyName + " attacked back for " + actualEnemyAtk + " dmg (" + playerDEF + " blocked).";
 
         databaseService.updatePlayerHP(playerClass, playerHP);
 
