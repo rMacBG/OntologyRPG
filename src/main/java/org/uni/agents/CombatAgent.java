@@ -5,6 +5,7 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import org.uni.model.Monster;
+import org.uni.model.SkillItem;
 import org.uni.service.CombatService;
 import org.uni.service.DatabaseService;
 import org.uni.service.OntologyService;
@@ -79,11 +80,15 @@ public class CombatAgent extends Agent {
         int totalBaseAtk = playerClassAtk + weaponAtk;
         int finalPlayerDamage = calculateDamage(playerClass, enemyName, totalBaseAtk, actionType);
 
-
         enemyHP -= finalPlayerDamage;
         if (enemyHP < 0) enemyHP = 0;
+        String skillName = getSkillName(playerClass);
+        SkillItem skill = combatService.loadSkillFromOntology(skillName);
 
-        String actionUsed = actionType.equalsIgnoreCase("SKILL") ? getSkillName(playerClass) : "attacked";
+        String actionUsed = actionType.equalsIgnoreCase("SKILL")
+                ? "used [" + skillName + "] on"
+                : "attacked";
+
         String logLine = playerClass.replace("Class", "") + " " + actionUsed + " " + enemyName + " for " + finalPlayerDamage + " dmg. ";
 
         if (enemyHP <= 0) {
@@ -118,32 +123,108 @@ public class CombatAgent extends Agent {
         }
     }
 
+//private int calculateDamage(String playerClass, String enemyName, int currentAtk, String actionType) {
+//    double multiplier = 1.0;
+//    String element = "Physical";
+//
+//    if (actionType.equalsIgnoreCase("SKILL")) {
+//        // 1. Вземаме скила и параметрите му от Онтологията
+//        String skillName = getSkillName(playerClass);
+//        SkillItem skill = combatService.loadSkillFromOntology(skillName);
+//
+//        if (skill != null) {
+//            multiplier = skill.getDamageMultiplier();
+//            element = skill.getElement();
+//        } else {
+//            multiplier = 1.5;
+//        }
+//    } else {
+//        String weaponName = databaseService.getPlayerWeapon(playerClass);
+//        element = combatService.getWeaponElement(weaponName);
+//    }
+//
+//    String weakness = combatService.getWeakness(enemyName);
+//    String resistance = combatService.getResistance(enemyName);
+//
+//    if (element != null && !"Physical".equalsIgnoreCase(element) && !"None".equalsIgnoreCase(element)) {
+//        if (weakness != null && weakness.equalsIgnoreCase(element)) {
+//            multiplier *= 1.4;
+//            System.out.println("🔥 SUPER EFFECTIVE! Element: " + element);
+//        } else if (resistance != null && resistance.equalsIgnoreCase(element)) {
+//            multiplier *= 0.65;
+//            System.out.println("🛡️ Monster resists element: " + element);
+//        }
+//    }
+//
+//    // 4. Критичен удар (15% шанс)
+//    Random rand = new Random();
+//    if (rand.nextInt(100) < 15) {
+//        multiplier *= 1.8;
+//        System.out.println("💥 CRITICAL HIT!");
+//    }
+//
+//    return (int) Math.round(currentAtk * multiplier);
+//}
+
+    private int activeSkillRounds = 0;
     private int calculateDamage(String playerClass, String enemyName, int currentAtk, String actionType) {
         double multiplier = 1.0;
+        String element = "Physical";
+        int extraDamage = 0;
+
+        String skillName = getSkillName(playerClass);
+        SkillItem skill = combatService.loadSkillFromOntology(skillName);
 
         if (actionType.equalsIgnoreCase("SKILL")) {
-            multiplier *= 1.65;
+            if (skill != null) {
+                if (skill.getActiveRounds() > 0) {
+                    this.activeSkillRounds = skill.getActiveRounds(); // Запазва рундовете глобално за агента
+                }
+
+                if (skill.getBaseDamage() == 0 && (skill.getDamageResistance() > 0 || skill.getDamageMultiplier() <= 1.0)) {
+                    System.out.println("🛡️ Activated buff/gear: " + skill.getName() + " for " + activeSkillRounds + " rounds.");
+                    return 0;
+                }
+
+                multiplier = skill.getDamageMultiplier();
+                element = skill.getElement();
+
+                if (skill.getBaseDamage() > 0) {
+                    currentAtk = skill.getBaseDamage();
+                }
+
+                if (skill.getDamageBonus() > 0) {
+                    extraDamage += skill.getDamageBonus();
+                }
+            } else {
+                multiplier = 1.5;
+            }
+        } else {
+            // Обикновена атака
+            String weaponName = databaseService.getPlayerWeapon(playerClass);
+            element = combatService.getWeaponElement(weaponName);
+
+            // Сега това ще проработи, защото activeSkillRounds се пази от предишния ход!
+            if (this.activeSkillRounds > 0 && skill != null) {
+                if (skill.getDamageBonus() > 0) {
+                    extraDamage += skill.getDamageBonus();
+                    System.out.println("🔥 Applied Buff Bonus: +" + skill.getDamageBonus() + " DMG (" + activeSkillRounds + " rounds left)");
+                }
+                this.activeSkillRounds--; // Намалява оставащите рундове
+            }
         }
 
         String weakness = combatService.getWeakness(enemyName);
-        String toughness = combatService.getBehavior(enemyName);
-        String playerWeaponElement = databaseService.getPlayerWeapon(playerClass);
+        String resistance = combatService.getResistance(enemyName);
 
-        if (playerWeaponElement == null || playerWeaponElement.isEmpty()) {
-            if (playerClass.contains("Mage")) playerWeaponElement = "Fire";
-            else playerWeaponElement = "None";
-        }
-
-        boolean hasElement = !playerWeaponElement.equalsIgnoreCase("None");
-        boolean isWeakAgainst = hasElement && weakness != null && weakness.equalsIgnoreCase(playerWeaponElement);
-        boolean isToughAgainst = hasElement && toughness != null && toughness.equalsIgnoreCase(playerWeaponElement);
-
-        if (isWeakAgainst && !isToughAgainst) {
-            multiplier *= 1.4;
-            System.out.println("🔥 SUPER EFFECTIVE! Weapon element: " + playerWeaponElement);
-        } else if (!isWeakAgainst && isToughAgainst) {
-            multiplier *= 0.65;
-            System.out.println("🛡️ Monster resists element " + playerWeaponElement);
+        if (element != null && !"Physical".equalsIgnoreCase(element) && !"None".equalsIgnoreCase(element)) {
+            if (weakness != null && weakness.equalsIgnoreCase(element)) {
+                multiplier *= 1.4;
+                System.out.println("🔥 SUPER EFFECTIVE! Element: " + element);
+            } else if (resistance != null && resistance.equalsIgnoreCase(element)) {
+                multiplier *= 0.65;
+                System.out.println("🛡️ Monster resists element: " + element);
+            }
         }
 
         Random rand = new Random();
@@ -152,17 +233,31 @@ public class CombatAgent extends Agent {
             System.out.println("💥 CRITICAL HIT!");
         }
 
-        return (int) Math.round(currentAtk * multiplier);
+        return (int) Math.round(currentAtk * multiplier) + extraDamage;
     }
 
 
 
 
     private String getSkillName(String playerClass) {
-        if (playerClass.contains("Warrior")) return "used [SHIELD SLAM] on";
-        if (playerClass.contains("Mage")) return "cast [FIREBALL] at";
-        if (playerClass.contains("Rogue")) return "executed [SHADOW STRIKE] on";
-        return "used a special skill on";
+        String dbSkill = databaseService.getPlayerSkillName(playerClass);
+        if (dbSkill != null && !dbSkill.trim().isEmpty() && !dbSkill.equalsIgnoreCase("BASIC STRIKE")) {
+            return dbSkill;
+        }
+
+        String ontologyClassName = playerClass.endsWith("Class") ? playerClass : playerClass + "Class";
+
+        String ontologySkill = combatService.getStartingSkillForClass(ontologyClassName);
+        if (ontologySkill != null && !ontologySkill.equalsIgnoreCase("None") && !ontologySkill.trim().isEmpty()) {
+            return ontologySkill;
+        }
+
+        ontologySkill = combatService.getStartingSkillForClass(playerClass);
+        if (ontologySkill != null && !ontologySkill.equalsIgnoreCase("None") && !ontologySkill.trim().isEmpty()) {
+            return ontologySkill;
+        }
+
+        return "Basic Strike";
     }
     private void sendReply(ACLMessage message, String content){
         ACLMessage reply = message.createReply();

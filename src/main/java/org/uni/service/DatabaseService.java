@@ -1,5 +1,7 @@
 package org.uni.service;
 
+import org.uni.model.SkillItem;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +48,7 @@ public class DatabaseService {
                 level INTEGER,
                 gold INTEGER,
                 weapon TEXT,
+                skill TEXT DEFAULT 'BASIC STRIKE',
                 inventory TEXT DEFAULT '',
                 hp INTEGER,
                 atk INTEGER,
@@ -66,7 +69,7 @@ public class DatabaseService {
                 CREATE TABLE IF NOT EXISTS battles(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 player TEXT,
-                enemy TEXT, 
+                enemy TEXT,
                 result TEXT
                 );
                 """;
@@ -78,6 +81,11 @@ public class DatabaseService {
 
             try {
                 stmt.executeUpdate("ALTER TABLE players ADD COLUMN def INTEGER DEFAULT 0;");
+            } catch (SQLException ignored) {
+
+            }
+            try {
+                stmt.executeUpdate("ALTER TABLE players ADD COLUMN skill TEXT DEFAULT 'BASIC STRIKE';");
             } catch (SQLException ignored) {
 
             }
@@ -175,6 +183,17 @@ public class DatabaseService {
             pstmt.setString(2, username);
             pstmt.executeUpdate();
             System.out.println("⚔️ Equipped new weapon: " + newWeaponName + " for " + username);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void equipSkill(String username, String skillName) {
+        String query = "UPDATE players SET skill = ? WHERE username = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, skillName);
+            pstmt.setString(2, username);
+            pstmt.executeUpdate();
+            System.out.println("✨ Equipped new skill: " + skillName + " for " + username);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -333,6 +352,23 @@ public class DatabaseService {
         return "";
     }
 
+    public String getPlayerSkillName(String username) {
+        String sql = "SELECT skill FROM players WHERE username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String skill = rs.getString("skill");
+                if (skill != null && !skill.trim().isEmpty()) {
+                    return skill;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Basic Strike";
+    }
+
     public void addLootToInventory(String username, String itemName) {
         String checkQuery = "SELECT inventory FROM players WHERE username = ?";
         String updateQuery = "UPDATE players SET inventory = ? WHERE username = ?";
@@ -359,8 +395,8 @@ public class DatabaseService {
         }
     }
 
-    public synchronized void addCustomPlayer(String username, String weapon, int hp, int atk, int def){
-        String sql = "INSERT INTO players (username, level, gold, weapon, inventory, hp, atk, def) VALUES (?, 1, 100, ?, ?, ?, ?, ?)";
+    public synchronized void addCustomPlayer(String username, String weapon, String skill, int hp, int atk, int def) {
+        String sql = "INSERT INTO players (username, level, gold, weapon, skill, inventory, hp, atk, def) VALUES (?, 1, 100, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement del = connection.prepareStatement("DELETE FROM players WHERE username=?");
             del.setString(1, username);
@@ -369,13 +405,13 @@ public class DatabaseService {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setString(1, username);
                 ps.setString(2, weapon);
-                ps.setString(3, weapon); // Записваме оръжието и като начален предмет в inventory
-                ps.setInt(4, hp);
-                ps.setInt(5, atk);
-                ps.setInt(6, def);
+                ps.setString(3, skill);
+                ps.setString(4, weapon); // inventory
+                ps.setInt(5, hp);
+                ps.setInt(6, atk);
+                ps.setInt(7, def);
                 ps.executeUpdate();
             }
-            System.out.println("Custom Player Created in DB: " + username + " with " + weapon);
         } catch (Exception e) {
             e.printStackTrace();
         }

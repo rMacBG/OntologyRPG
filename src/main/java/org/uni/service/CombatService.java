@@ -1,19 +1,12 @@
 package org.uni.service;
 
-import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.vocabulary.RDF;
 import org.uni.model.*;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -166,19 +159,6 @@ public class CombatService {
         }
         return "None";
     }
-
-//        public boolean canEquip(String playerClass, String weaponName) {
-//            if (playerClass == null || weaponName == null) return false;
-//
-//            String weapon = weaponName.toLowerCase();
-//
-//            if (playerClass.contains("Wizard") && (weapon.contains("staff") || weapon.contains("wand"))) return true;
-//            if (playerClass.contains("Warrior") && (weapon.contains("sword") || weapon.contains("claymore") || weapon.contains("greatsword"))) return true;
-//            if (playerClass.contains("Archer") && (weapon.contains("bow") || weapon.contains("crossbow"))) return true;
-//            if (playerClass.contains("Assassin") && (weapon.contains("dagger") || weapon.contains("blade"))) return true;
-//
-//            return false;
-//        }
 
     public boolean canEquip(String playerClass, String itemName) {
         if (playerClass == null || itemName == null) return false;
@@ -363,6 +343,42 @@ public class CombatService {
             return 0;
     }
 
+    public double getDoubleProperty(String entityName, String propertyName) {
+        if (model == null || entityName == null || propertyName == null) return 0.0;
+
+        var stmtIter = model.listStatements();
+        while (stmtIter.hasNext()) {
+            var stmt = stmtIter.nextStatement();
+            String subjStr = stmt.getSubject().getURI();
+            String predStr = stmt.getPredicate().getLocalName();
+
+            if (subjStr != null && subjStr.toLowerCase().endsWith("#" + entityName.toLowerCase())) {
+                if (predStr != null && predStr.equalsIgnoreCase(propertyName)) {
+                    if (stmt.getObject().isLiteral()) {
+                        try {
+                            return stmt.getObject().asLiteral().getDouble();
+                        } catch (Exception ignored) {}
+                    }
+                }
+            }
+        }
+        return 0.0;
+    }
+
+    public String getStartingSkillForClass(String heroClass) {
+        if (heroClass == null) return "Basic Strike";
+
+        String skillName = getStringProperty(heroClass, "hasSkill");
+        if ("None".equalsIgnoreCase(skillName)) {
+            skillName = getStringProperty(heroClass, "hasStartingSkill");
+        }
+        if ("None".equalsIgnoreCase(skillName)) {
+            skillName = getStringProperty(heroClass, "usesSkill");
+        }
+
+        return "None".equalsIgnoreCase(skillName) ? "Basic Strike" : skillName;
+    }
+
     public String getBehavior(String monsterName) {
         if (model == null || monsterName == null) return "None";
 
@@ -482,19 +498,110 @@ public class CombatService {
         return new ArmorItem(armorName, 1, baseDef, dmgBonus, dmgPenalty, dmgRes);
     }
 
-    // 2. Извлича оръжие от онтологията и го превръща във WeaponItem обект
+    public WeaponItem loadWeaponFromOntology(String weaponName) {
+        if (weaponName == null || weaponName.trim().isEmpty() || "None".equalsIgnoreCase(weaponName)) {
+            return null;
+        }
+
+        int weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
+        if (weaponAtk <= 0) weaponAtk = getIntProperty(weaponName, "hasAttackDamage");
+        if (weaponAtk <= 0) weaponAtk = getIntProperty(weaponName, "hasDamage");
+        if (weaponAtk <= 0) weaponAtk = 10; // Подразбираща се стойност, ако не е намерена щета
+
+        String element = getWeaponElement(weaponName);
+
+        WeaponItem weapon = new WeaponItem(weaponName, 1, weaponAtk);
+
+        // Ако в твоя клас WeaponItem има сетър за стихия (Element)
+//        try {
+//            weapon.setElement(element);
+//        } catch (Exception ignored) {}
+
+        return weapon;
+    }
+
     public WeaponItem getWeaponItem(String weaponName) {
         int weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
-        if (weaponAtk <= 0) weaponAtk = 10; // Резервна стойност по подразбиране
+        if (weaponAtk <= 0) weaponAtk = 10;
         return new WeaponItem(weaponName, 1, weaponAtk);
     }
 
-    // 3. Проверява дали предметът е броня в онтологията
     public boolean isArmor(String itemName) {
-        // Ако предметът има стойност за защита или резистентност > 0, го третираме като броня
         int baseDef = getIntProperty(itemName, "hasBaseDef");
         int res = getIntProperty(itemName, "hasDamageResistance");
         return baseDef > 0 || res > 0;
+    }
+    public boolean isSkill(String itemName) {
+        if (itemName == null || itemName.trim().isEmpty()) return false;
+
+        int manaCost = getIntProperty(itemName, "hasManaCost");
+        if (manaCost <= 0) manaCost = getIntProperty(itemName, "manaCost");
+
+        double multiplier = getDoubleProperty(itemName, "hasDamageMultiplier");
+        if (multiplier <= 0) multiplier = getDoubleProperty(itemName, "hasMultiplier");
+
+        if (manaCost > 0 || multiplier > 1.0) return true;
+
+        String classType = getItemClassType(itemName);
+        return classType.toLowerCase().contains("skill") || classType.toLowerCase().contains("spell");
+    }
+
+    public boolean isWeapon(String itemName) {
+        if (itemName == null || itemName.trim().isEmpty()) return false;
+        int baseAtk = getIntProperty(itemName, "hasBaseDamage");
+        return baseAtk > 0;
+    }
+
+    public String getItemCategory(String itemName) {
+        if (itemName == null || itemName.trim().isEmpty()) return "UNKNOWN";
+        if (itemName.equalsIgnoreCase("Health Potion") || itemName.toLowerCase().contains("potion")) return "POTION";
+        if (isSkill(itemName)) return "SKILL";
+        if (isArmor(itemName)) return "ARMOR";
+        if (isWeapon(itemName)) return "WEAPON";
+
+        return "UNKNOWN";
+    }
+
+    public SkillItem loadSkillFromOntology(String skillName) {
+        if (skillName == null || skillName.trim().isEmpty()) {
+            SkillItem defaultSkill = new SkillItem("Basic Strike", 0, 1.4, "All", "Physical");
+            defaultSkill.setActiveRounds(0);
+            defaultSkill.setCooldown(0);
+            return defaultSkill;
+        }
+
+        int manaCost = getIntProperty(skillName, "hasManaCost");
+        if (manaCost <= 0) manaCost = getIntProperty(skillName, "manaCost");
+
+        double multiplier = getDoubleProperty(skillName, "hasDamageMultiplier");
+        if (multiplier <= 0) multiplier = getDoubleProperty(skillName, "hasMultiplier");
+
+        String element = getStringProperty(skillName, "hasElement");
+        if ("None".equalsIgnoreCase(element)) element = "Physical";
+
+        String reqClass = getStringProperty(skillName, "requiresClass");
+        if ("None".equalsIgnoreCase(reqClass)) reqClass = getStringProperty(skillName, "hasRequiredClass");
+
+        // Зареждаме стойностите за щета и защита
+        int baseDamage = getIntProperty(skillName, "hasBaseDamage");
+        int damageBonus = getIntProperty(skillName, "hasDamageBonus");
+        int damageResistance = getIntProperty(skillName, "hasDamageResistance");
+        int activeRounds = getIntProperty(skillName, "hasActiveRounds");
+        int cooldown = getIntProperty(skillName, "hasCooldown");
+
+        // Ако няма посочен множител: за защитни/бъф умения слагаме 1.0 (вместо 1.5)
+        if (multiplier <= 0) {
+            multiplier = (baseDamage == 0 && (damageResistance > 0 || activeRounds > 0)) ? 1.0 : 1.5;
+        }
+
+        SkillItem skill = new SkillItem(skillName, manaCost, multiplier, reqClass, element);
+        skill.setActiveRounds(activeRounds);
+        skill.setCooldown(cooldown);
+        skill.setBaseDamage(baseDamage);
+        skill.setDamageBonus(damageBonus);
+        skill.setDamageResistance(damageResistance);
+
+        return skill;
     }
 
 
@@ -502,25 +609,26 @@ public class CombatService {
         Random rand = new Random();
         int chance = rand.nextInt(100);
 
-        if (chance < 30) {
-            return "Health Potion"; // 30% шанс за отвара
-        } else if (chance < 65) {
-            // 35% шанс за оръжие
-            String[] possibleWeapons = {"StormStaff", "SteelDagger", "FloodStaff", "FlameClaymore", "PrecisionBow"};
+        if (chance < 20) {
+            return "Health Potion";
+        } else if (chance < 45) {
+            String[] possibleWeapons = {"StormStaff", "SteelDagger", "FloodStaff", "FireyFoldClaymore", "PrecisionBow"};
             return possibleWeapons[rand.nextInt(possibleWeapons.length)];
-        } else {
-            // 35% шанс за броня (замени имената с тези от твоята онтология)
-            String[] possibleArmors = {"LeatherLightArmor", "SteelHeavyArmor", "MagicRobe"};
+        } else if (chance < 70) {
+            String[] possibleArmors = {"LeatherLightArmor", "SteelHeavyArmor", "MagicRobe", "CrystalChainmail", "DragonScaleLightArmor", "StormPowerMagicRobe"};
             return possibleArmors[rand.nextInt(possibleArmors.length)];
+        } else {
+            String[] possibleSkills = {"BerserkHelmet", "ArgentQuiver", "SolarGrenade", "FissureGrenade", "SteelHelmet", "LeatherQuiver", "HelmetOfTheGods", "MagicQuiver", "ChargedLightning"};
+            return possibleSkills[rand.nextInt(possibleSkills.length)];
         }
     }
+
 
     public String getItemClassType(String itemName) {
         if (itemName == null || itemName.trim().isEmpty()) return "";
 
         String cleanName = itemName.replaceAll("\\s+", "");
 
-        // Използваме полетата на класа NS и RPG_NS
         Resource itemRes = model.getResource(NS + cleanName);
         if (itemRes == null || !model.containsResource(itemRes)) {
             itemRes = model.getResource(RPG_NS + cleanName);
@@ -537,7 +645,8 @@ public class CombatService {
                                 typeName.equalsIgnoreCase("LightArmor") ||
                                 typeName.equalsIgnoreCase("RobeArmor") ||
                                 typeName.contains("Sword") || typeName.contains("Staff") ||
-                                typeName.contains("Bow") || typeName.contains("Dagger"))) {
+                                typeName.contains("Bow") || typeName.contains("Dagger") ||
+                                typeName.contains("Skill") || typeName.contains("Spell"))) {
                     return typeName;
                 }
             }
