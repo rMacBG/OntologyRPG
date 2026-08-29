@@ -223,6 +223,14 @@
 
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#hasDefBonus">
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Armor"/>
+                    <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Skill"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
     </owl:DatatypeProperty>
     
@@ -483,6 +491,11 @@
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#ChargedLightning">
         <rdf:type rdf:resource="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#DefensiveSkill"/>
         <Combat_Ontology:usableByClass rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#WizardClass"/>
+        <Combat_Ontology:hasActiveRounds rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</Combat_Ontology:hasActiveRounds>
+        <Combat_Ontology:hasCooldown rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</Combat_Ontology:hasCooldown>
+        <Combat_Ontology:hasDamagePenalty rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</Combat_Ontology:hasDamagePenalty>
+        <Combat_Ontology:hasDamageResistance rdf:datatype="http://www.w3.org/2001/XMLSchema#int">5</Combat_Ontology:hasDamageResistance>
+        <Combat_Ontology:hasDefBonus rdf:datatype="http://www.w3.org/2001/XMLSchema#int">20</Combat_Ontology:hasDefBonus>
     </owl:NamedIndividual>
     
 
