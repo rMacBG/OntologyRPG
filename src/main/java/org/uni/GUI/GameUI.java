@@ -15,11 +15,10 @@ import org.uni.service.CombatService;
 import org.uni.service.DatabaseService;
 import org.uni.service.DungeonGenerator;
 import org.uni.service.OntologyService;
+import org.uni.model.Room.RoomType;
+import org.uni.model.Room.Direction;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 
 public class GameUI extends Application {
@@ -33,7 +32,12 @@ public class GameUI extends Application {
     private int skillCooldown = 0;
     private int activeSkillRounds = 0;
     private SkillItem currentActiveSkill = null;
+
     private DungeonGenerator dungeonGenerator = new DungeonGenerator(SIZE);
+    private Set<Room> visitedRooms = new HashSet<>();
+    private List<Room> currentFloorRooms;
+    private GridPane miniMapGrid = new GridPane();
+    private Room currentRoom;
     private DungeonGenerator.Tile[][] mapData;
 
 
@@ -109,29 +113,43 @@ public class GameUI extends Application {
 
     private void loadLevel(int dungeonLevel) {
         this.currentDungeonLevel = dungeonLevel;
-        this.playerX = 0;
-        this.playerY = 0;
 
-        List<String> ontologyMonsters = new ArrayList<>();
-        ontologyMonsters.add("Dragon");
-        ontologyMonsters.add("Goblin");
-        ontologyMonsters.add("Demon");
+        List<String> ontologyMonsters = List.of("Dragon", "Goblin", "Demon");
+        List<String> ontologyBosses = List.of("DragonBoss", "DemonLord");
 
-        this.mapData = dungeonGenerator.generateLevel(currentDungeonLevel, ontologyMonsters);
+        // 1. Генериране на стаите за целия етаж
+        this.currentFloorRooms = dungeonGenerator.generateFloor(currentDungeonLevel, ontologyMonsters, ontologyBosses);
+
+        // 2. Играчът влиза в първата (START) стая в центъра ѝ
+        loadRoom(currentFloorRooms.get(0), SIZE / 2, SIZE / 2);
+
+        if (battleLogArea != null) {
+            battleLogArea.appendText("--- Влизате в Етаж " + currentDungeonLevel + " (Общо стаи: " + currentFloorRooms.size() + ") ---\n");
+        }
+    }
+
+    private void loadRoom(Room room, int startX, int startY) {
+        this.currentRoom = room;
+        this.visitedRooms.add(room);
+        this.mapData = room.getGrid();
+        this.playerX = startX;
+        this.playerY = startY;
 
         activeMonstersCount = 0;
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
-                if (mapData[x][y].type.equals("MONSTER")) {
+                if ("MONSTER".equals(mapData[x][y].type)) {
                     activeMonstersCount++;
                 }
             }
         }
+
         if (battleLogArea != null) {
-            battleLogArea.appendText("Entering new floor" + currentDungeonLevel + " --- \n");
-            battleLogArea.appendText("Enemies left: " + activeMonstersCount + "\n");
+            battleLogArea.appendText("Влязохте в Стая #" + room.getId() + " [" + room.getType() + "]. Остават чудовища: " + activeMonstersCount + "\n");
         }
 
+        updateMap();
+        updateMiniMap();
     }
 
     private void spawnMonsters() {
@@ -354,6 +372,8 @@ public class GameUI extends Application {
 
         Label statsLabel = new Label("PLAYER STATS");
         statsLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 16px; -fx-font-weight: bold;");
+        Label minimapTitle = new Label("🗺️ FLOOR MAP");
+        minimapTitle.setStyle("-fx-text-fill: #3498db; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         Button invBtn = new Button("🎒 INVENTORY");
         invBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -376,6 +396,8 @@ public class GameUI extends Application {
                 weaponLabel,
                 armorLabel,
                 skillLabel,
+                minimapTitle,
+                miniMapGrid,
                 invBtn,
                 new Label("Battle Log:"),
                 battleLogArea
@@ -402,6 +424,11 @@ public class GameUI extends Application {
         lootOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
         lootOverlay.setVisible(false);
 
+        miniMapGrid.setHgap(4);
+        miniMapGrid.setVgap(4);
+        miniMapGrid.setAlignment(Pos.CENTER);
+        miniMapGrid.setStyle("-fx-background-color: #1a1a1a; -fx-padding: 8; -fx-border-color: #34495e; -fx-border-radius: 5;");
+
         mainStackPane = new StackPane();
         mainStackPane.getChildren().addAll(grid, inventoryOverlay, levelCompleteOverlay, lootOverlay);
 
@@ -422,51 +449,62 @@ public class GameUI extends Application {
 
         DungeonGenerator.Tile targetTile = mapData[newX][newY];
 
-        if (targetTile.type.equals("WALL")) {
-            showMessage("Пътят е блокиран от скала/стена!");
+        if ("WALL".equals(targetTile.type)) {
+            showMessage("Пътят е блокиран от стена!");
             return;
         }
 
-        if (targetTile.type.equals("MONSTER")) {
-            String enemyName = targetTile.monsterName;
-            System.out.println("Encounter: " + enemyName);
+        if ("DOOR".equals(targetTile.type)) {
+            // Проверка дали остават живи чудовища
+            if (activeMonstersCount > 0) {
+                showMessage("🔒 Вратата е заключена! Избийте останалите " + activeMonstersCount + " чудовища в стаята!");
+                return;
+            }
 
+            Direction dir = targetTile.doorDirection;
+            Room nextRoom = currentRoom.getDoors().get(dir);
+
+            if (nextRoom != null) {
+                int spawnX = SIZE / 2;
+                int spawnY = SIZE / 2;
+
+                switch (dir) {
+                    case NORTH -> spawnY = SIZE - 2;
+                    case SOUTH -> spawnY = 1;
+                    case WEST  -> spawnX = SIZE - 2;
+                    case EAST  -> spawnX = 1;
+                }
+
+                loadRoom(nextRoom, spawnX, spawnY);
+                return;
+            }
+        }
+
+        if ("MONSTER".equals(targetTile.type)) {
+            String enemyName = targetTile.monsterName;
             this.currentEnemyX = newX;
             this.currentEnemyY = newY;
-
             this.currentMonster = cs.createMonster(enemyName, currentDungeonLevel);
-
             openTurnBasedCombatScreen();
             return;
         }
 
-        if (targetTile.type.equals("POTION")) {
+        if ("POTION".equals(targetTile.type)) {
             hero.heal(30);
             databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
-
             mapData[newX][newY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
             updatePlayerStatsMenu();
             showMessage("Взехте лечебна отвара! +30 HP.");
             if (battleLogArea != null) battleLogArea.appendText("Намерихте отвара и възстановихте 30 HP!\n");
         }
 
+
+
+
         playerX = newX;
         playerY = newY;
 
-        if (targetTile.type.equals("EXIT")) {
-            if (activeMonstersCount <= 0) {
-                isTransitioningLevel = true;
-                updateMap();
-                Platform.runLater(this::showNextLevelDialog);
-            } else {
-                showMessage("Порталът е заключен! Победете останалите " + activeMonstersCount + " чудовища.");
-                return;
-            }
-        }
-
-
         updateMap();
-
     }
 
     private void showNextLevelDialog() {
@@ -688,26 +726,25 @@ public class GameUI extends Application {
 
     public void handleMonsterDefeated(int monsterX, int monsterY) {
         Platform.runLater(() -> {
-
             mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
-            activeMonstersCount--;
+            activeMonstersCount--; // Намаляваме бройката
 
             playerX = monsterX;
             playerY = monsterY;
             mainLayout.setCenter(mainStackPane);
 
             if (activeMonstersCount <= 0) {
-                unlockPortal();
+                showMessage("🎉 Стаята е изчистена! Вратите са отключени!");
+            }
+
+            if (currentRoom.getType() == RoomType.BOSS && activeMonstersCount <= 0) {
+                showNextLevelDialog();
             }
 
             updateMap();
+            updateMiniMap();
             updatePlayerStatsMenu();
             mainLayout.requestFocus();
-
-            if (battleLogArea != null) {
-                battleLogArea.appendText("Victory! Defeated " + currentMonster.getName() + "! Остават: " + activeMonstersCount + "\n");
-            }
-            showMessage("Monster Defeated!");
         });
     }
 
@@ -754,6 +791,15 @@ public class GameUI extends Application {
                 } else if ("EXIT".equals(tileData.type)) {
                     tiles[x][y].setText(tileData.icon != null ? tileData.icon : "🚪");
                     tiles[x][y].setStyle("-fx-background-color: #d35400;");
+                }
+                else if ("DOOR".equals(tileData.type)) {
+                    if (activeMonstersCount > 0) {
+                        tiles[x][y].setText("🔒");
+                        tiles[x][y].setStyle("-fx-background-color: #7f8c8d;");
+                    } else {
+                        tiles[x][y].setText("🚪");
+                        tiles[x][y].setStyle("-fx-background-color: #27ae60;");
+                    }
                 }
             }
         }
@@ -1296,6 +1342,50 @@ public class GameUI extends Application {
         }
 
         return "Предмет: " + itemName;
+    }
+
+    private void updateMiniMap() {
+        if (miniMapGrid == null || currentFloorRooms == null || currentFloorRooms.isEmpty()) return;
+
+        Platform.runLater(() -> {
+            miniMapGrid.getChildren().clear();
+
+            // 1. Намираме най-малките X и Y координати на стаите на етажа
+            int minX = currentFloorRooms.stream().mapToInt(Room::getGridX).min().orElse(0);
+            int minY = currentFloorRooms.stream().mapToInt(Room::getGridY).min().orElse(0);
+
+            // 2. Изчисляваме офсет, за да изместим всичко в позитивния спектър (>= 0)
+            int offsetX = minX < 0 ? Math.abs(minX) : 0;
+            int offsetY = minY < 0 ? Math.abs(minY) : 0;
+
+            for (Room r : currentFloorRooms) {
+                Label roomNode = new Label();
+                roomNode.setPrefSize(28, 28);
+                roomNode.setAlignment(Pos.CENTER);
+
+                if (r.equals(currentRoom)) {
+                    roomNode.setText("🧙‍♂️");
+                    roomNode.setStyle("-fx-background-color: #f1c40f; -fx-border-color: white; -fx-border-width: 2; -fx-background-radius: 4;");
+                } else if (visitedRooms.contains(r)) {
+                    if (r.getType() == RoomType.BOSS) {
+                        roomNode.setText("👑");
+                        roomNode.setStyle("-fx-background-color: #e74c3c; -fx-background-radius: 4;");
+                    } else {
+                        roomNode.setText("✓");
+                        roomNode.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 4;");
+                    }
+                } else {
+                    roomNode.setText("?");
+                    roomNode.setStyle("-fx-background-color: #34495e; -fx-text-fill: #7f8c8d; -fx-background-radius: 4;");
+                }
+
+                // 3. Добавяме офсета към координатите, за да са винаги 0 или по-големи
+                int finalGridX = r.getGridX() + offsetX;
+                int finalGridY = r.getGridY() + offsetY;
+
+                miniMapGrid.add(roomNode, finalGridX, finalGridY);
+            }
+        });
     }
 
 
