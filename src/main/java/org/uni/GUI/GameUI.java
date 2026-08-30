@@ -454,6 +454,14 @@ public class GameUI extends Application {
             return;
         }
 
+        if ("EXIT".equals(targetTile.type)) {
+            playerX = newX;
+            playerY = newY;
+            updateMap();
+            showNextLevelDialog();
+            return;
+        }
+
         if ("DOOR".equals(targetTile.type)) {
             // Проверка дали остават живи чудовища
             if (activeMonstersCount > 0) {
@@ -726,21 +734,25 @@ public class GameUI extends Application {
 
     public void handleMonsterDefeated(int monsterX, int monsterY) {
         Platform.runLater(() -> {
-            mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
-            activeMonstersCount--; // Намаляваме бройката
-
-            playerX = monsterX;
-            playerY = monsterY;
-            mainLayout.setCenter(mainStackPane);
-
-            if (activeMonstersCount <= 0) {
-                showMessage("🎉 Стаята е изчистена! Вратите са отключени!");
-            }
+            activeMonstersCount--;
 
             if (currentRoom.getType() == RoomType.BOSS && activeMonstersCount <= 0) {
-                showNextLevelDialog();
+                mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EXIT", null, "🚪"); // или "🪜"
+                showMessage("🎉 Босът е победен! На негово място се появи врата към следващия етаж!");
+                if (battleLogArea != null) {
+                    battleLogArea.appendText("🚪 На мястото на боса се появи врата за следващия етаж!\n");
+                }
+            } else {
+                mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
+                playerX = monsterX;
+                playerY = monsterY;
+
+                if (activeMonstersCount <= 0) {
+                    showMessage("🎉 Стаята е изчистена! Вратите са отключени!");
+                }
             }
 
+            mainLayout.setCenter(mainStackPane);
             updateMap();
             updateMiniMap();
             updatePlayerStatsMenu();
