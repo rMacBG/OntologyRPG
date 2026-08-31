@@ -204,54 +204,9 @@ public class GameUI extends Application {
     }
 
     private void showCharacterCreation() {
-        VBox creationBox = new VBox(20);
-        creationBox.setAlignment(Pos.CENTER);
-        creationBox.setPadding(new Insets(30));
-
-        Label header = new Label("CHOOSE YOUR CLASS");
-        header.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
-        creationBox.getChildren().add(header);
-
-        ToggleGroup group = new ToggleGroup();
-
-        List<HeroClassOption> classOptions = List.of(
-                new HeroClassOption("WarriorClass", "Warrior (150 HP, 15 ATK) - Starts with Iron Longsword", "IronLongSword"),
-                new HeroClassOption("ArcherClass", "Archer (120 HP, 17 ATK) - Starts with Small Bow", "SmallBow"),
-                new HeroClassOption("WizardClass", "Wizard (100 HP, 22 ATK) - Starts with Storm Staff", "StormStaff"),
-                new HeroClassOption("AssassinClass", "Assassin (135 HP, 20 ATK) - Starts with Steel Dagger", "SteelDagger")
-        );
-
-        for (int i = 0; i < classOptions.size(); i++) {
-            HeroClassOption option = classOptions.get(i);
-            RadioButton rb = new RadioButton(option.labelText());
-            rb.setToggleGroup(group);
-            rb.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-            rb.setUserData(option);
-
-            if (i == 0) {
-                rb.setSelected(true);
-            }
-
-            creationBox.getChildren().add(rb);
-        }
-
-        Button confirmBtn = new Button("UNFOLD THE ADVENTURE OF A MILLENIA!");
-        confirmBtn.setPrefSize(220, 45);
-
-        confirmBtn.setOnAction(e -> {
-            RadioButton selected = (RadioButton) group.getSelectedToggle();
-            HeroClassOption selectedOption = (HeroClassOption) selected.getUserData();
-
+        CharacterCreationScreen creationScreen = new CharacterCreationScreen((selectedOption, startingSkill) -> {
             this.selectedPlayerClass = selectedOption.id();
             String startingWeapon = selectedOption.defaultWeapon();
-
-            String startingSkill = switch (this.selectedPlayerClass) {
-                case "WarriorClass" -> "SteelHelmet";
-                case "ArcherClass" -> "LeatherQuiver";
-                case "WizardClass" -> "ChargedLightning";
-                case "AssassinClass" -> "FissureGrenade";
-                default -> "SteelHelmet";
-            };
 
             this.hero = cs.createHero(this.selectedPlayerClass, startingWeapon);
 
@@ -270,17 +225,14 @@ public class GameUI extends Application {
             switch (this.selectedPlayerClass) {
                 case "WarriorClass" -> databaseService.addLootToInventory(this.selectedPlayerClass, "SteelHeavyArmor");
                 case "WizardClass" -> databaseService.addLootToInventory(this.selectedPlayerClass, "MagicRobe");
-                case "ArcherClass", "AssassinClass" ->
-                        databaseService.addLootToInventory(this.selectedPlayerClass, "LeatherLightArmor");
+                case "ArcherClass", "AssassinClass" -> databaseService.addLootToInventory(this.selectedPlayerClass, "LeatherLightArmor");
             }
 
-            spawnMonsters();
             loadLevel(1);
             buildGameMap();
         });
 
-        creationBox.getChildren().add(confirmBtn);
-        mainLayout.setCenter(creationBox);
+        mainLayout.setCenter(creationScreen);
     }
 
     private void buildGameMap() {
