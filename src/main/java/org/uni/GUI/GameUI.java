@@ -23,7 +23,6 @@ import org.uni.service.OntologyService;
 import org.uni.model.Room.RoomType;
 import org.uni.model.Room.Direction;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -32,6 +31,10 @@ public class GameUI extends Application {
 
     private MonsterAI monsterAI;
     private InventoryOverlay inventoryOverlay;
+    private PlayerStatsSideBar sideBar;
+    private LevelCompleteOverlay levelCompleteOverlay;
+    private LootDialogOverlay lootOverlay;
+    private CombatOverlay combatOverlay;
 
     private int playerX = 0;
     private int playerY = 0;
@@ -49,34 +52,19 @@ public class GameUI extends Application {
     private GridPane miniMapGrid = new GridPane();
     private Room currentRoom;
     private DungeonGenerator.Tile[][] mapData;
-
-
     public static GameUI instance;
     private DatabaseService databaseService = DatabaseService.getInstance();
     private OntologyService ontologyService = new OntologyService();
     private CombatService cs = new CombatService();
-
     private Button[][] tiles = new Button[SIZE][SIZE];
     private Label info = new Label();
     private String[][] map = new String[SIZE][SIZE];
-
     private BorderPane mainLayout;
     private GridPane grid;
-    private VBox sideBar;
     private TextArea battleLogArea;
-
     private StackPane mainStackPane;
-    private StackPane levelCompleteOverlay;
-    private StackPane lootOverlay;
     private boolean isGameOver = false;
 
-
-    private Label hpLabel = new Label();
-    private Label atkLabel = new Label();
-    private Label defLabel = new Label();
-    private Label weaponLabel = new Label();
-    private Label armorLabel = new Label();
-    private Label skillLabel = new Label();
     private Label levelLabel = new Label();
 
 
@@ -121,45 +109,57 @@ public class GameUI extends Application {
 
     }
 
-    private void loadLevel(int dungeonLevel) {
+    public void loadLevel(int dungeonLevel) {
         this.currentDungeonLevel = dungeonLevel;
 
         List<String> ontologyMonsters = List.of("Dragon", "Goblin", "Demon");
         List<String> ontologyBosses = List.of("DragonBoss", "DemonLord");
 
-        // 1. Генериране на стаите за целия етаж
         this.currentFloorRooms = dungeonGenerator.generateFloor(currentDungeonLevel, ontologyMonsters, ontologyBosses);
 
-        // 2. Играчът влиза в първата (START) стая в центъра ѝ
-        loadRoom(currentFloorRooms.get(0), SIZE / 2, SIZE / 2);
+        if (sideBar != null && sideBar.getMiniMapWidget() != null) {
+            sideBar.getMiniMapWidget().resetForNewFloor(currentFloorRooms);
+        }
 
-        if (battleLogArea != null) {
-            battleLogArea.appendText("--- Влизате в Етаж " + currentDungeonLevel + " (Общо стаи: " + currentFloorRooms.size() + ") ---\n");
+        if (sideBar != null) {
+            sideBar.appendLog("--- Влизате в Етаж " + currentDungeonLevel + " (Общо стаи: " + currentFloorRooms.size() + ") ---");
+        }
+
+        if (currentFloorRooms != null && !currentFloorRooms.isEmpty()) {
+            loadRoom(currentFloorRooms.get(0), SIZE / 2, SIZE / 2);
         }
     }
 
     private void loadRoom(Room room, int startX, int startY) {
+        if (room == null) return;
+
         this.currentRoom = room;
-        this.visitedRooms.add(room);
         this.mapData = room.getGrid();
         this.playerX = startX;
         this.playerY = startY;
 
         activeMonstersCount = 0;
-        for (int x = 0; x < SIZE; x++) {
-            for (int y = 0; y < SIZE; y++) {
-                if ("MONSTER".equals(mapData[x][y].type)) {
-                    activeMonstersCount++;
+        if (mapData != null) {
+            for (int x = 0; x < SIZE; x++) {
+                for (int y = 0; y < SIZE; y++) {
+                    if (mapData[x][y] != null && "MONSTER".equals(mapData[x][y].type)) {
+                        activeMonstersCount++;
+                    }
                 }
             }
         }
 
-        if (battleLogArea != null) {
-            battleLogArea.appendText("Влязохте в Стая #" + room.getId() + " [" + room.getType() + "]. Остават чудовища: " + activeMonstersCount + "\n");
+        if (sideBar != null) {
+            sideBar.appendLog("Влязохте в Стая #" + room.getId() + " [" + room.getType() + "]. Остават чудовища: " + activeMonstersCount);
         }
 
         updateMap();
         updateMiniMap();
+        updatePlayerStatsMenu();
+
+        if (mainLayout != null) {
+            mainLayout.requestFocus();
+        }
     }
 
     private void spawnMonsters() {
@@ -188,23 +188,14 @@ public class GameUI extends Application {
 
     private void showMainMenu() {
         this.isGameOver = false;
-        VBox menuBox = new VBox(20);
-        menuBox.setAlignment(Pos.CENTER);
-        Label title = new Label("Chronicles of Jaba: The Reckoning of the Onterolog");
+        MainMenuScreen mainMenu = new MainMenuScreen(
+                this::showCharacterCreation,
+                Platform::exit
+        );
 
-        title.setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 32px; -fx-font-weight: bold;");
-        Button startBtn = new Button("START GAME");
-        startBtn.setPrefSize(200, 45);
-        startBtn.setOnAction(e -> showCharacterCreation());
-
-        Button exitBtn = new Button("EXIT GAME");
-        exitBtn.setPrefSize(200, 45);
-        exitBtn.setOnAction(e -> Platform.exit());
-
-        menuBox.getChildren().addAll(title, startBtn, exitBtn);
         mainLayout.setRight(null);
         mainLayout.setBottom(null);
-        mainLayout.setCenter(menuBox);
+        mainLayout.setCenter(mainMenu);
 
 
     }
@@ -254,7 +245,6 @@ public class GameUI extends Application {
             this.selectedPlayerClass = selectedOption.id();
             String startingWeapon = selectedOption.defaultWeapon();
 
-            // 1. Задаване на началния скил според избрания клас
             String startingSkill = switch (this.selectedPlayerClass) {
                 case "WarriorClass" -> "SteelHelmet";
                 case "ArcherClass" -> "LeatherQuiver";
@@ -265,7 +255,6 @@ public class GameUI extends Application {
 
             this.hero = cs.createHero(this.selectedPlayerClass, startingWeapon);
 
-            // 2. Създаване на героя в базата данни с неговото оръжие и начален скил
             databaseService.addCustomPlayer(
                     this.selectedPlayerClass,
                     startingWeapon,
@@ -275,11 +264,9 @@ public class GameUI extends Application {
                     hero.getTotalDefense()
             );
 
-            // 3. Записване на скила и лечебната отвара в раницата (Inventory)
             databaseService.addLootToInventory(this.selectedPlayerClass, startingSkill);
             databaseService.addLootToInventory(this.selectedPlayerClass, "Health Potion");
 
-            // 4. Записване на началната броня в раницата според класа
             switch (this.selectedPlayerClass) {
                 case "WarriorClass" -> databaseService.addLootToInventory(this.selectedPlayerClass, "SteelHeavyArmor");
                 case "WizardClass" -> databaseService.addLootToInventory(this.selectedPlayerClass, "MagicRobe");
@@ -297,7 +284,6 @@ public class GameUI extends Application {
     }
 
     private void buildGameMap() {
-        // 1. Инициализираме AI логиката за чудовищата
         monsterAI = new MonsterAI(cs, SIZE);
 
         grid = new GridPane();
@@ -314,65 +300,31 @@ public class GameUI extends Application {
             }
         }
 
-        sideBar = new VBox(10);
-        sideBar.setPadding(new Insets(15));
-        sideBar.setPrefWidth(280);
-        sideBar.setStyle("-fx-background-color: #2c3e50;");
-
-        Label statsLabel = new Label("PLAYER STATS");
-        statsLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 16px; -fx-font-weight: bold;");
-        Label minimapTitle = new Label("🗺️ FLOOR MAP");
-        minimapTitle.setStyle("-fx-text-fill: #3498db; -fx-font-size: 14px; -fx-font-weight: bold;");
-
-        Button invBtn = new Button("🎒 INVENTORY");
-        invBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;");
-        invBtn.setOnAction(e -> javafx.application.Platform.runLater(this::openInventoryWindow));
-
-        battleLogArea = new TextArea();
-        battleLogArea.setEditable(false);
-        battleLogArea.setPrefHeight(250);
-        battleLogArea.setWrapText(true);
-        battleLogArea.setPromptText("Battle Chronolog");
-        battleLogArea.setStyle("-fx-control-inner-background: #1e1e1e; -fx-text-fill: #2ecc71;");
-
-        sideBar.getChildren().addAll(
-                statsLabel,
-                levelLabel,
-                hpLabel,
-                atkLabel,
-                defLabel,
-                weaponLabel,
-                armorLabel,
-                skillLabel,
-                minimapTitle,
-                miniMapGrid,
-                invBtn,
-                new Label("Battle Log:"),
-                battleLogArea
-        );
+        sideBar = new PlayerStatsSideBar(this::openInventoryWindow);
 
         info.setStyle("-fx-text-fill: white; -fx-padding: 10; -fx-font-size: 14px;");
         VBox bottomBox = new VBox(info);
         bottomBox.setStyle("-fx-background-color: #1a1a1a;");
 
-        updateMap();
-        updatePlayerStatsMenu();
-
         inventoryOverlay = new InventoryOverlay(cs, this::updatePlayerStatsMenu);
+        levelCompleteOverlay = new LevelCompleteOverlay();
+        lootOverlay = new LootDialogOverlay();
 
-        levelCompleteOverlay = new StackPane();
-        levelCompleteOverlay.setPrefSize(850, 650);
-        levelCompleteOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
-        levelCompleteOverlay.setVisible(false);
+        combatOverlay = new CombatOverlay(cs, new CombatOverlay.CombatCallbacks() {
+            @Override
+            public void onLog(String message) { sideBar.appendLog(message); }
+            @Override
+            public void onStatsUpdate() { updatePlayerStatsMenu(); }
+            @Override
+            public void onCloseCombat() {
+                mainLayout.setCenter(mainStackPane);
+                mainLayout.requestFocus();
+            }
+        });
 
-        lootOverlay = new StackPane();
-        lootOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
-        lootOverlay.setVisible(false);
-
-        miniMapGrid.setHgap(4);
-        miniMapGrid.setVgap(4);
-        miniMapGrid.setAlignment(Pos.CENTER);
-        miniMapGrid.setStyle("-fx-background-color: #1a1a1a; -fx-padding: 8; -fx-border-color: #34495e; -fx-border-radius: 5;");
+        updateMap();
+        updateMiniMap();
+        updatePlayerStatsMenu();
 
         mainStackPane = new StackPane();
         mainStackPane.getChildren().addAll(grid, inventoryOverlay, levelCompleteOverlay, lootOverlay);
@@ -381,7 +333,6 @@ public class GameUI extends Application {
         mainLayout.setRight(sideBar);
         mainLayout.setBottom(bottomBox);
     }
-
 
     private void movePlayer(int newX, int newY) {
         if (isTransitioningLevel || (inventoryOverlay != null && inventoryOverlay.isVisible())) {
@@ -408,7 +359,6 @@ public class GameUI extends Application {
         }
 
         if ("DOOR".equals(targetTile.type)) {
-            // Проверка дали остават живи чудовища
             if (activeMonstersCount > 0) {
                 showMessage("🔒 Вратата е заключена! Избийте останалите " + activeMonstersCount + " чудовища в стаята!");
                 return;
@@ -450,9 +400,6 @@ public class GameUI extends Application {
             showMessage("Взехте лечебна отвара! +30 HP.");
             if (battleLogArea != null) battleLogArea.appendText("Намерихте отвара и възстановихте 30 HP!\n");
         }
-
-
-
 
         playerX = newX;
         playerY = newY;
@@ -502,7 +449,7 @@ public class GameUI extends Application {
                 }
 
                 updateMap();
-                isTransitioningLevel = false; // 🔓 ОСВОБОЖДАВАМЕ ДВИЖЕНИЕТО
+                isTransitioningLevel = false;
 
                 if (mainLayout != null) {
                     mainLayout.requestFocus();
@@ -538,7 +485,6 @@ public class GameUI extends Application {
         Label enemyAtkLabel = new Label("Damage (ATK): " + currentMonster.getAtk());
         enemyAtkLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 16px;");
 
-        // --- ИНДИКАТОР ЗА АКТИВЕН БЪФ И КУУЛДАУН ---
         Label skillStatusHUD = new Label();
         if (activeSkillRounds > 0) {
             skillStatusHUD.setText("✨ ACTIVE BUFF: " + activeSkillRounds + " rounds remaining!");
@@ -603,8 +549,7 @@ public class GameUI extends Application {
             currentActiveSkill = skillObj;
             if (skillObj.getActiveRounds() > 0) {
                 activeSkillRounds = skillObj.getActiveRounds();
-                if (battleLogArea != null)
-                    battleLogArea.appendText("✨ Activated " + skillObj.getName() + " for " + activeSkillRounds + " rounds!\n");
+                if (sideBar != null) sideBar.appendLog("✨ Activated " + skillObj.getName() + " for " + activeSkillRounds + " rounds!");
             } else {
                 skillCooldown = skillObj.getCooldown();
             }
@@ -617,16 +562,15 @@ public class GameUI extends Application {
 
         healBtn.setOnAction(e -> {
             processTurnRounds();
-            Item potion = new Item("Health Potion", "HEAL", 40, 1);
-            cs.applyItem(hero, potion);
+            hero.heal(40);
             databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
             updatePlayerStatsMenu();
-            battleLogArea.appendText("Player used a Healing Potion and restored 40 HP!\n");
+            if (sideBar != null) sideBar.appendLog("Player used a Healing Potion and restored 40 HP!");
             openTurnBasedCombatScreen();
         });
 
         fleeBtn.setOnAction(e -> {
-            battleLogArea.appendText("You ran away safely!\n");
+            if (sideBar != null) sideBar.appendLog("You ran away safely!");
             mainLayout.setCenter(mainStackPane);
             mainLayout.requestFocus();
         });
@@ -641,58 +585,15 @@ public class GameUI extends Application {
         mainLayout.setCenter(combatScreen);
     }
 
-    private void calculateAndShowSkillPreview(SkillItem skill) {
-        if (skill == null) return;
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("🔮 SKILL PREVIEW: ").append(skill.getName()).append("\n\n");
-
-        if (skill.getBaseDamage() == 0 && (skill.getDamageResistance() > 0 || skill.getDamageMultiplier() <= 1.0)) {
-            sb.append("🛡️ TYPE: Defensive Buff / Gear\n");
-            sb.append("• Direct Damage: 0 DMG\n");
-            if (skill.getDamageBonus() > 0) {
-                sb.append("• Basic Attack Boost: +").append(skill.getDamageBonus()).append(" ATK per strike!\n");
-            }
-            if (skill.getDamageResistance() > 0) {
-                sb.append("• Damage Reduction: -").append(skill.getDamageResistance()).append(" Incoming Damage\n");
-            }
-            sb.append("• Duration: ").append(skill.getActiveRounds()).append(" turns\n");
-        } else {
-            sb.append("⚔️ TYPE: Direct Attack Skill\n");
-            double mult = skill.getDamageMultiplier();
-            int baseAtk = (skill.getBaseDamage() > 0) ? skill.getBaseDamage() : hero.getAtk();
-
-            if (currentMonster != null && skill.getElement() != null) {
-                if (skill.getElement().equalsIgnoreCase(currentMonster.getWeakness())) {
-                    mult *= 1.4;
-                    sb.append("🔥 Element Weakness Match! (+40% DMG)\n");
-                }
-            }
-
-            int estimatedDamage = (int) Math.round(baseAtk * mult) + skill.getDamageBonus();
-            sb.append("• Estimated Damage: ~").append(estimatedDamage).append(" DMG\n");
-            sb.append("• Element: ").append(skill.getElement()).append("\n");
-        }
-
-        sb.append("• Cooldown After Use: ").append(skill.getCooldown()).append(" turns");
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Skill Calculator & Preview");
-        alert.setHeaderText("Effect of " + skill.getName());
-        alert.setContentText(sb.toString());
-        alert.showAndWait();
-    }
-
-
     public void handleMonsterDefeated(int monsterX, int monsterY) {
         Platform.runLater(() -> {
             activeMonstersCount--;
 
             if (currentRoom.getType() == RoomType.BOSS && activeMonstersCount <= 0) {
-                mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EXIT", null, "🚪"); // или "🪜"
+                mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EXIT", null, "🚪");
                 showMessage("🎉 Босът е победен! На негово място се появи врата към следващия етаж!");
-                if (battleLogArea != null) {
-                    battleLogArea.appendText("🚪 На мястото на боса се появи врата за следващия етаж!\n");
+                if (sideBar != null) {
+                    sideBar.appendLog("🚪 На мястото на боса се появи врата за следващия етаж!");
                 }
             } else {
                 mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
@@ -712,34 +613,15 @@ public class GameUI extends Application {
         });
     }
 
-    private void unlockPortal() {
-        for (int x = 0; x < SIZE; x++) {
-            for (int y = 0; y < SIZE; y++) {
-                if (mapData[x][y].type.equals("EXIT")) {
-                    mapData[x][y].icon = "🚪"; // Ако и това забива, промени го на "EXIT" или "[E]"
-                }
-            }
-        }
-
-        Platform.runLater(this::updateMap);
-
-        if (battleLogArea != null) {
-            battleLogArea.appendText("🎉 Всички чудовища са победени! Порталът е отключен!\n");
-        }
-        showMessage("Порталът е отключен!");
-    }
-
     private void updateMap() {
         if (mapData == null || tiles == null) return;
 
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
-                // Безопасна проверка за null
                 if (tiles[x][y] == null || mapData[x][y] == null) continue;
 
                 DungeonGenerator.Tile tileData = mapData[x][y];
 
-                // Рестартираме базовия стил
                 tiles[x][y].setText("");
                 tiles[x][y].setStyle("-fx-background-color: #34495e; -fx-border-color: #2c3e50; -fx-text-fill: white;");
 
@@ -777,7 +659,6 @@ public class GameUI extends Application {
 
 
     public void handleCombatRoundResult(String status, int monsterX, int monsterY, int newEnemyHp, int newPlayerHp, String lootItem, String logMessage) {
-
         mainLayout.setCenter(mainStackPane);
         Platform.runLater(() -> {
             if (currentMonster != null) currentMonster.setHp(newEnemyHp);
@@ -786,8 +667,8 @@ public class GameUI extends Application {
             databaseService.updatePlayerHP(this.selectedPlayerClass, newPlayerHp);
             updatePlayerStatsMenu();
 
-            if (battleLogArea != null) {
-                battleLogArea.appendText(logMessage + "\n");
+            if (sideBar != null) {
+                sideBar.appendLog(logMessage);
             }
 
             if (status.equals("CONTINUE")) {
@@ -796,11 +677,11 @@ public class GameUI extends Application {
                 handleMonsterDefeated(monsterX, monsterY);
                 if (lootItem != null && !lootItem.equals("NONE")) {
                     if (lootItem.equals("Health Potion")) {
-                        if (battleLogArea != null) battleLogArea.appendText("🎁 LOOT: Found Health Potion!\n");
+                        if (sideBar != null) sideBar.appendLog("🎁 LOOT: Found Health Potion!");
                         showMessage("Found Health Potion!");
                     } else {
-                        if (battleLogArea != null) battleLogArea.appendText("⚔️ LOOT: Found " + lootItem + "!\n");
-                        showEquipLootDialog(lootItem); // Извикваме диалога за оборудване
+                        if (sideBar != null) sideBar.appendLog("⚔️ LOOT: Found " + lootItem + "!");
+                        showEquipLootDialog(lootItem);
                     }
                     updatePlayerStatsMenu();
                 }
@@ -877,46 +758,11 @@ public class GameUI extends Application {
         if (hero == null) return;
 
         String currentWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
-        ArmorItem currentArmor = hero.getEquippedArmor();
-        String armorName = (currentArmor != null) ? currentArmor.getName() : "None";
         String currentSkill = databaseService.getPlayerSkillName(this.selectedPlayerClass);
-        if (currentSkill == null || currentSkill.isEmpty()) {
-            currentSkill = "Basic Strike";
+
+        if (sideBar != null) {
+            sideBar.updateStats(hero, currentDungeonLevel, currentWeapon, currentSkill);
         }
-
-        String weaponName = (currentWeapon != null && !currentWeapon.isEmpty()) ? currentWeapon : "None";
-        String finalCurrentSkill = currentSkill;
-
-        Platform.runLater(() -> {
-            if (levelLabel != null) {
-                levelLabel.setText("🏰 Floor: " + currentDungeonLevel);
-                levelLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-weight: bold; -fx-font-size: 13px;");
-            }
-            if (hpLabel != null) {
-                hpLabel.setText("❤️ HP: " + hero.getHp() + " / " + hero.getMaxHP());
-                hpLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 14px;");
-            }
-            if (atkLabel != null) {
-                atkLabel.setText("⚔️ ATK: " + hero.getAtk());
-                atkLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-weight: bold; -fx-font-size: 14px;");
-            }
-            if (defLabel != null) {
-                defLabel.setText("🛡️ DEF: " + hero.getTotalDefense());
-                defLabel.setStyle("-fx-text-fill: #3498db; -fx-font-weight: bold; -fx-font-size: 14px;");
-            }
-            if (weaponLabel != null) {
-                weaponLabel.setText("🗡️ Weapon: " + weaponName);
-                weaponLabel.setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 13px;");
-            }
-            if (armorLabel != null) {
-                armorLabel.setText("🛡️ Armor: " + armorName);
-                armorLabel.setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 13px;");
-            }
-            if (skillLabel != null) {
-                skillLabel.setText("🔮 Skill: " + finalCurrentSkill);
-                skillLabel.setStyle("-fx-text-fill: #9b59b6; -fx-font-size: 13px;");
-            }
-        });
     }
 
     private void processTurnRounds() {
@@ -925,65 +771,26 @@ public class GameUI extends Application {
             if (activeSkillRounds == 0) {
                 if (currentActiveSkill != null) {
                     skillCooldown = currentActiveSkill.getCooldown();
-                    if (battleLogArea != null) {
-                        battleLogArea.appendText("⌛ Skill " + currentActiveSkill.getName() + " expired! Cooldown started: " + skillCooldown + " turns.\n");
+                    if (sideBar != null) {
+                        sideBar.appendLog("⌛ Skill " + currentActiveSkill.getName() + " expired! Cooldown started: " + skillCooldown + " turns.");
                     }
                 } else {
                     skillCooldown = 3;
                 }
             }
-        }
-        else if (skillCooldown > 0) {
+        } else if (skillCooldown > 0) {
             skillCooldown--;
-            if (skillCooldown == 0 && battleLogArea != null) {
-                battleLogArea.appendText("✅ Skill is ready to use again!\n");
+            if (skillCooldown == 0 && sideBar != null) {
+                sideBar.appendLog("✅ Skill is ready to use again!");
             }
         }
     }
 
 
     private void updateMiniMap() {
-        if (miniMapGrid == null || currentFloorRooms == null || currentFloorRooms.isEmpty()) return;
-
-        Platform.runLater(() -> {
-            miniMapGrid.getChildren().clear();
-
-            // 1. Намираме най-малките X и Y координати на стаите на етажа
-            int minX = currentFloorRooms.stream().mapToInt(Room::getGridX).min().orElse(0);
-            int minY = currentFloorRooms.stream().mapToInt(Room::getGridY).min().orElse(0);
-
-            // 2. Изчисляваме офсет, за да изместим всичко в позитивния спектър (>= 0)
-            int offsetX = minX < 0 ? Math.abs(minX) : 0;
-            int offsetY = minY < 0 ? Math.abs(minY) : 0;
-
-            for (Room r : currentFloorRooms) {
-                Label roomNode = new Label();
-                roomNode.setPrefSize(28, 28);
-                roomNode.setAlignment(Pos.CENTER);
-
-                if (r.equals(currentRoom)) {
-                    roomNode.setText("🧙‍♂️");
-                    roomNode.setStyle("-fx-background-color: #f1c40f; -fx-border-color: white; -fx-border-width: 2; -fx-background-radius: 4;");
-                } else if (visitedRooms.contains(r)) {
-                    if (r.getType() == RoomType.BOSS) {
-                        roomNode.setText("👑");
-                        roomNode.setStyle("-fx-background-color: #e74c3c; -fx-background-radius: 4;");
-                    } else {
-                        roomNode.setText("✓");
-                        roomNode.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 4;");
-                    }
-                } else {
-                    roomNode.setText("?");
-                    roomNode.setStyle("-fx-background-color: #34495e; -fx-text-fill: #7f8c8d; -fx-background-radius: 4;");
-                }
-
-                // 3. Добавяме офсета към координатите, за да са винаги 0 или по-големи
-                int finalGridX = r.getGridX() + offsetX;
-                int finalGridY = r.getGridY() + offsetY;
-
-                miniMapGrid.add(roomNode, finalGridX, finalGridY);
-            }
-        });
+        if (sideBar != null && sideBar.getMiniMapWidget() != null) {
+            sideBar.getMiniMapWidget().update(currentRoom, currentFloorRooms);
+        }
     }
 
     public void showMessage(String message) {
