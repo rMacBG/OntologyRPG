@@ -380,22 +380,66 @@ public class CombatService {
     }
 
     public String getBehavior(String monsterName) {
-        if (model == null || monsterName == null) return "None";
-
-        var monster = model.getOntClass(NS + monsterName);
-        if (monster == null) {
-            var individual = model.getIndividual(NS + monsterName);
-            if (individual != null) {
-                var property = model.getProperty(NS + "hasBehavior");
-                var value = individual.getPropertyValue(property);
-                if (value != null) return value.asResource().getLocalName();
-            }
-            return "None";
+        if (model == null || monsterName == null || monsterName.trim().isEmpty()) {
+            return "NeutralBehavior";
         }
 
-        var property = model.getProperty(NS + "hasBehavior");
-        var value = monster.getPropertyValue(property);
-        return (value != null) ? value.asResource().getLocalName() : "None";
+        String[] namespaces = { NS, RPG_NS };
+
+        for (String ns : namespaces) {
+            var individual = model.getIndividual(ns + monsterName);
+            if (individual != null) {
+                var prop = model.getProperty(ns + "hasBehavior");
+                if (prop == null) prop = model.getProperty(NS + "hasBehavior");
+                if (prop == null) prop = model.getProperty(RPG_NS + "hasBehavior");
+
+                if (prop != null) {
+                    var value = individual.getPropertyValue(prop);
+                    if (value != null && value.isResource()) {
+                        var res = value.asResource();
+
+                        var typeStmt = res.getProperty(org.apache.jena.vocabulary.RDF.type);
+                        if (typeStmt != null && typeStmt.getObject().isResource()) {
+                            String typeName = typeStmt.getObject().asResource().getLocalName();
+                            if (typeName != null && typeName.contains("Behavior") && !typeName.equals("Behavior")) {
+                                return typeName;
+                            }
+                        }
+                        return res.getLocalName();
+                    }
+                }
+            }
+            var ontClass = model.getOntClass(ns + monsterName);
+            if (ontClass == null) ontClass = model.getOntClass(ns + monsterName + "Class");
+
+            if (ontClass != null) {
+                var prop = model.getProperty(ns + "hasBehavior");
+                if (prop == null) prop = model.getProperty(NS + "hasBehavior");
+
+                if (prop != null) {
+                    var value = ontClass.getPropertyValue(prop);
+                    if (value != null && value.isResource()) {
+                        return value.asResource().getLocalName();
+                    }
+                }
+            }
+        }
+        var stmtIter = model.listStatements();
+        while (stmtIter.hasNext()) {
+            var stmt = stmtIter.nextStatement();
+            String subj = stmt.getSubject().getLocalName();
+            String pred = stmt.getPredicate().getLocalName();
+
+            if (subj != null && subj.equalsIgnoreCase(monsterName)) {
+                if (pred != null && (pred.equalsIgnoreCase("hasBehavior") || pred.equalsIgnoreCase("behavior"))) {
+                    if (stmt.getObject().isResource()) {
+                        return stmt.getObject().asResource().getLocalName();
+                    }
+                }
+            }
+        }
+
+        return "NeutralBehavior"; // Подразбиращо се поведение, ако не е посочено друго
     }
 
     public int getIntProperty(String entityName, String propertyName) {
@@ -622,7 +666,6 @@ public class CombatService {
             return possibleSkills[rand.nextInt(possibleSkills.length)];
         }
     }
-
 
     public String getItemClassType(String itemName) {
         if (itemName == null || itemName.trim().isEmpty()) return "";

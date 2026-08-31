@@ -25,11 +25,13 @@ public class Main {
         AgentController Quest;
         AgentController Combat;
         AgentController Gui;
+        AgentController MonsterMovement;
         try{
             Rpg = mainContainer.createNewAgent("Rpg", RpgAgent.class.getName(), null);
             Quest = mainContainer.createNewAgent("Quest", QuestAgent.class.getName(), null);
             Combat = mainContainer.createNewAgent("Combat", CombatAgent.class.getName(), null);
             Gui = mainContainer.createNewAgent("Gui", GUIAgent.class.getName(),null);
+            MonsterMovement = mainContainer.createNewAgent("Monster", MonsterAgent.class.getName(), null);
             AgentController client = mainContainer.createNewAgent("Player", PlayerAgent.class.getName(), null);
 
 
@@ -37,6 +39,7 @@ public class Main {
             Quest.start();
             Combat.start();
             Gui.start();
+            MonsterMovement.start();
             client.start();
             new Thread(() -> {
                 Application.launch(GameUI.class, args);

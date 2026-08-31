@@ -5,6 +5,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.effect.Light;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
@@ -18,10 +23,15 @@ import org.uni.service.OntologyService;
 import org.uni.model.Room.RoomType;
 import org.uni.model.Room.Direction;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 
 public class GameUI extends Application {
+
+    private MonsterAI monsterAI;
+    private InventoryOverlay inventoryOverlay;
 
     private int playerX = 0;
     private int playerY = 0;
@@ -54,7 +64,7 @@ public class GameUI extends Application {
     private GridPane grid;
     private VBox sideBar;
     private TextArea battleLogArea;
-    private HBox inventoryOverlay;
+
     private StackPane mainStackPane;
     private StackPane levelCompleteOverlay;
     private StackPane lootOverlay;
@@ -202,70 +212,6 @@ public class GameUI extends Application {
     private record HeroClassOption(String id, String labelText, String defaultWeapon) {
     }
 
-//    private void showCharacterCreation() {
-//        VBox creationBox = new VBox(20);
-//        creationBox.setAlignment(Pos.CENTER);
-//        creationBox.setPadding(new Insets(30));
-//
-//        Label header = new Label("CHOOSE YOUR CLASS");
-//        header.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
-//        creationBox.getChildren().add(header);
-//
-//        ToggleGroup group = new ToggleGroup();
-//
-//        List<HeroClassOption> classOptions = List.of(
-//                new HeroClassOption("WarriorClass", "Warrior (150 HP, 15 ATK) - Starts with Iron Longsword", "IronLongSword"),
-//                new HeroClassOption("ArcherClass", "Archer (120 HP, 17 ATK) - Starts with Small Bow", "SmallBow"),
-//                new HeroClassOption("WizardClass", "Wizard (100 HP, 22 ATK) - Starts with Storm Staff", "StormStaff"),
-//                new HeroClassOption("AssassinClass", "Assassin (135 HP, 20 ATK) - Starts with Steel Dagger", "SteelDagger")
-//        );
-//
-//        for (int i = 0; i < classOptions.size(); i++) {
-//            HeroClassOption option = classOptions.get(i);
-//            RadioButton rb = new RadioButton(option.labelText());
-//            rb.setToggleGroup(group);
-//            rb.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-//            rb.setUserData(option);
-//
-//            if (i == 0) {
-//                rb.setSelected(true);
-//            }
-//
-//            creationBox.getChildren().add(rb);
-//        }
-//
-//        Button confirmBtn = new Button("UNFOLD THE ADVENTURE OF A MILLENIA!");
-//        confirmBtn.setPrefSize(220, 45);
-//
-//        confirmBtn.setOnAction(e -> {
-//            RadioButton selected = (RadioButton) group.getSelectedToggle();
-//            HeroClassOption selectedOption = (HeroClassOption) selected.getUserData();
-//
-//            this.selectedPlayerClass = selectedOption.id();
-//            String startingWeapon = selectedOption.defaultWeapon();
-//
-//            String startingSkill = cs.getStartingSkillForClass(this.selectedPlayerClass);
-//
-//            this.hero = cs.createHero(this.selectedPlayerClass, startingWeapon);
-//
-//            databaseService.addCustomPlayer(
-//                    this.selectedPlayerClass,
-//                    startingWeapon,
-//                    startingSkill,
-//                    hero.getHp(),
-//                    hero.getAtk(),
-//                    hero.getTotalDefense()
-//            );
-//
-//            spawnMonsters();
-//            loadLevel(1);
-//            buildGameMap();
-//        });
-//
-//        creationBox.getChildren().add(confirmBtn);
-//        mainLayout.setCenter(creationBox);
-//    }
-
     private void showCharacterCreation() {
         VBox creationBox = new VBox(20);
         creationBox.setAlignment(Pos.CENTER);
@@ -351,6 +297,9 @@ public class GameUI extends Application {
     }
 
     private void buildGameMap() {
+        // 1. Инициализираме AI логиката за чудовищата
+        monsterAI = new MonsterAI(cs, SIZE);
+
         grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setPadding(new Insets(10));
@@ -386,7 +335,6 @@ public class GameUI extends Application {
         battleLogArea.setPromptText("Battle Chronolog");
         battleLogArea.setStyle("-fx-control-inner-background: #1e1e1e; -fx-text-fill: #2ecc71;");
 
-        // Включваме ВСИЧКИ етикети за статове и икони в страничния панел
         sideBar.getChildren().addAll(
                 statsLabel,
                 levelLabel,
@@ -408,12 +356,9 @@ public class GameUI extends Application {
         bottomBox.setStyle("-fx-background-color: #1a1a1a;");
 
         updateMap();
-        updatePlayerStatsMenu(); // 👈 Извиква се веднага за пълно иницииране на иконите
+        updatePlayerStatsMenu();
 
-        inventoryOverlay = new HBox(20);
-        inventoryOverlay.setAlignment(Pos.CENTER);
-        inventoryOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
-        inventoryOverlay.setVisible(false);
+        inventoryOverlay = new InventoryOverlay(cs, this::updatePlayerStatsMenu);
 
         levelCompleteOverlay = new StackPane();
         levelCompleteOverlay.setPrefSize(850, 650);
@@ -511,6 +456,13 @@ public class GameUI extends Application {
 
         playerX = newX;
         playerY = newY;
+
+        monsterAI.wanderMonstersInRoom(mapData, playerX, playerY, activeMonstersCount, (mx, my, monsterName) -> {
+            this.currentEnemyX = mx;
+            this.currentEnemyY = my;
+            this.currentMonster = cs.createMonster(monsterName, currentDungeonLevel);
+            openTurnBasedCombatScreen();
+        });
 
         updateMap();
     }
@@ -825,7 +777,7 @@ public class GameUI extends Application {
 
 
     public void handleCombatRoundResult(String status, int monsterX, int monsterY, int newEnemyHp, int newPlayerHp, String lootItem, String logMessage) {
-        //mainLayout.setCenter(grid);
+
         mainLayout.setCenter(mainStackPane);
         Platform.runLater(() -> {
             if (currentMonster != null) currentMonster.setHp(newEnemyHp);
@@ -917,264 +869,9 @@ public class GameUI extends Application {
         });
     }
 
-    private javafx.scene.image.ImageView getItemImageView(String itemName) {
-        javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
-        imageView.setFitWidth(40);
-        imageView.setFitHeight(40);
-
-        String imagePath = "/images/" + itemName + ".png";
-        try {
-            var stream = getClass().getResourceAsStream(imagePath);
-            if (stream != null) {
-                imageView.setImage(new javafx.scene.image.Image(stream));
-            } else {
-                imageView.setStyle("-fx-border-color: #7f8c8d; -fx-background-color: #2c3e50;");
-            }
-        } catch (Exception e) {
-        }
-        return imageView;
-    }
-
-
     private void openInventoryWindow() {
-        javafx.application.Platform.runLater(() -> {
-            refreshInventoryUI();
-            inventoryOverlay.setVisible(true);
-        });
+        inventoryOverlay.open(hero, selectedPlayerClass);
     }
-
-    private String selectedPreviewItem = null; // Поле за запазване на последния избран предмет за преглед
-
-    private void refreshInventoryUI() {
-        inventoryOverlay.getChildren().clear();
-
-        HBox root = new HBox(15);
-        root.setPadding(new Insets(15));
-        root.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-background-radius: 10; -fx-border-radius: 10;");
-        root.setMaxSize(820, 520); // Разширен прозорец за 3 панела
-
-        // ==========================================
-        // 1. ЛЯВ ПАНЕЛ: ЕКИПИРОВКА (EQUIPPED GEAR)
-        // ==========================================
-        VBox equipPanel = new VBox(10);
-        equipPanel.setAlignment(Pos.TOP_CENTER);
-        equipPanel.setPrefWidth(220);
-        equipPanel.setStyle("-fx-background-color: #16213e; -fx-padding: 10; -fx-background-radius: 8;");
-
-        Label equipTitle = new Label("⚔ EQUIPPED GEAR");
-        equipTitle.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 14px; -fx-font-weight: bold;");
-
-        String currentWeapon = databaseService.getPlayerWeapon(this.selectedPlayerClass);
-        String weaponStats = getItemStatsDescription(currentWeapon);
-        VBox weaponSlot = createEquippedSlotBox("WEAPON", currentWeapon, weaponStats, "#e74c3c");
-
-        ArmorItem currentArmorObj = hero.getEquippedArmor();
-        String currentArmorName = (currentArmorObj != null) ? currentArmorObj.getName() : null;
-        String armorStats = getItemStatsDescription(currentArmorName);
-        VBox armorSlot = createEquippedSlotBox("ARMOR", currentArmorName, armorStats, "#2ecc71");
-
-        String currentSkillName = databaseService.getPlayerSkillName(this.selectedPlayerClass);
-        String skillStats = getItemStatsDescription(currentSkillName);
-        VBox skillSlot = createEquippedSlotBox("SKILL", currentSkillName, skillStats, "#f39c12");
-
-        equipPanel.getChildren().addAll(equipTitle, weaponSlot, armorSlot, skillSlot);
-
-        // ==========================================
-        // 2. СРЕДЕН ПАНЕЛ: РАНИЦА (BACKPACK)
-        // ==========================================
-        VBox backpackPanel = new VBox(10);
-        backpackPanel.setPrefWidth(320);
-
-        HBox headerBox = new HBox();
-        headerBox.setAlignment(Pos.CENTER_LEFT);
-        Label backpackTitle = new Label("🎒 BACKPACK");
-        backpackTitle.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 16px; -fx-font-weight: bold;");
-
-        Region spacerHeader = new Region();
-        HBox.setHgrow(spacerHeader, Priority.ALWAYS);
-
-        Button closeBtn = new Button("❌");
-        closeBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-size: 16px; -fx-cursor: hand;");
-        closeBtn.setOnAction(e -> {
-            inventoryOverlay.setVisible(false);
-            mainStackPane.requestFocus();
-        });
-        headerBox.getChildren().addAll(backpackTitle, spacerHeader, closeBtn);
-
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(410);
-        scrollPane.setStyle("-fx-background: #16213e; -fx-background-color: transparent;");
-
-        VBox itemsContainer = new VBox(8);
-        itemsContainer.setPadding(new Insets(8));
-
-        // ==========================================
-        // 3. ДЕСЕН ПАНЕЛ: ПРЕГЛЕД (ITEM PREVIEW)
-        // ==========================================
-        VBox previewPanel = new VBox(10);
-        previewPanel.setPrefWidth(240);
-        previewPanel.setAlignment(Pos.TOP_CENTER);
-        previewPanel.setStyle("-fx-background-color: #16213e; -fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #2980b9; -fx-border-radius: 8;");
-
-        Label previewTitle = new Label("🔮 ITEM PREVIEW");
-        previewTitle.setStyle("-fx-text-fill: #3498db; -fx-font-size: 15px; -fx-font-weight: bold;");
-
-        Label previewTextLabel = new Label();
-        previewTextLabel.setWrapText(true);
-        previewTextLabel.setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 12px;");
-
-        // Зареждане на началната информация за преглед
-        if (selectedPreviewItem != null) {
-            previewTextLabel.setText(getItemPreviewDetailsText(selectedPreviewItem));
-        } else {
-            previewTextLabel.setText("Кликнете върху предмет или умение, за да видите пълния преглед.");
-        }
-
-        previewPanel.getChildren().addAll(previewTitle, previewTextLabel);
-
-        // Функция за обновяване на прегледа при кликване върху ред/слот
-        Runnable updatePreviewAction = () -> {
-            if (selectedPreviewItem != null) {
-                previewTextLabel.setText(getItemPreviewDetailsText(selectedPreviewItem));
-            }
-        };
-
-        // Кликове върху екипираните слотове за преглед
-        weaponSlot.setOnMouseClicked(e -> { selectedPreviewItem = currentWeapon; updatePreviewAction.run(); });
-        armorSlot.setOnMouseClicked(e -> { selectedPreviewItem = currentArmorName; updatePreviewAction.run(); });
-        skillSlot.setOnMouseClicked(e -> { selectedPreviewItem = currentSkillName; updatePreviewAction.run(); });
-
-        // Попълване на раницата с предмети
-        String invData = databaseService.getPlayerInventory(this.selectedPlayerClass);
-        if (invData != null && !invData.trim().isEmpty()) {
-            String[] items = invData.split(",");
-
-            for (String itemRaw : items) {
-                String item = itemRaw.trim();
-                if (item.isEmpty()) continue;
-
-                HBox itemRow = new HBox(8);
-                itemRow.setAlignment(Pos.CENTER_LEFT);
-                itemRow.setStyle("-fx-background-color: #0f3460; -fx-padding: 6; -fx-background-radius: 5; -fx-cursor: hand;");
-
-                // При кликване на целия ред се показва прегледът в десния панел
-                itemRow.setOnMouseClicked(e -> {
-                    selectedPreviewItem = item;
-                    updatePreviewAction.run();
-                });
-
-                ImageView icon = getItemImageView(item);
-
-                VBox itemDetails = new VBox(2);
-                itemDetails.setMaxWidth(140);
-
-                Label nameLbl = new Label(item);
-                nameLbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
-
-                Label statsLbl = new Label(getItemStatsDescription(item));
-                statsLbl.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 10px;");
-                itemDetails.getChildren().addAll(nameLbl, statsLbl);
-
-                Region spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
-
-                Button actionBtn = new Button();
-                actionBtn.setMinWidth(80);
-                actionBtn.setAlignment(Pos.CENTER);
-
-                boolean isEquippedWeapon = item.equalsIgnoreCase(currentWeapon);
-                boolean isEquippedArmor = currentArmorName != null && item.equalsIgnoreCase(currentArmorName);
-                boolean isEquippedSkill = currentSkillName != null && item.equalsIgnoreCase(currentSkillName);
-
-                if (item.equals("Health Potion")) {
-                    actionBtn.setText("DRINK");
-                    actionBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;");
-                } else if (isEquippedWeapon || isEquippedArmor || isEquippedSkill) {
-                    actionBtn.setText("EQUIPPED");
-                    actionBtn.setDisable(true);
-                    actionBtn.setStyle("-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 9px;");
-                } else {
-                    actionBtn.setText("EQUIP");
-                    actionBtn.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;");
-                }
-
-                actionBtn.setOnAction(e -> {
-                    selectedPreviewItem = item;
-                    if (item.equals("Health Potion")) {
-                        hero.heal(40);
-                        databaseService.removeItemFromInventory(this.selectedPlayerClass, "Health Potion");
-                        databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
-                        updatePlayerStatsMenu();
-                        showMessage("🧪 Drank Health Potion (+40 HP)");
-                        Platform.runLater(this::refreshInventoryUI);
-
-                    } else if (cs.isSkill(item)) {
-                        databaseService.equipSkill(this.selectedPlayerClass, item);
-                        updatePlayerStatsMenu();
-                        showMessage("✨ Equipped Skill: " + item);
-                        Platform.runLater(this::refreshInventoryUI);
-
-                    } else {
-                        boolean equipped = cs.equipItemForHero(hero, this.selectedPlayerClass, item);
-                        if (equipped) {
-                            String equipMsg = "EQUIP_ITEM:" + this.selectedPlayerClass + ":" + item;
-                            GUIAgent.instance.sendMessage(equipMsg);
-                            updatePlayerStatsMenu();
-                            showMessage("🛡️/⚔️ Equipped " + item);
-                            Platform.runLater(this::refreshInventoryUI);
-                        } else {
-                            showMessage("❌ Cannot equip " + item);
-                        }
-                    }
-                });
-
-                itemRow.getChildren().addAll(icon, itemDetails, spacer, actionBtn);
-                itemsContainer.getChildren().add(itemRow);
-            }
-        } else {
-            Label emptyLbl = new Label("Your backpack is empty.");
-            emptyLbl.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
-            itemsContainer.getChildren().add(emptyLbl);
-        }
-
-        scrollPane.setContent(itemsContainer);
-        backpackPanel.getChildren().addAll(headerBox, scrollPane);
-
-        root.getChildren().addAll(equipPanel, backpackPanel, previewPanel);
-        inventoryOverlay.getChildren().add(root);
-    }
-
-    private VBox createEquippedSlotBox(String slotTitle, String itemName, String itemStats, String borderColor) {
-        VBox slot = new VBox(2);
-        slot.setAlignment(Pos.CENTER);
-        slot.setPadding(new Insets(6));
-        slot.setStyle("-fx-background-color: #0f3460; -fx-background-radius: 6; -fx-border-color: " + (itemName != null ? borderColor : "#7f8c8d") + "; -fx-border-radius: 6;");
-
-        Label slotLabel = new Label(slotTitle);
-        slotLabel.setStyle("-fx-text-fill: #bdc3c7; -fx-font-size: 10px; -fx-font-weight: bold;");
-
-        if (itemName != null && !itemName.isEmpty()) {
-            Label nameLabel = new Label(itemName);
-            nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
-
-            ImageView img = getItemImageView(itemName);
-
-            Label statsLabel = new Label(itemStats);
-            statsLabel.setWrapText(true); // 👈 Разрешава пренасяне на редовете за дълги умения
-            statsLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-            statsLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 10px;");
-
-            slot.getChildren().addAll(slotLabel, img, nameLabel, statsLabel);
-        } else {
-            Label emptyLabel = new Label("(Empty)");
-            emptyLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
-            slot.getChildren().addAll(slotLabel, emptyLabel);
-        }
-        return slot;
-    }
-
-
 
     public void updatePlayerStatsMenu() {
         if (hero == null) return;
@@ -1244,117 +941,6 @@ public class GameUI extends Application {
         }
     }
 
-    private String getItemStatsDescription(String itemName) {
-        if (itemName == null || itemName.trim().isEmpty()) return "";
-        if (itemName.equalsIgnoreCase("Health Potion")) return "Restores +40 HP";
-
-        String category = cs.getItemCategory(itemName);
-
-        // 1. Оръжие
-        if ("WEAPON".equalsIgnoreCase(category)) {
-            WeaponItem weapon = cs.loadWeaponFromOntology(itemName);
-            if (weapon != null) {
-                return "+" + weapon.getBaseDamage() + " Base ATK";
-            }
-        }
-        // 2. Броня
-        else if ("ARMOR".equalsIgnoreCase(category)) {
-            ArmorItem armor = cs.loadArmorFromOntology(itemName);
-            if (armor != null) {
-                List<String> armorParts = new ArrayList<>();
-                if (armor.getBaseDef() > 0) armorParts.add("+" + armor.getBaseDef() + " DEF");
-                if (armor.getDamageBonus() > 0) armorParts.add("+" + armor.getDamageBonus() + " ATK");
-                if (armor.getDamageResistance() > 0) armorParts.add("+" + armor.getDamageResistance() + " Res");
-                return String.join(" | ", armorParts);
-            }
-        }
-        // 3. Скил / Умение
-        else if ("SKILL".equalsIgnoreCase(category)) {
-            SkillItem skill = cs.loadSkillFromOntology(itemName);
-            if (skill != null && skill.getName() != null && !skill.getName().equalsIgnoreCase("Basic Strike")) {
-                List<String> parts = new ArrayList<>();
-                if (skill.getBaseDamage() > 0) parts.add("DMG: " + skill.getBaseDamage());
-                if (skill.getDamageBonus() > 0) parts.add("+" + skill.getDamageBonus() + " ATK");
-                if (skill.getDamageResistance() > 0) parts.add("+" + skill.getDamageResistance() + " DEF");
-                if (skill.getActiveRounds() > 0) parts.add(skill.getActiveRounds() + " Rds");
-                if (skill.getCooldown() > 0) parts.add("CD: " + skill.getCooldown() + "t");
-                return String.join(" | ", parts);
-            }
-        }
-
-        // Резервна проверка, ако категорията е UNKNOWN
-        WeaponItem weapon = cs.loadWeaponFromOntology(itemName);
-        if (weapon != null && weapon.getBaseDamage() > 0) return "+" + weapon.getBaseDamage() + " ATK";
-
-        ArmorItem armor = cs.loadArmorFromOntology(itemName);
-        if (armor != null && armor.getBaseDef() > 0) return "+" + armor.getBaseDef() + " DEF";
-
-        return "Equipment / Item";
-    }
-
-    private String getItemPreviewDetailsText(String itemName) {
-        if (itemName == null || itemName.trim().isEmpty()) {
-            return "Няма избран предмет.";
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        if (itemName.equalsIgnoreCase("Health Potion")) {
-            sb.append("🧪 HEALTH POTION\n\n");
-            sb.append("• Категория: Consumable\n");
-            sb.append("• Ефект: Възстановява 40 HP незабавно при използване.");
-            return sb.toString();
-        }
-
-        String category = cs.getItemCategory(itemName);
-
-        if ("WEAPON".equalsIgnoreCase(category)) {
-            WeaponItem weapon = cs.loadWeaponFromOntology(itemName);
-            if (weapon != null) {
-                sb.append("⚔️ ").append(weapon.getName().toUpperCase()).append("\n\n");
-                sb.append("• Категория: Оръжие\n");
-                sb.append("• Базов Атак: +").append(weapon.getBaseDamage()).append(" ATK\n\n");
-                sb.append("Увеличава щетата на базовите ви атаки.");
-                return sb.toString();
-            }
-        } else if ("ARMOR".equalsIgnoreCase(category)) {
-            ArmorItem armor = cs.loadArmorFromOntology(itemName);
-            if (armor != null) {
-                sb.append("🛡️ ").append(armor.getName().toUpperCase()).append("\n\n");
-                sb.append("• Категория: Броня\n");
-                if (armor.getBaseDef() > 0) sb.append("• Защита: +").append(armor.getBaseDef()).append(" DEF\n");
-                if (armor.getDamageBonus() > 0) sb.append("• Бонус Атак: +").append(armor.getDamageBonus()).append(" ATK\n");
-                if (armor.getDamageResistance() > 0) sb.append("• Резистентност: +").append(armor.getDamageResistance()).append("\n");
-                return sb.toString();
-            }
-        } else if ("SKILL".equalsIgnoreCase(category)) {
-            SkillItem skill = cs.loadSkillFromOntology(itemName);
-            if (skill != null) {
-                sb.append("🔮 ").append(skill.getName().toUpperCase()).append("\n\n");
-
-                if (skill.getBaseDamage() == 0 && (skill.getDamageResistance() > 0 || skill.getDamageMultiplier() <= 1.0)) {
-                    sb.append("• Тип: Защитно / Бъф умение\n");
-                    if (skill.getDamageBonus() > 0) {
-                        sb.append("• Бонус атака: +").append(skill.getDamageBonus()).append(" ATK\n");
-                    }
-                    if (skill.getDamageResistance() > 0) {
-                        sb.append("• Редукция щета: -").append(skill.getDamageResistance()).append(" incoming DMG\n");
-                    }
-                    sb.append("• Продължителност: ").append(skill.getActiveRounds()).append(" рунда\n");
-                } else {
-                    sb.append("• Тип: Атакуващо умение\n");
-                    int baseAtk = (skill.getBaseDamage() > 0) ? skill.getBaseDamage() : (hero != null ? hero.getAtk() : 10);
-                    int estDmg = (int) Math.round(baseAtk * skill.getDamageMultiplier()) + skill.getDamageBonus();
-                    sb.append("• Очаквана щета: ~").append(estDmg).append(" DMG\n");
-                    if (skill.getElement() != null) sb.append("• Елемент: ").append(skill.getElement()).append("\n");
-                }
-                sb.append("• Cooldown: ").append(skill.getCooldown()).append(" хода");
-                return sb.toString();
-            }
-        }
-
-        return "Предмет: " + itemName;
-    }
 
     private void updateMiniMap() {
         if (miniMapGrid == null || currentFloorRooms == null || currentFloorRooms.isEmpty()) return;
@@ -1399,7 +985,6 @@ public class GameUI extends Application {
             }
         });
     }
-
 
     public void showMessage(String message) {
         Platform.runLater(() -> {
