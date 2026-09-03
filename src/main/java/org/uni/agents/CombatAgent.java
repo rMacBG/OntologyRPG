@@ -123,49 +123,6 @@ public class CombatAgent extends Agent {
         }
     }
 
-//private int calculateDamage(String playerClass, String enemyName, int currentAtk, String actionType) {
-//    double multiplier = 1.0;
-//    String element = "Physical";
-//
-//    if (actionType.equalsIgnoreCase("SKILL")) {
-//        // 1. Вземаме скила и параметрите му от Онтологията
-//        String skillName = getSkillName(playerClass);
-//        SkillItem skill = combatService.loadSkillFromOntology(skillName);
-//
-//        if (skill != null) {
-//            multiplier = skill.getDamageMultiplier();
-//            element = skill.getElement();
-//        } else {
-//            multiplier = 1.5;
-//        }
-//    } else {
-//        String weaponName = databaseService.getPlayerWeapon(playerClass);
-//        element = combatService.getWeaponElement(weaponName);
-//    }
-//
-//    String weakness = combatService.getWeakness(enemyName);
-//    String resistance = combatService.getResistance(enemyName);
-//
-//    if (element != null && !"Physical".equalsIgnoreCase(element) && !"None".equalsIgnoreCase(element)) {
-//        if (weakness != null && weakness.equalsIgnoreCase(element)) {
-//            multiplier *= 1.4;
-//            System.out.println("🔥 SUPER EFFECTIVE! Element: " + element);
-//        } else if (resistance != null && resistance.equalsIgnoreCase(element)) {
-//            multiplier *= 0.65;
-//            System.out.println("🛡️ Monster resists element: " + element);
-//        }
-//    }
-//
-//    // 4. Критичен удар (15% шанс)
-//    Random rand = new Random();
-//    if (rand.nextInt(100) < 15) {
-//        multiplier *= 1.8;
-//        System.out.println("💥 CRITICAL HIT!");
-//    }
-//
-//    return (int) Math.round(currentAtk * multiplier);
-//}
-
     private int activeSkillRounds = 0;
     private int calculateDamage(String playerClass, String enemyName, int currentAtk, String actionType) {
         double multiplier = 1.0;
@@ -178,7 +135,7 @@ public class CombatAgent extends Agent {
         if (actionType.equalsIgnoreCase("SKILL")) {
             if (skill != null) {
                 if (skill.getActiveRounds() > 0) {
-                    this.activeSkillRounds = skill.getActiveRounds(); // Запазва рундовете глобално за агента
+                    this.activeSkillRounds = skill.getActiveRounds();
                 }
 
                 if (skill.getBaseDamage() == 0 && (skill.getDamageResistance() > 0 || skill.getDamageMultiplier() <= 1.0)) {
@@ -200,17 +157,15 @@ public class CombatAgent extends Agent {
                 multiplier = 1.5;
             }
         } else {
-            // Обикновена атака
             String weaponName = databaseService.getPlayerWeapon(playerClass);
             element = combatService.getWeaponElement(weaponName);
 
-            // Сега това ще проработи, защото activeSkillRounds се пази от предишния ход!
             if (this.activeSkillRounds > 0 && skill != null) {
                 if (skill.getDamageBonus() > 0) {
                     extraDamage += skill.getDamageBonus();
                     System.out.println("🔥 Applied Buff Bonus: +" + skill.getDamageBonus() + " DMG (" + activeSkillRounds + " rounds left)");
                 }
-                this.activeSkillRounds--; // Намалява оставащите рундове
+                this.activeSkillRounds--;
             }
         }
 

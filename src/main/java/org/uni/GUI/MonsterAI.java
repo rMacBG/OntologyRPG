@@ -10,7 +10,6 @@ public class MonsterAI {
     private final CombatService cs;
     private final int size;
 
-    // Интерфейс (Callback), с който AI-то уведомява GameUI, че чудовище е нападнало играча
     public interface AttackCallback {
         void onMonsterAttack(int monsterX, int monsterY, String monsterName);
     }
@@ -38,7 +37,6 @@ public class MonsterAI {
                     int ny = nextPos.y;
 
                     if (nx >= 0 && nx < size && ny >= 0 && ny < size && (nx != x || ny != y)) {
-                        // Сблъсък с играча
                         if (nx == playerX && ny == playerY) {
                             if (callback != null) {
                                 callback.onMonsterAttack(x, y, monsterName);
@@ -46,7 +44,6 @@ public class MonsterAI {
                             return;
                         }
 
-                        // Празна клетка
                         if ("EMPTY".equals(mapData[nx][ny].type)) {
                             mapData[nx][ny] = mapData[x][y];
                             mapData[x][y] = new DungeonGenerator.Tile("EMPTY", null, "🟩");

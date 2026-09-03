@@ -113,7 +113,7 @@ public class GameUI extends Application {
         this.currentDungeonLevel = dungeonLevel;
 
         List<String> ontologyMonsters = List.of("Dragon", "Goblin", "Demon");
-        List<String> ontologyBosses = List.of("DragonBoss", "DemonLord");
+        List<String> ontologyBosses = List.of("DragonBoss", "DemonBoss");
 
         this.currentFloorRooms = dungeonGenerator.generateFloor(currentDungeonLevel, ontologyMonsters, ontologyBosses);
 
@@ -198,9 +198,6 @@ public class GameUI extends Application {
         mainLayout.setCenter(mainMenu);
 
 
-    }
-
-    private record HeroClassOption(String id, String labelText, String defaultWeapon) {
     }
 
     private void showCharacterCreation() {
@@ -298,7 +295,7 @@ public class GameUI extends Application {
         DungeonGenerator.Tile targetTile = mapData[newX][newY];
 
         if ("WALL".equals(targetTile.type)) {
-            showMessage("Пътят е блокиран от стена!");
+            showMessage("Cannot move there is a wall ahead...");
             return;
         }
 
@@ -312,7 +309,7 @@ public class GameUI extends Application {
 
         if ("DOOR".equals(targetTile.type)) {
             if (activeMonstersCount > 0) {
-                showMessage("🔒 Вратата е заключена! Избийте останалите " + activeMonstersCount + " чудовища в стаята!");
+                showMessage("🔒 The door is locked! There are still " + activeMonstersCount + " active monsters!");
                 return;
             }
 
@@ -349,8 +346,8 @@ public class GameUI extends Application {
             databaseService.updatePlayerHP(this.selectedPlayerClass, hero.getHp());
             mapData[newX][newY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
             updatePlayerStatsMenu();
-            showMessage("Взехте лечебна отвара! +30 HP.");
-            if (battleLogArea != null) battleLogArea.appendText("Намерихте отвара и възстановихте 30 HP!\n");
+            showMessage("Healing Potion! You got +30 HP back.");
+            if (battleLogArea != null) battleLogArea.appendText("You found an HP potion, picked it up and restored 30 HP!\n");
         }
 
         playerX = newX;
@@ -543,9 +540,9 @@ public class GameUI extends Application {
 
             if (currentRoom.getType() == RoomType.BOSS && activeMonstersCount <= 0) {
                 mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EXIT", null, "🚪");
-                showMessage("🎉 Босът е победен! На негово място се появи врата към следващия етаж!");
+                showMessage("🎉 Boss has been defeated! A door has appeared!");
                 if (sideBar != null) {
-                    sideBar.appendLog("🚪 На мястото на боса се появи врата за следващия етаж!");
+                    sideBar.appendLog("🚪 A door has appeared after the boss' defeat!");
                 }
             } else {
                 mapData[monsterX][monsterY] = new DungeonGenerator.Tile("EMPTY", null, "🟩");
@@ -553,7 +550,7 @@ public class GameUI extends Application {
                 playerY = monsterY;
 
                 if (activeMonstersCount <= 0) {
-                    showMessage("🎉 Стаята е изчистена! Вратите са отключени!");
+                    showMessage("🎉 Room Cleared!");
                 }
             }
 
@@ -656,19 +653,19 @@ public class GameUI extends Application {
             lootBox.setMaxSize(420, 220);
             lootBox.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: #e67e22; -fx-border-width: 3px; -fx-background-radius: 10; -fx-border-radius: 10;");
 
-            Label title = new Label("🎁 НАМЕРЕН ПРЕДМЕТ / СКИЛ!");
+            Label title = new Label("🎁 You found an item!");
             title.setStyle("-fx-text-fill: #e67e22; -fx-font-size: 18px; -fx-font-weight: bold;");
 
-            Label desc = new Label("Чудовището пусна: " + lootItem + "\nИскаш ли да го екипираш веднага?");
+            Label desc = new Label("Monster dropped: " + lootItem + "\nDo you want to equip it?");
             desc.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-text-alignment: center;");
 
             HBox buttons = new HBox(15);
             buttons.setAlignment(Pos.CENTER);
 
-            Button equipBtn = new Button("ЕКИПИРАЙ");
+            Button equipBtn = new Button("Equip");
             equipBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16;");
 
-            Button cancelBtn = new Button("В РАНИЦАТА");
+            Button cancelBtn = new Button("In backpack");
             cancelBtn.setStyle("-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16;");
 
             equipBtn.setOnAction(e -> {
@@ -687,7 +684,7 @@ public class GameUI extends Application {
             });
 
             cancelBtn.setOnAction(e -> {
-                showMessage("Предметът е запазен в инвентара.");
+                showMessage("Item saved in inventory");
                 lootOverlay.setVisible(false);
                 mainLayout.requestFocus();
             });

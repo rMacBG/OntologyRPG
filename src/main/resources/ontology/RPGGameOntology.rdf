@@ -272,7 +272,7 @@
     <!-- file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Boss -->
 
     <owl:Class rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Boss">
-        <rdfs:subClassOf rdf:resource="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Character"/>
+        <rdfs:subClassOf rdf:resource="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Monster"/>
     </owl:Class>
     
 
@@ -896,15 +896,6 @@
     <rdf:Description>
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
         <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Boss"/>
-            <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Monster"/>
-            <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#NPC"/>
-            <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Player"/>
-        </owl:members>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
             <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Bow"/>
             <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Dagger"/>
             <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Staff"/>
@@ -1005,6 +996,14 @@
             <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#HeavyArmor"/>
             <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#LightArmor"/>
             <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#RobeArmor"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Monster"/>
+            <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#NPC"/>
+            <rdf:Description rdf:about="file:/C:/Users/vlady/Desktop/RPGOntologyGame/src/main/resources/ontology/RPGGameOntology.rdf#Player"/>
         </owl:members>
     </rdf:Description>
 </rdf:RDF>
