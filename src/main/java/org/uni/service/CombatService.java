@@ -295,17 +295,18 @@ public class CombatService {
 
     public int getMonsterHP(String monsterName) {
         if (monsterName == null) return 100;
+
         int hp = getIntProperty(monsterName, "hasHP");
+        if (hp <= 0) hp = getIntProperty(monsterName + "Boss", "hasHP");
         if (hp <= 0) hp = getIntProperty(monsterName + "Monster", "hasHP");
+
         return hp > 0 ? hp : 100;
     }
 
     public int getMonsterAttackDamage(String monsterName) {
-        if (monsterName == null) return 0;
+        if (monsterName == null) return 10;
 
-        int damage = 0;
-
-        damage = getIntProperty(monsterName, "hasBaseDamage");
+        int damage = getIntProperty(monsterName, "hasBaseDamage");
         if (damage <= 0) damage = getIntProperty(monsterName, "hasAttackDamage");
         if (damage <= 0) damage = getIntProperty(monsterName, "hasDamage");
         if (damage <= 0) damage = getIntProperty(monsterName, "hasATK");
@@ -317,6 +318,9 @@ public class CombatService {
                 if (damage <= 0) damage = getIntProperty(attackName, "hasAttackDamage");
                 if (damage <= 0) damage = getIntProperty(attackName, "hasDamage");
             }
+        }
+        if (damage <= 0) {
+            return monsterName.toLowerCase().contains("boss") ? 25 : 10;
         }
 
         return damage;
@@ -439,7 +443,7 @@ public class CombatService {
             }
         }
 
-        return "NeutralBehavior"; // Подразбиращо се поведение, ако не е посочено друго
+        return "NeutralBehavior";
     }
 
     public int getIntProperty(String entityName, String propertyName) {
@@ -506,17 +510,27 @@ public class CombatService {
     public String getStringProperty(String entityName, String propertyName) {
         if (model == null || entityName == null || propertyName == null) return "None";
 
-        try {
-            var individual = model.getIndividual(NS + entityName);
-            if (individual != null) {
-                var prop = model.getProperty(NS + propertyName);
-                var val = individual.getPropertyValue(prop);
-                if (val != null) return val.asResource().getLocalName();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String[] namespaces = { NS, RPG_NS };
 
+        for (String ns : namespaces) {
+            try {
+                var individual = model.getIndividual(ns + entityName);
+                if (individual != null) {
+                    var prop = model.getProperty(ns + propertyName);
+                    if (prop == null) prop = model.getProperty(NS + propertyName);
+                    if (prop == null) prop = model.getProperty(RPG_NS + propertyName);
+
+                    if (prop != null) {
+                        var val = individual.getPropertyValue(prop);
+                        if (val != null && val.isResource()) {
+                            return val.asResource().getLocalName();
+                        } else if (val != null && val.isLiteral()) {
+                            return val.asLiteral().getString();
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
         var stmtIter = model.listStatements();
         while (stmtIter.hasNext()) {
             var stmt = stmtIter.nextStatement();
@@ -527,6 +541,8 @@ public class CombatService {
                 if (predStr != null && predStr.equalsIgnoreCase(propertyName)) {
                     if (stmt.getObject().isResource()) {
                         return stmt.getObject().asResource().getLocalName();
+                    } else if (stmt.getObject().isLiteral()) {
+                        return stmt.getObject().asLiteral().getString();
                     }
                 }
             }
@@ -556,10 +572,6 @@ public class CombatService {
 
         WeaponItem weapon = new WeaponItem(weaponName, 1, weaponAtk);
 
-        // Ако в твоя клас WeaponItem има сетър за стихия (Element)
-//        try {
-//            weapon.setElement(element);
-//        } catch (Exception ignored) {}
 
         return weapon;
     }
@@ -626,14 +638,12 @@ public class CombatService {
         String reqClass = getStringProperty(skillName, "requiresClass");
         if ("None".equalsIgnoreCase(reqClass)) reqClass = getStringProperty(skillName, "hasRequiredClass");
 
-        // Зареждаме стойностите за щета и защита
         int baseDamage = getIntProperty(skillName, "hasBaseDamage");
         int damageBonus = getIntProperty(skillName, "hasDamageBonus");
         int damageResistance = getIntProperty(skillName, "hasDamageResistance");
         int activeRounds = getIntProperty(skillName, "hasActiveRounds");
         int cooldown = getIntProperty(skillName, "hasCooldown");
 
-        // Ако няма посочен множител: за защитни/бъф умения слагаме 1.0 (вместо 1.5)
         if (multiplier <= 0) {
             multiplier = (baseDamage == 0 && (damageResistance > 0 || activeRounds > 0)) ? 1.0 : 1.5;
         }

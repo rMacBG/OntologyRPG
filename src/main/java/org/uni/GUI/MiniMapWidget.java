@@ -23,13 +23,11 @@ public class MiniMapWidget extends GridPane {
         setStyle("-fx-background-color: #1a1a1a; -fx-padding: 8; -fx-border-color: #34495e; -fx-border-radius: 5;");
     }
 
-    // Извиква се САМО когато се зарежда НОВ етаж!
     public void resetForNewFloor(List<Room> rooms) {
         this.currentFloorRooms = rooms;
         this.visitedRooms.clear();
     }
 
-    // Обновява минимапа при всяка стъпка / влизане в стая
     public void update(Room currentRoom, List<Room> floorRooms) {
         if (floorRooms != null) {
             this.currentFloorRooms = floorRooms;

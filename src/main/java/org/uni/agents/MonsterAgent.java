@@ -33,7 +33,6 @@ public class MonsterAgent extends Agent {
                 System.out.println("MonsterAgent received: " + content);
                 String[] parts = content.split(":");
 
-                // Формат: MOVE_REQUEST : enemyName : monsterX : monsterY : playerX : playerY
                 if (parts[0].equals("MOVE_REQUEST")) {
                     processMovementDecision(message, parts);
                 }
@@ -48,16 +47,13 @@ public class MonsterAgent extends Agent {
         int playerX = Integer.parseInt(parts[4].trim());
         int playerY = Integer.parseInt(parts[5].trim());
 
-        // 1. Извличане на класа за поведение от онтологията (RDF/OWL)
         String behaviorClass = combatOntology.getBehavior(enemyName);
         if (behaviorClass == null) {
-            behaviorClass = "NeutralBehavior"; // Fallback по подразбиране
+            behaviorClass = "NeutralBehavior";
         }
 
-        // 2. Вземане на решение за ход спрямо онтологичния клас
         Point nextPosition = calculateNextMove(behaviorClass, monsterX, monsterY, playerX, playerY);
 
-        // 3. Изпращане на отговор с новите координати
         String responseContent = "MOVE_RESPONSE:" + enemyName + ":" + nextPosition.x + ":" + nextPosition.y;
         sendReply(originalMsg, responseContent);
     }
@@ -65,33 +61,28 @@ public class MonsterAgent extends Agent {
     private Point calculateNextMove(String behaviorClass, int mx, int my, int px, int py) {
         int distanceToPlayer = Math.abs(mx - px) + Math.abs(my - py);
 
-        // Нормализиране на името на класа (ако съдържа пълното URI от онтологията)
         String behavior = behaviorClass.contains("#")
                 ? behaviorClass.substring(behaviorClass.indexOf("#") + 1)
                 : behaviorClass;
 
         switch (behavior) {
             case "AggressiveBehavior":
-                // Преследва играча без значение от разстоянието
                 return stepTowards(mx, my, px, py);
 
             case "DefensiveBehavior":
-                // Пази зоната: гони играча САМО ако е наблизо (<= 3 плочки)
                 if (distanceToPlayer <= 3) {
                     return stepTowards(mx, my, px, py);
                 }
                 return stepRandomly(mx, my);
 
             case "PassiveBehavior":
-                // Бяга от играча, ако той се приближи (<= 3 плочки)
                 if (distanceToPlayer <= 3) {
                     return stepAwayFrom(mx, my, px, py);
                 }
-                return new Point(mx, my); // Остава на място
+                return new Point(mx, my);
 
             case "NeutralBehavior":
             default:
-                // Блуждае свободно без значение къде е играча (50% шанс за стъпка)
                 if (random.nextBoolean()) {
                     return stepRandomly(mx, my);
                 }
@@ -99,7 +90,6 @@ public class MonsterAgent extends Agent {
         }
     }
 
-    // --- Логика за движенията ---
 
     private Point stepTowards(int mx, int my, int px, int py) {
         int dx = Integer.compare(px, mx);

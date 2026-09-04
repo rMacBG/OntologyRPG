@@ -406,7 +406,7 @@ public class DatabaseService {
                 ps.setString(1, username);
                 ps.setString(2, weapon);
                 ps.setString(3, skill);
-                ps.setString(4, weapon); // inventory
+                ps.setString(4, weapon);
                 ps.setInt(5, hp);
                 ps.setInt(6, atk);
                 ps.setInt(7, def);
