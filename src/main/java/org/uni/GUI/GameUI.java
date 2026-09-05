@@ -201,9 +201,9 @@ public class GameUI extends Application {
     }
 
     private void showCharacterCreation() {
-        CharacterCreationScreen creationScreen = new CharacterCreationScreen((selectedOption, startingSkill) -> {
+        CharacterCreationScreen creationScreen = new CharacterCreationScreen(cs, (selectedOption, startingSkill) -> {
             this.selectedPlayerClass = selectedOption.id();
-            String startingWeapon = selectedOption.defaultWeapon();
+            String startingWeapon = cs.getStartingWeaponForClass(this.selectedPlayerClass);
 
             this.hero = cs.createHero(this.selectedPlayerClass, startingWeapon);
 

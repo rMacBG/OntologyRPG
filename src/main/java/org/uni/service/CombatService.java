@@ -1,7 +1,12 @@
 package org.uni.service;
 
+import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
 import org.uni.model.*;
@@ -14,11 +19,11 @@ import java.util.Random;
 public class CombatService {
 
     private static final String PATH = "ontology/CombatOntology.rdf";
-    private static final String BASE = "http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology/";
+    private static final String BASE = "http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology";
     private static final String NS = BASE + "#";
     private static final String RPG_NS = "http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#";
     private static OntologyService ontologyService = new OntologyService();
-
+    private static DatabaseService dbService = new DatabaseService();
     private OntModel model;
 
     public CombatService() {
@@ -42,7 +47,6 @@ public class CombatService {
             if (in != null) {
                 String rpgBase = "http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology";
                 model.read(in, rpgBase, "RDF/XML");
-                //System.out.println("RPG Game Ontology successfully merged into CombatService!");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,54 +55,108 @@ public class CombatService {
     }
 
     public Monster createMonster(String monsterName, int dungeonLevel) {
-        if (monsterName == null) return null;
+        if (monsterName == null || monsterName.isEmpty()) return null;
 
-        int baseHp = getMonsterHP(monsterName);
-        int baseAtk = getMonsterAttackDamage(monsterName);
-        String weakness = getWeakness(monsterName);
-        String behavior = getBehavior(monsterName);
+        int baseHp = getIntProperty(monsterName, "hasHP");
+        if (baseHp <= 0) baseHp = 100;
 
-        return new Monster(monsterName, baseHp, baseAtk, weakness, behavior, dungeonLevel);
-    }
-
-    public Hero createHero(String heroClass, String weaponName) {
-        if (heroClass == null) return null;
-
-        int baseHp = getIntProperty(heroClass, "hasHP");
-        if (baseHp <= 0) baseHp = 150;
-
-        int baseAtk = getIntProperty(heroClass, "hasBaseDamage");
+        int baseAtk = getIntProperty(monsterName, "hasBaseDamage");
         if (baseAtk <= 0) baseAtk = 15;
 
-        int weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
-        if (weaponAtk < 0) weaponAtk = 0;
-        WeaponItem equippedWeapon = new WeaponItem(weaponName, 1, weaponAtk);
+        String chosenWeakness = getWeakness(monsterName);
 
-        int totalAtk = baseAtk + weaponAtk;
+        String behavior = getBehavior(monsterName);
 
-        List<Item> inventory = new ArrayList<>();
-        inventory.add(equippedWeapon);
-        Hero hero = new Hero(heroClass, baseHp, baseHp, totalAtk, equippedWeapon, inventory);
+        Monster monster = new Monster(monsterName, baseHp, baseAtk, chosenWeakness, behavior, dungeonLevel);
+        monster.setMonsterType(monsterName);
 
+        return monster;
+    }
 
-        String defaultArmor = getStartingArmorForClass(heroClass);
-        if (defaultArmor != null) {
-            ArmorItem initialArmor = loadArmorFromOntology(defaultArmor);
-            hero.setEquippedArmor(initialArmor);
-            inventory.add(initialArmor);
-
-            DatabaseService.getInstance().updatePlayerDEF(heroClass, hero.getTotalDefense());
+    private String getStartingItemForClass(String heroClass, String propertyName) {
+        if (heroClass == null || heroClass.trim().isEmpty()) {
+            return null;
         }
 
-        return hero;
+        Individual hero = model.getIndividual(RPG_NS + heroClass);
+        if (hero == null) {
+            hero = model.getIndividual(NS + heroClass);
+        }
+        if (hero == null) {
+            return null;
+        }
+
+        Property prop = model.getProperty(NS + propertyName);
+        if (prop == null || !hero.hasProperty(prop)) {
+            prop = model.getProperty(RPG_NS + propertyName);
+        }
+
+        RDFNode value = hero.getPropertyValue(prop);
+        if (value != null && value.isResource()) {
+            return value.asResource().getLocalName();
+        }
+
+        return null;
+    }
+
+public Hero createHero(String heroClass, String weaponName) {
+    if (heroClass == null) return null;
+
+    int baseHp = getIntProperty(heroClass, "hasHP");
+    if (baseHp <= 0) baseHp = 150;
+
+    int baseAtk = getIntProperty(heroClass, "hasBaseDamage");
+    if (baseAtk <= 0) baseAtk = 15;
+
+    if (weaponName == null || weaponName.trim().isEmpty()) {
+        weaponName = getStartingWeaponForClass(heroClass);
+    }
+
+    WeaponItem equippedWeapon = null;
+    int weaponAtk = 0;
+
+    if (weaponName != null) {
+        weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
+        if (weaponAtk < 0) weaponAtk = 0;
+        equippedWeapon = new WeaponItem(weaponName, 1, weaponAtk);
+    }
+
+    int totalAtk = baseAtk + weaponAtk;
+
+    List<Item> inventory = new ArrayList<>();
+    if (equippedWeapon != null) {
+        inventory.add(equippedWeapon);
+    }
+
+    Hero hero = new Hero(heroClass, baseHp, baseHp, totalAtk, equippedWeapon, inventory);
+
+    String defaultArmor = getStartingArmorForClass(heroClass);
+    if (defaultArmor != null) {
+        ArmorItem initialArmor = loadArmorFromOntology(defaultArmor);
+        hero.setEquippedArmor(initialArmor);
+        inventory.add(initialArmor);
+
+        DatabaseService.getInstance().updatePlayerDEF(heroClass, hero.getTotalDefense());
+    }
+
+    String defaultSkill = getStartingSkillForClass(heroClass);
+    if (defaultSkill != null) {
+
+    }
+
+    return hero;
+}
+
+    public String getStartingWeaponForClass(String heroClass) {
+        return getStartingItemForClass(heroClass, "hasStartingWeapon");
     }
 
     private String getStartingArmorForClass(String heroClass) {
-        switch (heroClass) {
-            case "WarriorClass": return "SteelHeavyArmor";
-            case "WizardClass": return "MagicRobe";
-            default: return "LeatherLightArmor";
-        }
+        return getStartingItemForClass(heroClass, "hasStartingArmor");
+    }
+
+    public String getStartingSkillForClass(String heroClass) {
+        return getStartingItemForClass(heroClass, "hasStartingSkill");
     }
 
     public String getWeaponElement(String weaponName) {
@@ -191,8 +249,6 @@ public class CombatService {
         return false;
     }
 
-
-
     public boolean equipWeaponForHero(Hero hero, String playerClass, WeaponItem newWeapon) {
         if (newWeapon == null) return false;
 
@@ -265,43 +321,46 @@ public class CombatService {
         return getStringProperty(monsterName, "usesAttack");
     }
 
+
     public String getWeakness(String monsterName) {
         if (model == null || monsterName == null || monsterName.isEmpty()) return "Unknown";
 
-        var resIter = model.listSubjects();
-        while (resIter.hasNext()) {
-            var res = resIter.nextResource();
-            if (res.getLocalName() != null && res.getLocalName().equalsIgnoreCase(monsterName)) {
+        List<String> weaknesses = new ArrayList<>();
 
-                var stmtIter = res.listProperties();
-                while (stmtIter.hasNext()) {
-                    var stmt = stmtIter.nextStatement();
-                    String propName = stmt.getPredicate().getLocalName();
+        String queryString = String.format(
+                "PREFIX combat: <%s> " +
+                        "PREFIX rpg: <%s> " +
+                        "SELECT ?weakness WHERE { " +
+                        "   { combat:%s combat:weakAgainst ?weakness . } " +
+                        "   UNION " +
+                        "   { combat:%s rpg:weakAgainst ?weakness . } " +
+                        "}", NS, RPG_NS, monsterName, monsterName
+        );
 
-                    if (propName != null && (propName.equalsIgnoreCase("weakAgainst") || propName.equalsIgnoreCase("hasWeakness"))) {
-                        var obj = stmt.getObject();
-                        if (obj.isResource()) {
-                            return obj.asResource().getLocalName();
-                        } else if (obj.isLiteral()) {
-                            return obj.asLiteral().getString();
-                        }
+        try (QueryExecution qe = QueryExecutionFactory.create(queryString, model)) {
+            ResultSet results = qe.execSelect();
+            while (results.hasNext()) {
+                QuerySolution soln = results.nextSolution();
+                RDFNode node = soln.get("weakness");
+                if (node != null) {
+                    if (node.isResource()) {
+                        weaknesses.add(node.asResource().getLocalName());
+                    } else if (node.isLiteral()) {
+                        weaknesses.add(node.asLiteral().getString());
                     }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return "Unknown";
+        if (weaknesses.isEmpty()) {
+            return "Unknown";
+        }
+        Random rand = new Random();
+        return weaknesses.get(rand.nextInt(weaknesses.size()));
     }
 
-    public int getMonsterHP(String monsterName) {
-        if (monsterName == null) return 100;
-
-        int hp = getIntProperty(monsterName, "hasHP");
-        if (hp <= 0) hp = getIntProperty(monsterName + "Boss", "hasHP");
-        if (hp <= 0) hp = getIntProperty(monsterName + "Monster", "hasHP");
-
-        return hp > 0 ? hp : 100;
-    }
 
     public int getMonsterAttackDamage(String monsterName) {
         if (monsterName == null) return 10;
@@ -367,20 +426,6 @@ public class CombatService {
             }
         }
         return 0.0;
-    }
-
-    public String getStartingSkillForClass(String heroClass) {
-        if (heroClass == null) return "Basic Strike";
-
-        String skillName = getStringProperty(heroClass, "hasSkill");
-        if ("None".equalsIgnoreCase(skillName)) {
-            skillName = getStringProperty(heroClass, "hasStartingSkill");
-        }
-        if ("None".equalsIgnoreCase(skillName)) {
-            skillName = getStringProperty(heroClass, "usesSkill");
-        }
-
-        return "None".equalsIgnoreCase(skillName) ? "Basic Strike" : skillName;
     }
 
     public String getBehavior(String monsterName) {
@@ -549,6 +594,7 @@ public class CombatService {
         }
         return "None";
     }
+
     public ArmorItem loadArmorFromOntology(String armorName) {
         int baseDef = getIntProperty(armorName, "hasBaseDef");
         int dmgBonus = getIntProperty(armorName, "hasDamageBonus");
@@ -566,7 +612,7 @@ public class CombatService {
         int weaponAtk = getIntProperty(weaponName, "hasBaseDamage");
         if (weaponAtk <= 0) weaponAtk = getIntProperty(weaponName, "hasAttackDamage");
         if (weaponAtk <= 0) weaponAtk = getIntProperty(weaponName, "hasDamage");
-        if (weaponAtk <= 0) weaponAtk = 10; // Подразбираща се стойност, ако не е намерена щета
+        if (weaponAtk <= 0) weaponAtk = 10;
 
         String element = getWeaponElement(weaponName);
 
@@ -601,7 +647,6 @@ public class CombatService {
         String classType = getItemClassType(itemName);
         return classType.toLowerCase().contains("skill") || classType.toLowerCase().contains("spell");
     }
-
     public boolean isWeapon(String itemName) {
         if (itemName == null || itemName.trim().isEmpty()) return false;
         int baseAtk = getIntProperty(itemName, "hasBaseDamage");
@@ -658,23 +703,42 @@ public class CombatService {
         return skill;
     }
 
-
     public String generateLoot(String monsterName) {
+        String queryString = String.format(
+                "PREFIX combat: <%s> " +
+                        "PREFIX rpg: <%s> " +
+                        "SELECT ?item WHERE { " +
+                        "   combat:%s rpg:dropsItem ?item . " +
+                        "}", NS, RPG_NS, monsterName
+        );
+
+        List<String> possibleDrops = new ArrayList<>();
+
+        try (QueryExecution qe = QueryExecutionFactory.create(queryString, model)) {
+            ResultSet results = qe.execSelect();
+            while (results.hasNext()) {
+                QuerySolution soln = results.nextSolution();
+                Resource itemResource = soln.getResource("item");
+                if (itemResource != null) {
+                    possibleDrops.add(itemResource.getLocalName());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Грешка при извличане на loot за: " + monsterName);
+            e.printStackTrace();
+        }
+
         Random rand = new Random();
         int chance = rand.nextInt(100);
 
         if (chance < 20) {
             return "Health Potion";
-        } else if (chance < 45) {
-            String[] possibleWeapons = {"StormStaff", "SteelDagger", "FloodStaff", "FireyFoldClaymore", "PrecisionBow"};
-            return possibleWeapons[rand.nextInt(possibleWeapons.length)];
-        } else if (chance < 70) {
-            String[] possibleArmors = {"LeatherLightArmor", "SteelHeavyArmor", "MagicRobe", "CrystalChainmail", "DragonScaleLightArmor", "StormPowerMagicRobe"};
-            return possibleArmors[rand.nextInt(possibleArmors.length)];
-        } else {
-            String[] possibleSkills = {"BerserkHelmet", "ArgentQuiver", "SolarGrenade", "FissureGrenade", "SteelHelmet", "LeatherQuiver", "HelmetOfTheGods", "MagicQuiver", "ChargedLightning"};
-            return possibleSkills[rand.nextInt(possibleSkills.length)];
         }
+
+        if (!possibleDrops.isEmpty()) {
+            return possibleDrops.get(rand.nextInt(possibleDrops.size()));
+        }
+        return "No Loot";
     }
 
     public String getItemClassType(String itemName) {
