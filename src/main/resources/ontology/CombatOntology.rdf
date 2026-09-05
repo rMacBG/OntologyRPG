@@ -830,7 +830,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#IronLongSword">
         <rdf:type rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/4/RPG-game-ontology#BroadSword"/>
-        <Combat_Ontology:hasBaseAttack rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#SlashAttack"/>
+        <Combat_Ontology:usesAttack rdf:resource="http://www.semanticweb.org/vlady/ontologies/2026/5/Combat_Ontology#SlashAttack"/>
         <Combat_Ontology:hasBaseDamage rdf:datatype="http://www.w3.org/2001/XMLSchema#int">12</Combat_Ontology:hasBaseDamage>
     </owl:NamedIndividual>
     
